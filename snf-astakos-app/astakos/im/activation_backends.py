@@ -308,9 +308,9 @@ class ActivationBackend(object):
             return ActivationResult(self.Result.ERROR, msg)
 
         if user.is_active:
-            logger.warning("Cannot reject unverified user: %s",
+            logger.warning("Cannot reject active user: %s",
                            user.log_display)
-            msg = _(astakos_messages.ACCOUNT_NOT_VERIFIED)
+            msg = _(astakos_messages.ACCOUNT_ALREADY_ACTIVE)
             return ActivationResult(self.Result.ERROR, msg)
 
         if not user.email_verified:
