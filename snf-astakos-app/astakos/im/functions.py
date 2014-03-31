@@ -73,6 +73,23 @@ def logout(request, *args, **kwargs):
     logger.info('%s logged out.', user.log_display)
 
 
+def send_plain(user, text, template_name='im/plain_email.txt'):
+    """Send plain email to user for contact reasons."""
+    logging.info("Provided text %s", text)
+    message = render_to_string(template_name, {
+                               'user': user,
+                               'text': text,
+                               'baseurl': settings.BASE_URL,
+                               'site_name': settings.SITENAME,
+                               'support': settings.CONTACT_EMAIL})
+    sender = settings.SERVER_EMAIL
+    send_mail(_(astakos_messages.PLAIN_EMAIL_SUBJECT), message, sender,
+              [user.email],
+              connection=get_connection())
+    logger.info("Sent plain email to user %s with body %s", user.log_display,
+                message)
+
+
 def send_verification(user, template_name='im/activation_email.txt'):
     """
     Send email to user to verify his/her email and activate his/her account.
