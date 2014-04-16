@@ -48,7 +48,7 @@ import astakosclient
 from snf_django.lib import astakos
 
 from synnefo.db.models import VirtualMachine, Network, IPAddressLog
-from astakos.im.models import AstakosUser
+from astakos.im.models import AstakosUser, ProjectMembership
 from astakos.logic import users
 from astakos.im.functions import send_plain as send_email
 
@@ -224,38 +224,38 @@ def admin_user_required(func, permitted_groups=PERMITTED_GROUPS):
 
 ### View functions
 
-@admin_user_required
-def index(request):
-    """Admin-Interface index view."""
-    # if form submitted redirect to details
-    account = request.GET.get('account', None)
-    if account:
-        return redirect('admin-details',
-                        search_query=account)
+#@admin_user_required
+#def index(request):
+    #"""Admin-Interface index view."""
+    ## if form submitted redirect to details
+    #account = request.GET.get('account', None)
+    #if account:
+        #return redirect('admin-details',
+                        #search_query=account)
 
-    all = users.get_all()
-    active = users.get_active().count()
-    inactive = users.get_inactive().count()
-    accepted = users.get_accepted().count()
-    rejected = users.get_rejected().count()
-    verified = users.get_verified().count()
-    unverified = users.get_unverified().count()
+    #all = users.get_all()
+    #active = users.get_active().count()
+    #inactive = users.get_inactive().count()
+    #accepted = users.get_accepted().count()
+    #rejected = users.get_rejected().count()
+    #verified = users.get_verified().count()
+    #unverified = users.get_unverified().count()
 
-    user_context = {
-        'all': all,
-        'active': active,
-        'inactive': inactive,
-        'accepted': accepted,
-        'rejected': rejected,
-        'verified': verified,
-        'unverified': unverified,
-        'ADMIN_MEDIA_URL': ADMIN_MEDIA_URL,
-        'UI_MEDIA_URL': UI_MEDIA_URL
-    }
+    #user_context = {
+        #'all': all,
+        #'active': active,
+        #'inactive': inactive,
+        #'accepted': accepted,
+        #'rejected': rejected,
+        #'verified': verified,
+        #'unverified': unverified,
+        #'ADMIN_MEDIA_URL': ADMIN_MEDIA_URL,
+        #'UI_MEDIA_URL': UI_MEDIA_URL
+    #}
 
-    # show index template
-    return direct_to_template(request, "admin/index.html",
-                              extra_context=user_context)
+    ## show index template
+    #return direct_to_template(request, "admin/index.html",
+                              #extra_context=user_context)
 
 
 @admin_user_required
@@ -341,6 +341,180 @@ def account(request, search_query):
 
     return direct_to_template(request, "admin/account.html",
                               extra_context=user_context)
+
+
+def user_details(query):
+    user = get_user(query)
+    projects = ProjectMembership.objects.filter(person=user)
+    vms = VirtualMachine.objects.filter(
+        userid=user.uuid).order_by('deleted')
+
+    context = {
+        'main_item': user,
+        'main_type': 'user',
+        'associations_list': [
+            (projects, 'project'),
+            (vms, 'vm'),
+        ]
+    }
+    return context
+
+
+def vm_details(query):
+    id = query.translate(None, 'vm-')
+    vm = VirtualMachine.objects.get(pk=int(id))
+    vms = VirtualMachine.objects.all
+    context = {
+        'main_item': vm,
+        'main_type': 'vm',
+        'associations_list': [(vms, 'vm')]
+    }
+
+    return context
+
+details_dict = {
+    'vm': {
+        'fun': vm_details,
+        'template': 'admin/vm_details.html',
+    },
+    'user': {
+        'fun': user_details,
+        'template': 'admin/user_details.html',
+    },
+}
+
+default_dict = {
+    'ADMIN_MEDIA_URL': ADMIN_MEDIA_URL,
+    'UI_MEDIA_URL': UI_MEDIA_URL,
+}
+
+
+@csrf_exempt
+@admin_user_required
+def details(request, type, id):
+    logging.info("Request for details. Type: %s, ID: %s", type, id)
+    try:
+        fun = details_dict[type]['fun']
+    except KeyError:
+        logger.exception("Error in details")
+        raise KeyError
+
+    context = fun(str(id))
+    context.update(default_dict)
+    return direct_to_template(request, details_dict[type]['template'],
+                              extra_context=context)
+
+
+def create_vm_filters():
+    state_values = [value for value, _ in VirtualMachine.OPER_STATES]
+
+    filters = {}
+    filters['state'] = {
+        'name': 'State',
+        'values': state_values,
+    }
+    return filters
+
+
+def vm_index(request):
+    context = {}
+    context['filters'] = create_vm_filters()
+
+
+def create_user_action_list():
+    action_list = []
+    action_list.append({
+        'op': 'activate',
+        'name': 'Activate a user',
+        'resource': 'account'
+    })
+    action_list.append({
+        'op': 'deactivate',
+        'name': 'Deactivate',
+        'resource': 'account'
+    })
+    action_list.append({
+        'op': 'contact',
+        'name': 'Send e-mail',
+        'resource': 'account'
+    })
+    return action_list
+
+
+def create_user_filters():
+    filters = {}
+    filters['state'] = {
+        'name': 'State',
+        'values': ['Active', 'Inactive', 'Pending Moderation',
+                   'Pending Verification']
+    }
+    filters['enabled_providers'] = {
+        'name': 'Providers',
+        'values': ['Local', 'Shibboleth']
+    }
+    return filters
+
+
+def user_index(request):
+    context = {}
+    context['filters'] = create_user_filters()
+    context['action_list'] = create_user_action_list()
+
+    ## if form submitted redirect to details
+    #account = request.GET.get('account', None)
+    #if account:
+        #return redirect('admin-details',
+                        #search_query=account)
+
+    all = users.get_all()
+    logging.info("These are the users %s", all)
+    active = users.get_active().count()
+    inactive = users.get_inactive().count()
+    accepted = users.get_accepted().count()
+    rejected = users.get_rejected().count()
+    verified = users.get_verified().count()
+    unverified = users.get_unverified().count()
+
+    user_context = {
+        'item_list': all,
+        'item_type': 'user',
+        'active': active,
+        'inactive': inactive,
+        'accepted': accepted,
+        'rejected': rejected,
+        'verified': verified,
+        'unverified': unverified,
+    }
+
+    context.update(user_context)
+    return context
+
+index_dict = {
+    'vm': {
+        'fun': vm_index,
+        'template': 'admin/vm_index.html',
+    },
+    'user': {
+        'fun': user_index,
+        'template': 'admin/user_index.html',
+    },
+}
+
+
+def index(request, type):
+    """Admin-Interface index view."""
+    logging.info("Request for index. Type: %s", type)
+    try:
+        fun = index_dict[type]['fun']
+    except KeyError:
+        logger.exception("Error in details")
+        raise KeyError
+
+    context = fun(request)
+    context.update(default_dict)
+    logging.info("My item_list is %s", context['item_list'])
+    return direct_to_template(request, index_dict[type]['template'],
+                              extra_context=context)
 
 
 @admin_user_required
@@ -496,16 +670,16 @@ def admin_actions(request):
 
     resource = request.POST['resource']
     action = request.POST['type']
-    uuids = copy.deepcopy(request.POST['uuids'])
-    uuids = uuids.replace('[', '').replace(']', '').replace(' ', '').split(',')
+    ids = copy.deepcopy(request.POST['ids'])
+    ids = ids.replace('[', '').replace(']', '').replace(' ', '').split(',')
     try:
         mail = request.POST['text']
     except:
         mail = None
 
     try:
-        for uuid in uuids:
-            user = get_user(uuid)
+        for id in ids:
+            user = get_user(id)
             if resource == 'account':
                 account_actions__(action, user, extra={'mail': mail})
             else:
