@@ -36,11 +36,15 @@ import re
 from astakos.logic import users
 from actions import AdminAction
 from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
 
 from synnefo.db.models import VirtualMachine, Network, IPAddressLog
 from astakos.im.models import AstakosUser, ProjectMembership, Project
 
+from astakos.api.quotas import get_quota_usage
+
 UUID_SEARCH_REGEX = re.compile('([0-9a-z]{8}-([0-9a-z]{4}-){3}[0-9a-z]{12})')
+SHOW_DELETED_VMS = getattr(settings, 'ADMIN_SHOW_DELETED_VMS', False)
 
 templates = {
     'index': 'admin/user_index.html',
@@ -123,19 +127,80 @@ def index(request):
     return context
 
 
-def details(query):
+def get_quotas(user):
+    """Transform the usage dictionary, as retrieved from api.quotas.
+
+    Return a list of dictionaries that represent the quotas of the user. Each
+    dictionary has the following form:
+
+    {
+        'project': <Project instance>,
+        'resources': [('Resource Name1', <Resource dict>),
+                      ('Resource Name2', <Resource dict>),...]
+    }
+
+    where 'Resource Name' is the name of the resource and <Resource dict> is
+    the dictionary that is returned by get_quota_usage and has the following
+    fields:
+
+        pending, project_pending, project_limit, project_usage, usage.
+
+    Note, the get_quota_usage function returns many
+    dicts, but we only keep the ones that have project_limit > 0
+    """
+    usage = get_quota_usage(user)
+
+    quotas = []
+    for project_id, resource_dict in usage.iteritems():
+        source = {}
+        source['project'] = Project.objects.get(uuid=project_id)
+        q_res = source['resources'] = []
+
+        for resource_name, resource in resource_dict.iteritems():
+            if resource['project_limit'] == 0:
+                continue
+            else:
+                q_res.append((resource_name, resource))
+
+        quotas.append(source)
+
+    return quotas
+
+
+def details(request, query):
     """Details view for Astakos users."""
+    error = request.GET.get('error', None)
+
     user = get_user(query)
-    projects = ProjectMembership.objects.filter(person=user)
+    quotas = get_quotas(user)
+
+    project_memberships = ProjectMembership.objects.filter(person=user)
+    projects = map(lambda p: p.project, project_memberships)
+
     vms = VirtualMachine.objects.filter(
         userid=user.uuid).order_by('deleted')
+
+    filter_extra = {}
+    show_deleted = bool(int(request.GET.get('deleted', SHOW_DELETED_VMS)))
+    if not show_deleted:
+        filter_extra['deleted'] = False
+
+    public_networks = Network.objects.filter(
+        public=True, nics__machine__userid=user.uuid,
+        **filter_extra).order_by('state').distinct()
+    private_networks = Network.objects.filter(
+        userid=user.uuid, **filter_extra).order_by('state')
+    networks = list(public_networks) + list(private_networks)
+    logging.info("Networks are: %s", networks)
 
     context = {
         'main_item': user,
         'main_type': 'user',
         'associations_list': [
+            (quotas, 'quota'),
             (projects, 'project'),
             (vms, 'vm'),
+            (networks, 'network'),
         ]
     }
 

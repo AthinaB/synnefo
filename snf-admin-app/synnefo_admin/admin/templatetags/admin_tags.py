@@ -141,6 +141,8 @@ def check_state(user, state):
         return user.is_rejected
     elif state == 'verified':
         return user.email_verified
+    elif state == 'moderated':
+        return user.moderated
 register.filter('check_state', check_state)
 
 
@@ -213,10 +215,26 @@ def get_operation_list(user):
 
 
 @register.filter
+def display_list_type(type):
+    """Display the type of an item list in a human readable way."""
+    if type == "user":
+        return "Users"
+    elif type == "project":
+        return "Projects"
+    elif type == "quota":
+        return "Quotas"
+    elif type == "vm":
+        return "Virtual Machines"
+    elif type == "network":
+        return "Networks"
+    else:
+        return "Unknown type"
+
+
+@register.filter
 def admin_debug(var):
     """Print in the log a value."""
     logging.info("Template debugging: %s", var)
-    logging.info("Also: %s", var.uuid)
     return var
 
 
