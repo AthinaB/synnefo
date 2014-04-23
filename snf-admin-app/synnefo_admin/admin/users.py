@@ -34,14 +34,16 @@
 import logging
 import re
 from astakos.logic import users
-from actions import AdminAction
+from actions import AdminAction, AdminActionUnknown, AdminActionNotPermitted
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
+from collections import OrderedDict
 
 from synnefo.db.models import VirtualMachine, Network, IPAddressLog
 from astakos.im.models import AstakosUser, ProjectMembership, Project
 
 from astakos.api.quotas import get_quota_usage
+from astakos.im.functions import send_plain as send_email
 
 UUID_SEARCH_REGEX = re.compile('([0-9a-z]{8}-([0-9a-z]{4}-){3}[0-9a-z]{12})')
 SHOW_DELETED_VMS = getattr(settings, 'ADMIN_SHOW_DELETED_VMS', False)
@@ -71,49 +73,64 @@ def get_user(query):
     return user
 
 
+class UserAction(AdminAction):
+
+    """Class for actions on users. Derived from AdminAction.
+
+    Pre-determined Attributes:
+        target:        user
+    """
+
+    def __init__(self, name, f, **kwargs):
+        """Initialize the class with provided values."""
+        AdminAction.__init__(self, name=name, target='user', f=f, **kwargs)
+
+
 def generate_actions():
     """Create a list of actions on users.
 
     The actions are: activate/deactivate, accept/reject, verify, contact.
     """
-    actions = []
+    actions = OrderedDict()
 
-    action = AdminAction(op='activate', name='Activate',
-                         target='user', severity='trivial',
-                         allowed_groups='admin')
-    actions.append(action)
+    actions['activate'] = UserAction(name='Activate', f=users.activate,
+                                     severity='trivial')
 
-    action = AdminAction(op='deactivate', name='Deactivate',
-                         target='user', severity='trivial',
-                         allowed_groups='admin')
-    actions.append(action)
+    actions['deactivate'] = UserAction(name='Deactivate', f=users.deactivate,
+                                       severity='big')
 
-    action = AdminAction(op='accept', name='Accept',
-                         target='user', severity='trivial',
-                         allowed_groups='admin')
-    actions.append(action)
+    actions['accept'] = UserAction(name='Accept', f=users.accept,
+                                   severity='trivial')
 
-    action = AdminAction(op='reject', name='Reject',
-                         target='user', severity='irreversible',
-                         allowed_groups='admin')
-    actions.append(action)
+    actions['reject'] = UserAction(name='Reject', f=users.reject,
+                                   severity='irreversible')
 
-    action = AdminAction(op='verify', name='Verify',
-                         target='user', severity='trivial',
-                         allowed_groups='admin')
-    actions.append(action)
+    actions['verify'] = UserAction(name='Verify', f=users.verify,
+                                   severity='trivial')
 
-    action = AdminAction(op='contact', name='Send e-mail',
-                         target='user', severity='trivial',
-                         allowed_groups='admin')
-    actions.append(action)
+    actions['contact'] = UserAction(name='Send e-mail', f=send_email,
+                                    severity='trivial')
     return actions
+
+
+def do_action(request, op, id):
+    """Apply the requested action on the specified user."""
+    user = get_user(id)
+    actions = generate_actions()
+    logging.info("Op: %s, user: %s, function", op, user.email, actions[op].f)
+
+    if op == 'reject':
+        actions[op].f(user, 'Rejected by the admin')
+    elif op == 'contact':
+        actions[op].f(user, request.POST['text'])
+    else:
+        actions[op].f(user)
 
 
 def index(request):
     """Index view for Astakos users."""
     context = {}
-    context['action_list'] = generate_actions()
+    context['action_dict'] = generate_actions()
 
     all = users.get_all()
     logging.info("These are the users %s", all)
@@ -207,6 +224,40 @@ def details(request, query):
     return context
 
 # DEPRECATED
+#@csrf_exempt
+#@admin_user_required
+#def account_actions(request, op, account):
+    #"""Entry-point for operation on an account."""
+    #logging.info("Account action \"%s\" on %s started by %s",
+                 #op, account, request.user_uniq)
+
+    #if request.method == "POST":
+        #logging.info("POST body: %s", request.POST)
+    #redirect = reverse('admin-details', args=(account,))
+    #user = get_user(account)
+    #logging.info("I'm here!")
+
+    ## Try to get mail body, if any.
+    #try:
+        #mail = request.POST['text']
+    #except:
+        #mail = None
+
+    #try:
+        #account_actions__(op, user, extra={'mail': mail})
+    #except AdminActionNotPermitted:
+        #logging.info("Account action \"%s\" on %s is not permitted",
+                     #op, account)
+        #redirect = "%s?error=%s" % (redirect, "Action is not permitted")
+    #except AdminActionUnknown:
+        #logging.info("Unknown account action \"%s\"", op)
+        #redirect = "%s?error=%s" % (redirect, "Action is unknown")
+    #except:
+        #logger.exception("account_actions")
+
+    #return HttpResponseRedirect(redirect)
+
+
 #@admin_user_required
 #def account(request, search_query):
     #"""Account details view."""
