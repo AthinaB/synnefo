@@ -187,7 +187,7 @@ h4.expanded .badge        { background-position: 185px 43px}
 .row2:hover           { background-color:#DDD; }
 
 h4 i              { margin-top: 4px; margin-right: 10px;}
-.container-fluid        { margin-left:auto; margin-right:auto; max-width:960px; }
+.container-fluid        { margin-left:auto; margin-right:auto; /*max-width:960px;*/ }
 h3.info             { cursor:default; color:#2956B2; text-align:center; font-size:16px; margin-bottom:0;}
 
 .vm-actions { margin-top: 20px; text-align: right; }
@@ -348,8 +348,8 @@ td.summary {
     padding-left: 8px;
     background-color: rgb(185, 238, 202);
     padding-right: 8px;
-    .caret {
-      opacity: 0.9;
+    &:hover {
+      text-decoration: none;
     }
   }
    dl {
@@ -375,11 +375,7 @@ td.summary {
   background-color: rgb(235, 233, 233);
 }
 
-/* Modals */
 
-body .modal.fade.in {
-  top:40%;
-}
 
 a[disabled] {
     color: #999999;
@@ -389,32 +385,49 @@ a:not([disabled]):hover {
   cursor: pointer;
 }
 
-.modal-footer form {
-  display: inline;
-}
 .modal {
+  p {
+    position: relative;
+  }
   &#contact {
     p {
       margin-top: 18px;
     }
   }
+
   h4 {
     font-size: 1.1em;
   }
-textarea, input {
-  width: 430px;
-  &.subject {
+
+  textarea, input {
+    width: 496px;
+    &.body {
+      min-height: 160px;
+    }
+  }
+
+  label {
+    float: left;
+    margin-right: 6px;
+    width: 56px;
+  }
+
+  .modal-header {
+    padding: 0 15px;
+  }
+
+  .modal-body {
+    background-color: white;
 
   }
-  &.content {
-    min-height: 160px;
+
+  .modal-footer {
+    margin-top: 0;
+    form {
+      display: inline;
+    }
   }
-}
- label {
-  float: left;
-  margin-right: 6px;
-  width: 56px;
-  }
+
 }
 
 .account-action.form-btn {
@@ -434,14 +447,14 @@ textarea, input {
 }
 
 
-.row-fluid {
+/* .row-fluid {
   .span7 {
     margin-top: $nav-height;
   }
   .nav {
     width: $total-width;
   }
-}
+} */
 
 .filters.subnav-fixed {
   top: $nav-height;
@@ -495,16 +508,19 @@ textarea, input {
     a {
       text-decoration: none;
       color: transparent;
+      display: block;
+      width: 100%;
+      height: 100%
     }
   }
 }
 
 .positive {
   &.area {
-    background-color: green;
+    background-color: #dff0d8;
   }
   &.elem {
-    color: green;
+    color: #3c763d;
   }
 }
 
@@ -542,13 +558,103 @@ textarea, input {
   }
 }
 
-#chartdiv {
-  margin: auto;
-}
+
 
 body .object-details:not(.vm-details) h4 em {
   float: none;
 }
 .sidebar.subnav-fixed ul{
   padding: 0;
+}
+
+.container-demo, .chart {
+  height: 400px;
+  width: 100%;
+  margin: 20px auto;
+  border: 1px solid cyan;
+  padding-top: 20px;
+}
+
+/* Navigation Bar: next generation (spacelab)*/
+.navbar-inverse {
+  background-image: -webkit-linear-gradient(#6d94bf, #446e9b 50%, #3e648d);
+  background-image: linear-gradient(#6d94bf, #446e9b 50%, #3e648d);
+  background-repeat: no-repeat;
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ff6d94bf', endColorstr='#ff3e648d', GradientType=0);
+  filter: none;
+  border: 1px solid #345578;
+  text-shadow: 0 -1px 0 rgba(0,0,0,0.3);
+  background-color: #446e9b;
+  border-color: #345578
+}
+
+svg>text:last-child {
+  display: none;
+}
+.error-sign {
+  color: red;
+  font-size: 20px;
+  margin-left: 10px;
+  position: absolute;
+  right: 8px;
+  top: 2px;
+  display: none;
+  &:hover {
+    color: red;
+    // color:#A80A0A;
+    text-decoration: none;
+  }
+}
+
+.toggle-more {
+  margin-top: -16px;
+  // position: relative;
+  // right: -429px;
+  display: none;
+}
+
+.hidden-row {
+  display: none;
+  // background-color: yellow;
+}
+
+.form-area {
+  position: relative;
+}
+.form-subject {
+  margin-bottom: 15px;
+}
+
+.navbar-header {
+  background-color: #7493B9;
+  border-radius: 5px;
+  margin-right: 6px;
+  float: left;
+}
+
+.navbar * {
+  letter-spacing: -0.5px;
+}
+
+.service-nav {
+  margin: auto;
+  float: none;
+  max-width: 960px;
+}
+
+.main-content {
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto  ;
+}
+
+.navbar-center {
+  position: absolute;
+  width: 100%;
+  left: 0;
+  top: 0;
+  text-align: center;
+  margin: auto;
+  height: 100%;
+  float: none;
 }

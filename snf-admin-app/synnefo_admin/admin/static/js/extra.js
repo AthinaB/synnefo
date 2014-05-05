@@ -29,13 +29,13 @@ $(document).ready(function() {
 
 	/* Sets sidebar's position fixed */	
 	/* subnav-fixed is added/removed from processScroll() */	
-	function fixedMimeSubnav() {
+/*	function fixedMimeSubnav() {
 		if($('.sidebar').hasClass('subnav-fixed'))
 			$('.info').addClass('info-fixed').removeClass('info');
 		else
 			$('.info').removeClass('info-fixed').addClass('info');
 	};
-
+*/
 
 	
 	/* The parameter string has the following form: */
@@ -98,6 +98,70 @@ $(document).ready(function() {
 
 	/* Modals */
 
+
+		function showError(modal, errorSign) {
+		var $modal = $(modal);
+		var $errorMsg = $modal.find('*[data-error="'+errorSign+'"]');
+		$errorMsg.show();
+	};
+
+	function resetErrors(modal) {
+		var $modal = $(modal);
+		$modal.find('.error-sign').hide();
+	};
+
+	function checkInput(modal, inputArea, errorSign) {
+		var $inputArea = $(inputArea);
+		var $errorSign = $(modal).find('*[data-error="'+errorSign+'"]');
+
+		$inputArea.keyup(function() {
+			console.log('keypressed')
+			we = $inputArea;
+			console.log($.trim($inputArea.val()));
+			if($.trim($inputArea.val())) {
+				$errorSign.hide();
+			}
+		})
+
+	};
+	function resetInputs(modal) {
+		var $modal = $(modal);
+		$modal.find('textarea').val('');
+		$modal.find('input[type=text]').val('');
+
+	}
+
+	$('.modal .reset-all').click(function(e) {
+		var table = '#'+ 'table-items-total_wrapper';
+		var $modal = $(this).closest('.modal');
+		resetErrors($modal);
+		resetInputs($modal);
+		resetTable(table);
+	});
+	$('.modal button[type=submit]').click(function(e) {
+		var $modal = $(this).closest('.modal');
+
+		if(selected.items.length === 0) {
+			e.preventDefault();
+			showError($modal, 'no-selected');
+		}
+		if($modal.attr('id') === 'contact') {
+			var $emailSubj = $modal.find('.subject')
+			var $emailCont = $modal.find('.content')
+			if(!$.trim($emailSubj.val())) {
+				e.preventDefault();
+				showError($modal, 'empty-subject');
+				checkInput($modal, $emailSubj, 'empty-subject');
+			}
+			if(!$.trim($emailCont.val())) {
+				e.preventDefault();
+				showError($modal, 'empty-body')
+				checkInput($modal, $emailCont, 'empty-body');
+			}
+		}
+	});
+
+
 	function addData(modal, dataType) {
 		var $uuidsInput = 	$(modal).find('.modal-footer form input[name="ids"]');
 		var $table = $(modal).find('.table-selected');
@@ -114,7 +178,7 @@ $(document).ready(function() {
 	};
 
 	function drawTableRows(tableBody, rowsNum, dataType) {
-		var maxVisible = 25;
+		var maxVisible = 20;
 		var currentRow;
 		$(tableBody).empty();
 		if(dataType === "user") {
@@ -124,7 +188,7 @@ $(document).ready(function() {
 				currentRow = currentRow.replace('<td class="full-name"></td>', '<td class="full-name">'+selected.items[i].name+'</td>');
 				currentRow = currentRow.replace('<td class="email"></td>', '<td class="email">'+selected.items[i].email+'</td>');
 				if(i > maxVisible)
-					currentRow = currentRow.replace('<tr', '<tr class="hidden');
+					currentRow = currentRow.replace('<tr', '<tr class="hidden-row"');
 				$(tableBody).append(currentRow);
 			}
 		}
@@ -135,7 +199,7 @@ $(document).ready(function() {
 				currentRow = currentRow.replace('<td class="name"></td>', '<td class="name">'+selected.items[i].name+'</td>');
 				currentRow = currentRow.replace('<td class="owner"></td>', '<td class="owner">'+selected.items[i].owner+'</td>');
 				if(i > maxVisible)
-					currentRow = currentRow.replace('<tr', '<tr class="hidden');
+					currentRow = currentRow.replace('<tr', '<tr class="hidden-row"');
 				$(tableBody).append(currentRow);
 			}
 		}
@@ -146,9 +210,30 @@ $(document).ready(function() {
 				currentRow = currentRow.replace('<td class="name"></td>', '<td class="name">'+selected.items[i].name+'</td>');
 				currentRow = currentRow.replace('<td class="uuid"></td>', '<td class="owner">'+selected.items[i].uuid+'</td>');
 				if(i > maxVisible)
-					currentRow = currentRow.replace('<tr', '<tr class="hidden');
+					currentRow = currentRow.replace('<tr', '<tr class="hidden-row"');
 				$(tableBody).append(currentRow);
 			}
+		}
+		if(rowsNum >maxVisible) {
+			var $btn = $(tableBody).closest('.modal').find('.toggle-more');
+			var rowsNum = selected.items.length;
+
+			$btn.css('display', 'block');
+
+			$btn.click( function(e) {
+				e.preventDefault();
+				if($(this).hasClass('closed')) {
+					$(this).text('Show Less');
+					$(this).toggleClass('closed open');
+					$(tableBody).find('tr').show();
+				}
+				else if($(this).hasClass('open')) {
+					$(this).text('Show All');
+					$(this).toggleClass('closed open');
+					$(tableBody).find('tr.hidden-row').hide();
+				}
+
+			})
 		}
 	};
 
@@ -166,7 +251,6 @@ $(document).ready(function() {
 
 		for(var i=0; i<selectedNum; i++) {
 			if(selected.items[i].uuid === itemUUID) {
-				console.log('a1');
 				removeItem(selected.items[i], selected.items);
 				break;
 			}
@@ -182,10 +266,10 @@ $(document).ready(function() {
 	});
 
 	/* When the user scrolls check if sidebar needs to get fixed position */
-	$(window).scroll(function() {
+/*	$(window).scroll(function() {
 		fixedMimeSubnav();
 	});
-	
+*/
 	/* Sidebar */
 
 	/* If the sidebar link is not disabled show the corresponding modal */
@@ -240,13 +324,12 @@ $(document).ready(function() {
 
 	 var oTable = initTable('#table-items-total');
 
-
 	function clickSummary() {
-		$('table tbody a.summary-expand').click(function(e) {
+		$('table tbody a.expand-area').click(function(e) {
 			e.preventDefault();
 			e.stopPropagation();
-
 			var $summaryTd = $(this).closest('td');
+			var $btn = $summaryTd.find('.expand-area span');
 			var $summaryContent = $summaryTd.find('.info-summary');
 			
 			var summaryContentWidth = $summaryTd.closest('tr').width() - parseInt($summaryContent.css('padding-right').replace("px", "")) - parseInt($summaryContent.css('padding-left').replace("px", ""));
@@ -256,29 +339,25 @@ $(document).ready(function() {
 				width: summaryContentWidth +'px',
 				right: summaryContPos +'px'
 			});
-
-			$summaryContent.stop().slideToggle(600);
+			$btn.toggleClass('snf-angle-up snf-angle-down');
+			$summaryContent.stop().slideToggle(600, function() {
+				if ($summaryContent.is(':visible')) {
+					$btn.removeClass('snf-angle-down').addClass('snf-angle-up');	
+				}
+				else {
+					$btn.removeClass('snf-angle-up').addClass('snf-angle-down');
+				}
+			});
 
 		})
 	}
 
-	$('.modal .reset-selected').click(function(e) {
-		console.log('RESET');
-		var table = '#'+ 'table-items-total_wrapper';
-		resetTable(table);
-	});
-	$('.modal button[type=submit]').click(function(e) {
-		if(selected.items.length === 0) {
-			e.preventDefault();
-			console.log('nothing to submit');
-		}
-	})
+
 
 	/* Select-all checkbox */
 
 	$('table thead th:first input[type=checkbox]').click(function(e) {
 		e.stopPropagation();
-		console.log('ox');
 		var tableDomID = $(this).closest('table').attr('id');
 		var checkboxState = $(this).prop('checked');
 		toggleVisCheckboxes(checkboxState, tableDomID);
@@ -295,7 +374,6 @@ $(document).ready(function() {
 	});
 
 	function resetTable(tableDomID) {
-		console.log('resetTable');
 		$(tableDomID).find('thead .select-all input[type=checkbox]').attr('checked', false);
 			selected.items = [];
 			$(tableDomID).find('thead .selected-num').html(selected.items.length);
@@ -317,8 +395,6 @@ $(document).ready(function() {
 	function clickRowCheckbox() {
 		$('table tbody input[type=checkbox]').click(function(e) {
 			e.stopPropagation();
-			// console.log('good ', e)
-			// console.log('e.target', e)
 			var $tr = $(this).closest('tr');
 			var $allActionsBtns = $('.sidebar a');
 			var $selectedNum = $tr.closest('table').find('thead .selected-num');
@@ -392,7 +468,6 @@ $(document).ready(function() {
 		});
 	};
 	function updateToggleAllCheck() {
-		console.log('updateToggleAllCheck');
 		var toggleAll = $('table .select-all input[type=checkbox]');
 		if($('tbody tr').length > 1) {
 			var allChecked = true
@@ -400,7 +475,6 @@ $(document).ready(function() {
 				allChecked = allChecked && $(this).prop('checked');
 			});
 			if(!toggleAll.prop('checked') && allChecked) {
-				console.log('*1*')
 				toggleAll.prop('checked', true)
 			}
 			else if(toggleAll.prop('checked') && !allChecked) {
@@ -449,15 +523,11 @@ $(document).ready(function() {
 
 	/* Removes from an array an element */
 	function removeItem(item, array) {
-		console.log('removeItem');
 		var index;
 		if (typeof(item) === 'object') {
-			console.log('eimai ena object!')
 			index = array.map(function(item) {
-				console.log('item.id ', item.uuid)
 				return item.uuid;
 			}).indexOf(item.uuid);
-			console.log('index ', index);
 		}
 		else
 			index = array.indexOf(item);
