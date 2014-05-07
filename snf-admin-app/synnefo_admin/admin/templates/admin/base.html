@@ -15,8 +15,22 @@
           {% with user_index='user' vm_index='vm' project_index='project' %}
           <div class="navbar navbar-inverse nav-main navbar-fixed-top">
 
+            <div class="navbar-sides">
+              <a class="navbar-header navbar-brand navbar-left" href="{% url admin-home %}">Synnefo Admin Panel</a>
+              <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown">
+                  <a href="" class="dropdown" data-toggle="dropdown">
+                    adminuser@synnefo.org
+                    <span class="snf-angle-down arrow"></span>
+                  </a>
+                  <ul class="dropdown-menu">
+                    <li>
+                      <a href="" class="align-2">Sign Out</a>
+                    </li>
+                  </ul>
+              </ul>
+            </div>
 
-          <!-- <div class="container"> -->
             <ul class="nav navbar-nav navbar-center">
               <li>
               <a href="{% url admin-index user_index %}">Users</a>
@@ -51,36 +65,15 @@
               </li>
               <li class="divider-vertical"></li>
               <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reports
-                <span class="snf-angle-down"></span></a>
+                <a href="#" class="dropdown" data-toggle="dropdown">Reports
+                <span class="snf-angle-down arrow"></span></a>
                 <ul class="dropdown-menu">
-                  <li><a href="{% url admin-stats %}">Statistics</a></li>
-                  <li><a href="{% url admin-charts %}">Demo</a></li>
-                  <li><a href="">Category 2</a></li>
+                  <li><a href="{% url admin-stats %}" class="align-1">Statistics</a></li>
+                  <li><a href="{% url admin-charts %}" class="align-1">Demo Charts</a></li>
+                  <li><a href="" class="align-1">Another Category</a></li>
                 </ul>
               </li>
             </ul>
-            <!-- <div class="nav navbar-nav navbar-center">
-              <p>Test 1</p>
-              <p>test 2</p>
-            </div> -->
-            <!-- </div>   -->
-            <div class="collapse navbar-collapse">
-            <a class="navbar-header navbar-brand navbar-left" href="{% url admin-home %}">Synnefo Admin Panel</a>
-            <ul class="nav navbar-nav navbar-right">
-              <li class="dropdown">
-                <a href="" class="dropdown" data-toggle="dropdown">
-                  adminuser@synnefo.org
-                  <span class="snf-angle-down"></span>
-                </a>
-                <ul class="dropdown-menu">
-                  <li>
-                    <a href="">Sign Out</a>
-                  </li>
-                </ul>
-            </ul>
-            </div>
-
             </div>
           </div>
           {% endwith %}
@@ -96,7 +89,7 @@
                 {% endfor %}
             </div>
         {% endif %}
-        <div class="main-content">
+        <div class="main-content well well-lg">
             {% block content %}
             {% endblock %}
         </div>
