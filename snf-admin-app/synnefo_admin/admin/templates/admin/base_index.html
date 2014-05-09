@@ -18,21 +18,14 @@
         {% include "admin/_index_action_list.html" %}
     {% endblock action-list %}
 
-      <div class="well well-lg info">
-<!--         <div class="table-responsive"> -->
-          <table class="table table-striped table-items" id="table-items-total" data-content= {{ item_type }}>
-                {% block table-header %}
-                {% endblock %}
-                {% block table-content %}
-                  {% include "admin/_index_iterate_items.html" %}
-                {% endblock %}
-          </table>
-        <!-- </div> -->
-      </div>
+    <div class="info-block well info">
+      {% block table-area %}
+      {% endblock %}
+    </div>
 
-<!-- Modals -->
-{% block action-modals %}
-    {% include "admin/_action_modals.html" %}
-{% endblock action-modals %}
+    <!-- Modals -->
+    {% block action-modals %}
+        {% include "admin/_action_modals.html" %}
+    {% endblock action-modals %}
+
 {% endblock %}
-
