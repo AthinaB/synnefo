@@ -39,63 +39,45 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.core.urlresolvers import reverse
 
-from synnefo.db.models import VirtualMachine, Network
+from synnefo.db.models import Volume
 from astakos.im.functions import send_plain as send_email
-from astakos.im.models import AstakosUser, Project
-from astakos.im.functions import approve_application
+from astakos.im.models import AstakosUser
 
 from eztables.views import DatatablesView
-from actions import (AdminAction, AdminActionUnknown, AdminActionNotPermitted,
-                     nop)
+from actions import AdminAction, AdminActionUnknown, AdminActionNotPermitted
 
 templates = {
-    'list': 'admin/project_list.html',
-    'details': 'admin/project_details.html',
+    'list': 'admin/volume_list.html',
+    'details': 'admin/volume_details.html',
 }
 
 
-def get_project(query):
-    try:
-        project = Project.objects.get(id=query)
-    except Exception:
-        project = Project.objects.get(uuid=query)
-    return project
-
-
-def get_allowed_actions(project):
-    """Get a list of actions that can apply to a project."""
+def get_allowed_actions(volume):
+    """Get a list of actions that can apply to a volume."""
     allowed_actions = []
     actions = generate_actions()
 
     for key, action in actions.iteritems():
-        if action.can_apply(project):
+        if action.can_apply(volume):
             allowed_actions.append(key)
 
     return allowed_actions
 
 
-def get_contact_mail(inst):
-    if inst.owner:
-        return inst.owner.email,
-
-
-def get_contact_name(inst):
-    if inst.owner:
-        return inst.owner.realname,
-
-
-class ProjectJSONView(DatatablesView):
-    model = Project
-    fields = ('id', 'id', 'name', 'state', 'end_date')
+class VolumeJSONView(DatatablesView):
+    model = Volume
+    fields = ('id',
+              'id',
+              'name',
+              'status',
+              'created',
+              'machine__pk',
+              )
 
     extra = True
 
-    def format_data_row(self, row):
-        row[3] = (str(row[3]) + ' (' +
-                  Project.objects.get(id=row[0]).state_display() + ')')
-        return row
-
     def get_extra_data_row(self, inst):
+        logging.info("I am here")
         extra_dict = {
             'allowed_actions': {
                 'display_name': "",
@@ -111,32 +93,27 @@ class ProjectJSONView(DatatablesView):
                 'visible': False,
             }, 'details_url': {
                 'display_name': "Details",
-                'value': reverse('admin-details', args=['project', inst.id]),
+                'value': reverse('admin-details', args=['volume', inst.id]),
                 'visible': True,
             }, 'contact_mail': {
                 'display_name': "Contact mail",
-                'value': get_contact_mail(inst),
-                'visible': True,
+                'value': AstakosUser.objects.get(uuid=inst.userid).email,
+                'visible': False,
             }, 'contact_name': {
                 'display_name': "Contact name",
-                'value': get_contact_name(inst),
-                'visible': True,
-            }, 'uuid': {
-                'display_name': "UUID",
-                'value': inst.uuid,
-                'visible': True,
+                'value': AstakosUser.objects.get(uuid=inst.userid).realname,
+                'visible': False,
             }, 'description': {
                 'display_name': "Description",
                 'value': inst.description,
                 'visible': True,
-            }, 'creation_date': {
-                'display_name': "Creation date",
-                'value': inst.creation_date,
+            }, 'updated': {
+                'display_name': "Update time",
+                'value': inst.updated,
                 'visible': True,
-            }, 'members': {
-                'display_name': "Members",
-                'value': (str(inst.members_count) + ' / ' +
-                          str(inst.limit_on_members_number)),
+            }, 'user_info': {
+                'display_name': "User info",
+                'value': inst.userid,
                 'visible': True,
             }
         }
@@ -144,87 +121,85 @@ class ProjectJSONView(DatatablesView):
         return extra_dict
 
 
-class ProjectAction(AdminAction):
+class VolumeAction(AdminAction):
 
-    """Class for actions on projects. Derived from AdminAction.
+    """Class for actions on volumes. Derived from AdminAction.
 
     Pre-determined Attributes:
-        target:        project
+        target:        volume
     """
 
     def __init__(self, name, f, **kwargs):
         """Initialize the class with provided values."""
-        AdminAction.__init__(self, name=name, target='project', f=f, **kwargs)
+        AdminAction.__init__(self, name=name, target='volume', f=f, **kwargs)
 
 
 def generate_actions():
-    """Create a list of actions on projects.
+    """Create a list of actions on volumes.
 
-    The actions are: approve/deny, suspend/unsuspend, terminate/reinstate,
-                     contact
+    The actions are: activate/deactivate, accept/reject, verify, contact.
     """
     actions = OrderedDict()
 
-    actions['approve'] = ProjectAction(name='Approve', f=approve_application)
-
-    actions['deny'] = ProjectAction(name='Deny', f=nop)
-
-    actions['suspend'] = ProjectAction(name='Suspend', f=nop,)
-
-    actions['unsuspend'] = ProjectAction(name='Release suspension', f=nop)
-
-    actions['terminate'] = ProjectAction(name='Terminate', f=nop)
-
-    actions['reinstate'] = ProjectAction(name='Reinstate', f=nop)
-
-    actions['contact'] = ProjectAction(name='Send e-mail', f=nop)
-
+    actions['contact'] = VolumeAction(name='Send e-mail', f=send_email)
     return actions
 
 
 def do_action(request, op, id):
-    """Apply the requested action on the specified user."""
-    project = get_project(id)
+    """Apply the requested action on the specified volume."""
+    volume = Volume.objects.get(id=id)
     actions = generate_actions()
-    logging.info("Op: %s, project: %s, function", op, project.uuid,
-                 actions[op].f)
 
     if op == 'contact':
-        if project.is_base:
-            user = project.members.all()[0]
-        else:
-            user = project.owner
-        actions[op].f(user, request.POST['text'])
-    elif op == 'approve':
-        actions[op].f(project.last_application.id)
+        actions[op].f(volume, request.POST['text'])
     else:
-        actions[op].f(project)
+        actions[op].f(volume)
 
 
 def catalog(request):
-    """List view for Cyclades projects."""
+    """List view for Cyclades volumes."""
     context = {}
     context['action_dict'] = generate_actions()
-    context['columns'] = ["Column 1", "ID", "Name", "Status",
-                          "Expiration date", "Details", "Summary"]
-    context['item_type'] = 'project'
+    context['columns'] = ["Column 1", "ID", "Name", "Status", "Creation date",
+                          "VM ID", "Details", "Summary"]
+    context['item_type'] = 'volume'
 
     return context
 
 
 def details(request, query):
-    """Details view for Astakos projects."""
-    project = get_project(query)
+    """Details view for Astakos users."""
+    error = request.GET.get('error', None)
+    logging.info("Here")
 
-    users = project.members.all()
-    vms = VirtualMachine.objects.filter(project=project.uuid)
-    networks = Network.objects.filter(project=project.uuid)
+    user = get_user(query)
+    quotas = get_quotas(user)
+
+    project_memberships = ProjectMembership.objects.filter(person=user)
+    projects = map(lambda p: p.project, project_memberships)
+
+    vms = VirtualMachine.objects.filter(
+        userid=user.uuid).order_by('deleted')
+
+    filter_extra = {}
+    show_deleted = bool(int(request.GET.get('deleted', SHOW_DELETED_VMS)))
+    if not show_deleted:
+        filter_extra['deleted'] = False
+
+    public_networks = Network.objects.filter(
+        public=True, nics__machine__userid=user.uuid,
+        **filter_extra).order_by('state').distinct()
+    private_networks = Network.objects.filter(
+        userid=user.uuid, **filter_extra).order_by('state')
+    networks = list(public_networks) + list(private_networks)
+    logging.info("Networks are: %s", networks)
 
     context = {
-        'main_item': project,
-        'main_type': 'project',
+        'main_item': user,
+        'main_type': 'user',
         'associations_list': [
-            (users, 'user'),
+            (quotas, 'quota'),
+            (projects, 'project'),
             (vms, 'vm'),
             (networks, 'network'),
         ]

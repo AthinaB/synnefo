@@ -9,11 +9,12 @@
     <link href="{{ ADMIN_MEDIA_URL }}DataTables/media/css/jquery.dataTables.css" rel="stylesheet">
     <!--
     <link href="{{ ADMIN_MEDIA_URL }}css/ie7.css" rel="stylesheet"> -->
-  
+
   <body>
     <div class="container-fluid">
         <div class="row-fluid">
-          {% with user_list='user' vm_list='vm' project_list='project' %}
+          {% with user_type='user' vm_type='vm' project_type='project' volume_type='volume' network_type='network' ip_type='ip' group_type='group' auth_provider_type='auth_provider' %}
+
           <div class="navbar navbar-inverse nav-main navbar-fixed-top">
 
             <div class="navbar-sides">
@@ -34,35 +35,35 @@
 
             <ul class="nav navbar-nav navbar-center">
               <li>
-              <a href="{% url admin-list user_list %}">Users</a>
+              <a href="{% url admin-list user_type %}">Users</a>
               </li>
               <li class="divider-vertical"></li>
               <li>
-              <a href="{% url admin-list vm_list %}">VMs</a>
+              <a href="{% url admin-list vm_type %}">VMs</a>
               </li>
               <li class="divider-vertical"></li>
               <li>
-              <a href="#">Volumes</a>
+              <a href="{% url admin-list volume_type %}">Volumes</a>
               </li>
               <li class="divider-vertical"></li>
               <li>
-              <a href="#">Networks</a>
+              <a href="{% url admin-list network_type %}">Networks</a>
               </li>
               <li class="divider-vertical"></li>
               <li>
-              <a href="#">IPs</a>
+              <a href="{% url admin-list ip_type %}">IPs</a>
               </li>
               <li class="divider-vertical"></li>
               <li>
-              <a href="{% url admin-list project_list %}">Projects</a>
+              <a href="{% url admin-list project_type %}">Projects</a>
               </li>
               <li class="divider-vertical"></li>
               <li>
-              <a href="#">Users' Groups</a>
+              <a href="{% url admin-list group_type %}">User Groups</a>
               </li>
               <li class="divider-vertical"></li>
               <li>
-              <a href="#">Authentication Methods</a>
+              <a href="{% url admin-list auth_provider_type %}">User Auth Providers</a>
               </li>
               <li class="divider-vertical"></li>
               <li class="dropdown">
