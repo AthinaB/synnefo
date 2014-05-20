@@ -1,36 +1,80 @@
 #!/bin/sh
 set -e
 
-SNF_MANAGE=$(which snf-manage) ||
-    { echo "Cannot find snf-manage in $PATH" 1>&2; exit 1; }
+runAstakosTests () {
+    if [ -z "$astakos_tests" ]; then return; fi
+
+    export SYNNEFO_EXCLUDE_PACKAGES="snf-cyclades-app"
+    CURRENT_COMPONENT=astakos
+    createSnfManageTest $astakos_tests
+    runTest
+}
+
+runCycladesTests () {
+    if [ -z "$cyclades_tests" ]; then return; fi
+
+    export SYNNEFO_EXCLUDE_PACKAGES="snf-pithos-app snf-astakos-app"
+    CURRENT_COMPONENT=synnefo
+    createSnfManageTest $cyclades_tests
+    runTest
+}
+
+runPithosTests () {
+    if [ -z "$pithos_tests" ]; then return; fi
+
+    export SYNNEFO_EXCLUDE_PACKAGES="snf-cyclades-app"
+    CURRENT_COMPONENT=pithos
+    createSnfManageTest $pithos_tests
+    runTest
+}
+
+runAstakosclientTests () {
+    if [ -z "$astakosclient_tests" ]; then return; fi
+
+    CURRENT_COMPONENT=astakosclient
+    for test in $astakosclient_tests; do
+        createNoseTest $test
+        runTest
+    done
+}
+
+createSnfManageTest () {
+    TEST="$SNF_MANAGE test $* --traceback --noinput --settings=synnefo.settings.test"
+}
+
+createNoseTest () {
+    TEST="$NOSE $*"
+}
 
 runTest () {
-    if [ "$1" = "" ]; then return; fi
-    TEST="$SNF_MANAGE test $* --traceback --noinput --settings=synnefo.settings.test"
+    if [ $COVERAGE_EXISTS ]; then
+        runCoverage "$TEST"
+    else
+        # Stop here, if we are on dry run
+        if [ $DRY_RUN ]; then
+            echo "$TEST"
+            return
+        fi
 
-    runCoverage "$TEST"
+        eval $TEST
+    fi
 }
 
 runCoverage () {
-    if [ "$1" = "" ]; then return; fi
     # Stop here, if we are on dry run
     if [ $DRY_RUN ]; then
-        echo $1
+        echo "coverage run $1"
         return
     fi
 
-    if coverage >/dev/null 2>&1; then
-      coverage run $1
-      coverage report --include=snf-*
-    else
-      echo "WARNING: Cannot find coverage in path, skipping coverage tests" 1>&2
-      $1
-    fi
+    coverage erase
+    coverage run $1
+    coverage report --include="*${CURRENT_COMPONENT}*"
 }
 
 usage(){
     echo "$1: Wrong input."
-    echo "    Usage: $0 [--dry-run] component[.app]"
+    echo "    Usage: $0 [--dry-run] component[.test]"
     exit
 }
 
@@ -39,7 +83,7 @@ usage(){
 # Arguments: $1: the variable name
 #            $2: the string
 # Note, the variable must be passed by name, so we need to resort to a bit
-# compilcated parameter expansions
+# complicated parameter expansions
 append () {
     eval $(echo "$1=\"\$${1}\"\" \"\"$2\"")
 }
@@ -48,7 +92,6 @@ append () {
 #
 # Arguments: $1: The string
 #            $2: The substring
-# Note, we need to return a truth value to an if statement, so we must echo it.
 contains () {
     case "$1" in
         *$2*) return 0;;  # True
@@ -56,28 +99,26 @@ contains () {
     esac
 }
 
-# Get a list of apps for a given component. If the given argument is an app,
-# then return just it.
+# Get a list of tests for a given component.
 #
-# Arguments: $1: component to extract apps from
-# Returns:   $(astakos/cyclades/pithos/ac)_test_apps,
+# Arguments: $1: a component to extract tests from or a single component test
+# Returns:   $(astakos/cyclades/pithos/ac)_tests,
 #            a list with apps to be tested for each component
-extract_apps () {
+extract_tests () {
     # Check all components:
         # If the given component matches one of the components:
-            # If total match, add the apps of the component to the apps to be
-            # tested.
-            # Else, if its form matches "component.app", append only the app
-            # part
-            # Anything else is considered wrong input
+            # If total match, return all the tests of the component.
+        # Else, if its form matches "component.test", extract only the
+        # test.
+    # Anything else is considered wrong input
 
     for c in $ALL_COMPONENTS; do
-        if [ $(contains $1 $c; echo $?) ]; then
+        if contains $1 $c; then
             if [ "$1" = "$c" ]; then
-                append "${c}_test_apps" "$(eval "echo \$"${c}"_apps")"
+                append "${c}_tests" "$(eval "echo \$"${c}"_all_tests")"
                 return
-            elif [ $(contains $1 "$c."; echo $?) ]; then
-                append "${c}_test_apps" $(echo $1 | sed -e 's/[a-z]*\.//g')
+            elif contains $1 "$c."; then
+                append "${c}_tests" $(echo $1 | sed -e 's/[a-z]*\.//g')
                 return
             fi
         fi
@@ -88,22 +129,20 @@ extract_apps () {
 
 export SYNNEFO_SETTINGS_DIR=/tmp/snf-test-settings
 
-astakos_apps="im quotaholder_app oa2 logic"
-cyclades_apps="api db logic plankton quotas vmapi helpdesk userdata"
-pithos_apps="api"
-astakosclient_apps="nosetests astakosclient"
+astakos_all_tests="im quotaholder_app oa2"
+cyclades_all_tests="api db logic plankton quotas vmapi helpdesk userdata volume"
+pithos_all_tests="api"
+astakosclient_all_tests="astakosclient"
 ALL_COMPONENTS="astakos cyclades pithos astakosclient"
 
-astakos_test_apps=""
-cyclades_test_apps=""
-pithos_test_apps=""
-astakosclient_test_apps=""
+astakos_tests=""
+cyclades_tests=""
+pithos_tests=""
+astakosclient_tests=""
 
-if [ $1 = "--dry-run" ]; then
+if [ "$1" = "--dry-run" ]; then
     DRY_RUN=0
     shift
-elif [ $(contains $1 "-"; echo $?) ]; then
-    usage $1
 fi
 
 TEST_COMPONENTS="$@"
@@ -111,30 +150,38 @@ if [ -z "$TEST_COMPONENTS" ]; then
     TEST_COMPONENTS=$ALL_COMPONENTS
 fi
 
-# Extract apps from a component
+# Check if coverage and snf-manage exist
+if command -v coverage >/dev/null 2>&1; then
+    COVERAGE_EXISTS=0
+fi
+SNF_MANAGE=$(which snf-manage) ||
+    { echo "Cannot find snf-manage in $PATH" 1>&2; exit 1; }
+NOSE=$(which nosetests) ||
+    { echo "Cannot find nosetests in $PATH" 1>&2; exit 1; }
+
+
+# Extract tests from a component
 for component in $TEST_COMPONENTS; do
-    extract_apps $component
+    extract_tests $component
 done
 
-echo "-------------------------------------------"
-echo "Components to be tested:"
-echo "Astakos:       $astakos_test_apps"
-echo "Cyclades:      $cyclades_test_apps"
-echo "Pithos:        $pithos_test_apps"
-echo "Astakosclient: $astakosclient_test_apps"
-echo "-------------------------------------------"
+echo "|===============|============================"
+echo "| Component     | Tests"
+echo "|---------------|----------------------------"
+echo "| Astakos       | $astakos_tests"
+echo "| Cyclades      | $cyclades_tests"
+echo "| Pithos        | $pithos_tests"
+echo "| Astakosclient | $astakosclient_tests"
+echo "|===============|============================"
 echo ""
 
-# For each component, run the necessary tests.
-# Note that each component needs different setup, which is handled below
+if [ ! $COVERAGE_EXISTS ]; then
+    echo "WARNING: Cannot find coverage in path." >&2
+    echo ""
+fi
 
-export SYNNEFO_EXCLUDE_PACKAGES="snf-cyclades-app"
-runTest $astakos_test_apps
-
-export SYNNEFO_EXCLUDE_PACKAGES="snf-pithos-app"
-runTest $cyclades_test_apps
-
-export SYNNEFO_EXCLUDE_PACKAGES="snf-cyclades-app"
-runTest $pithos_test_apps
-
-runCoverage $astakosclient_test_apps
+# For each component, run the specified tests.
+runAstakosTests
+runCycladesTests
+runPithosTests
+runAstakosclientTests

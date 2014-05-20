@@ -1,35 +1,17 @@
-# Copyright 2013 GRNET S.A. All rights reserved.
+# Copyright (C) 2010-2014 GRNET S.A.
 #
-# Redistribution and use in source and binary forms, with or
-# without modification, are permitted provided that the following
-# conditions are met:
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-#   1. Redistributions of source code must retain the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-#   2. Redistributions in binary form must reproduce the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer in the documentation and/or other materials
-#      provided with the distribution.
-#
-# THIS SOFTWARE IS PROVIDED BY GRNET S.A. ``AS IS'' AND ANY EXPRESS
-# OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GRNET S.A OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-# USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-# The views and conclusions contained in the software and
-# documentation are those of the authors and should not be
-# interpreted as representing official policies, either expressed
-# or implied, of GRNET S.A.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from optparse import make_option
 
@@ -67,10 +49,25 @@ class Command(SynnefoCommand):
             default=None,
             help="Size of the new volume in GB"),
         make_option(
+            "--source",
+            dest="source",
+            default=None,
+            help="Initialize volume with data from the specified source. The"
+                 " source must be of the form <source_type>:<source_uuid>."
+                 " Available source types are 'image', 'snapshot' and"
+                 " 'volume'."),
+        make_option(
             "--server",
             dest="server_id",
             default=None,
             help="The ID of the server that the volume will be connected to."),
+        make_option(
+            "--volume-type",
+            dest="volume_type_id",
+            default=None,
+            help="The ID of the volume's type. If the volume will be attached"
+                 " to a server, the volume's and the server's volume type"
+                 " must match."),
         make_option(
             "--wait",
             dest="wait",
@@ -88,6 +85,7 @@ class Command(SynnefoCommand):
         size = options.get("size")
         user_id = options.get("user_id")
         server_id = options.get("server_id")
+        volume_type_id = options.get("volume_type_id")
         wait = parse_bool(options["wait"])
 
         display_name = options.get("name", "")
@@ -105,13 +103,33 @@ class Command(SynnefoCommand):
         if user_id is None:
             user_id = vm.userid
 
+        vtype = common.get_resource("volume-type", volume_type_id)
+
         source_image_id = source_volume_id = source_snapshot_id = None
+        source = options.get("source")
+        if source is not None:
+            try:
+                source_type, source_uuid = source.split(":", 1)
+            except (ValueError, TypeError):
+                raise CommandError("Invalid '--source' option. Value must be"
+                                   " of the form <source_type>:<source_uuid>")
+            if source_type == "image":
+                source_image_id = source_uuid
+            elif source_type == "snapshot":
+                source_snapshot_id = source_uuid
+            elif source_type == "volume":
+                source_volume_id = source_uuid
+            else:
+                raise CommandError("Unknown volume source type '%s'"
+                                   % source_type)
+
         volume = volumes.create(user_id, size, server_id,
                                 name=display_name,
                                 description=display_description,
                                 source_image_id=source_image_id,
                                 source_snapshot_id=source_snapshot_id,
                                 source_volume_id=source_volume_id,
+                                volume_type_id=vtype.id,
                                 metadata={})
 
         self.stdout.write("Created volume '%s' in DB:\n" % volume.id)

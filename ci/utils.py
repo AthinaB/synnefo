@@ -1,37 +1,19 @@
 #!/usr/bin/env python
 #
-# Copyright (C) 2014 GRNET S.A. All rights reserved.
+# Copyright (C) 2010-2014 GRNET S.A.
 #
-# Redistribution and use in source and binary forms, with or
-# without modification, are permitted provided that the following
-# conditions are met:
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-#   1. Redistributions of source code must retain the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-#   2. Redistributions in binary form must reproduce the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer in the documentation and/or other materials
-#      provided with the distribution.
-#
-# THIS SOFTWARE IS PROVIDED BY GRNET S.A. ``AS IS'' AND ANY EXPRESS
-# OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GRNET S.A OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-# USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-# The views and conclusions contained in the software and
-# documentation are those of the authors and should not be
-# interpreted as representing official policies, either expressed
-# or implied, of GRNET S.A.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 Synnefo ci utils module
@@ -199,8 +181,8 @@ class SynnefoCI(object):
         if cloud is not None:
             self.kamaki_cloud = cloud
         elif self.config.has_option("Deployment", "kamaki_cloud"):
-            kamaki_cloud = self.config.get("Deployment", "kamaki_cloud")
-            if kamaki_cloud == "":
+            self.kamaki_cloud = self.config.get("Deployment", "kamaki_cloud")
+            if self.kamaki_cloud == "":
                 self.kamaki_cloud = None
         else:
             self.kamaki_cloud = None
@@ -363,7 +345,10 @@ class SynnefoCI(object):
         server_id = server['id']
         self.write_temp_config('server_id', server_id)
         self.logger.debug("Server got id %s" % _green(server_id))
-        server_user = server['metadata']['users']
+
+        # An image may have more than one user. Choose the first one.
+        server_user = server['metadata']['users'].split(" ")[0]
+
         self.write_temp_config('server_user', server_user)
         self.logger.debug("Server's admin user is %s" % _green(server_user))
         server_passwd = server['adminPass']
@@ -431,13 +416,23 @@ class SynnefoCI(object):
 
         Search by name (reg expression) or by id
         """
+        def _is_true(value):
+            """Boolean or string value that represents a bool"""
+            if isinstance(value, bool):
+                return value
+            elif isinstance(value, str):
+                return value in ["True", "true"]
+            else:
+                self.logger.error("Unrecognized boolean value %s" % value)
+                return False
+
         # Get a list of flavors from config file
         flavors = self.config.get('Deployment', 'flavors').split(",")
         if flavor is not None:
             # If we have a flavor_name to use, add it to our list
             flavors.insert(0, flavor)
 
-        list_flavors = self.compute_client.list_flavors()
+        list_flavors = self.compute_client.list_flavors(detail=True)
         for flv in flavors:
             flv_type, flv_value = parse_typed_option(option="flavor",
                                                      value=flv)
@@ -460,6 +455,8 @@ class SynnefoCI(object):
                 self.logger.error("Unrecognized flavor type %s" % flv_type)
 
             # Check if we found one
+            list_flvs = [f for f in list_flvs
+                         if _is_true(f['SNF:allow_create'])]
             if list_flvs:
                 self.logger.debug("Will use \"%s\" with id \"%s\""
                                   % (_green(list_flvs[0]['name']),
@@ -1014,7 +1011,7 @@ class SynnefoCI(object):
 
         self.logger.debug("Run snf-deploy")
         cmd = """
-        snf-deploy --disable-colors --autoconf all
+        snf-deploy --disable-colors --autoconf synnefo
         """
         _run(cmd, True)
 
@@ -1026,9 +1023,7 @@ class SynnefoCI(object):
 
         self.logger.debug("Install needed packages")
         cmd = """
-        pip install -U mock
-        pip install -U factory_boy
-        pip install -U nose
+        pip install -U mock factory_boy nose coverage
         """
         _run(cmd, False)
 

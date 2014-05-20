@@ -1,35 +1,18 @@
-# Copyright 2011-2014 GRNET S.A. All rights reserved.
+# -*- coding: utf-8 -*-
+# Copyright (C) 2010-2014 GRNET S.A.
 #
-# Redistribution and use in source and binary forms, with or
-# without modification, are permitted provided that the following
-# conditions are met:
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-#   1. Redistributions of source code must retain the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-#   2. Redistributions in binary form must reproduce the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer in the documentation and/or other materials
-#      provided with the distribution.
-#
-# THIS SOFTWARE IS PROVIDED BY GRNET S.A. ``AS IS'' AND ANY EXPRESS
-# OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GRNET S.A OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-# USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-# The views and conclusions contained in the software and
-# documentation are those of the authors and should not be
-# interpreted as representing official policies, either expressed
-# or implied, of GRNET S.A.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from astakos.im.tests.common import *
 
@@ -44,24 +27,29 @@ def find(f, seq):
     return NotFound
 
 
+def get_pending_apps(user):
+    return quotas.get_user_quotas(user)\
+        [user.base_project.uuid]['astakos.pending_app']['usage']
+
+
 class ProjectAPITest(TestCase):
 
     def setUp(self):
         self.client = Client()
         component1 = Component.objects.create(name="comp1")
-        register.add_service(component1, "service1", "type1", [])
+        register.add_service(component1, "σέρβις1", "type1", [])
         # custom service resources
-        resource11 = {"name": "service1.resource11",
-                      "desc": "resource11 desc",
+        resource11 = {"name": u"σέρβις1.ρίσορς11",
+                      "desc": u"ρίσορς11 desc",
                       "service_type": "type1",
-                      "service_origin": "service1",
+                      "service_origin": u"σέρβις1",
                       "ui_visible": True}
         r, _ = register.add_resource(resource11)
         register.update_base_default(r, 100)
-        resource12 = {"name": "service1.resource12",
-                      "desc": "resource11 desc",
+        resource12 = {"name": u"σέρβις1.resource12",
+                      "desc": "resource12 desc",
                       "service_type": "type1",
-                      "service_origin": "service1",
+                      "service_origin": u"σέρβις1",
                       "unit": "bytes"}
         r, _ = register.add_resource(resource12)
         register.update_base_default(r, 1024)
@@ -99,7 +87,7 @@ class ProjectAPITest(TestCase):
         dump = json.dumps(app)
         kwargs = {"project_id": project_id}
         r = self.client.put(reverse("api_project", kwargs=kwargs), dump,
-                             content_type="application/json", **headers)
+                            content_type="application/json", **headers)
         body = json.loads(r.content)
         return r.status_code, body
 
@@ -162,10 +150,11 @@ class ProjectAPITest(TestCase):
         self.assertEqual(status, 409)
 
         app1 = {"name": "test.pr",
+                "description": u"δεσκρίπτιον",
                 "end_date": "2013-5-5T20:20:20Z",
                 "join_policy": "auto",
                 "max_members": 5,
-                "resources": {"service1.resource11": {
+                "resources": {u"σέρβις1.ρίσορς11": {
                     "project_capacity": 1024,
                     "member_capacity": 512}}
                 }
@@ -190,6 +179,7 @@ class ProjectAPITest(TestCase):
         self.assertEqual(body["last_application"]["state"], "pending")
         self.assertEqual(body["state"], "uninitialized")
         self.assertEqual(body["owner"], self.user1.uuid)
+        self.assertEqual(body["description"], u"δεσκρίπτιον")
 
         # Approve forbidden
         status = self.project_action(project_id, "approve", app_id=app_id,
@@ -233,7 +223,7 @@ class ProjectAPITest(TestCase):
                 "join_policy": "moderated",
                 "leave_policy": "auto",
                 "max_members": 3,
-                "resources": {"service1.resource11": {
+                "resources": {u"σέρβις1.ρίσορς11": {
                     "project_capacity": 1024,
                     "member_capacity": 1024}}
                 }
@@ -602,13 +592,15 @@ class ProjectAPITest(TestCase):
         status, body = self.create(ap, h_owner)
         self.assertEqual(status, 400)
 
-        ap["resources"] = {"service1.resource11": {
-                "member_capacity": 512}}
+        ap["resources"] = {u"σέρβις1.ρίσορς11": {"member_capacity": 512}}
         status, body = self.create(ap, h_owner)
         self.assertEqual(status, 400)
 
-        ap["resources"] = {"service1.resource11": {"member_capacity": 512,
-                                                   "project_capacity": 1024}}
+        ap["resources"] = {
+            u"σέρβις1.ρίσορς11": {
+                "member_capacity": 512,
+                "project_capacity": 1024}
+            }
         status, body = self.create(ap, h_owner)
         self.assertEqual(status, 201)
 
@@ -622,20 +614,81 @@ class ProjectAPITest(TestCase):
         r = client.get(reverse("api_projects"), filters, **h_owner)
         self.assertEqual(r.status_code, 400)
 
+        app = {"max_members": 33, "name": "new.name"}
+        status, body = self.modify(app, self.user1.uuid, h_owner)
+        self.assertEqual(status, 403)
+
+        app = {"max_members": 33, "name": "new.name"}
+        status, body = self.modify(app, self.user1.uuid, h_admin)
+        self.assertEqual(status, 409)
+
+        app = {"max_members": 33}
+        status, body = self.modify(app, self.user1.uuid, h_admin)
+        self.assertEqual(status, 201)
+
         # directly modify a base project
         with assertRaises(functions.ProjectBadRequest):
             functions.modify_project(self.user1.uuid,
                                      {"description": "new description",
                                       "member_join_policy":
-                                          functions.MODERATED_POLICY})
+                                      functions.MODERATED_POLICY})
         functions.modify_project(self.user1.uuid,
                                  {"member_join_policy":
-                                      functions.MODERATED_POLICY})
+                                  functions.MODERATED_POLICY})
         r = client.get(reverse("api_project",
                                kwargs={"project_id": self.user1.uuid}),
                        **h_owner)
         body = json.loads(r.content)
         self.assertEqual(body["join_policy"], "moderated")
+
+        r = self.client.post(reverse("api_projects"), "\xff",
+                             content_type="application/json", **h_owner)
+        self.assertEqual(r.status_code, 400)
+
+        r = self.client.post(reverse("api_project_action",
+                                     kwargs={"project_id": "1234"}),
+                             "\"nondict\"", content_type="application/json",
+                             **h_owner)
+        self.assertEqual(r.status_code, 400)
+
+        r = client.get(reverse("api_project",
+                               kwargs={"project_id": u"πρότζεκτ"}),
+                       **h_owner)
+        self.assertEqual(r.status_code, 404)
+
+        # Check pending app quota integrity
+        r = client.get(reverse("api_project",
+                               kwargs={"project_id": project_id}),
+                       **h_owner)
+        body = json.loads(r.content)
+        self.assertNotEqual(body['last_application']['state'], 'pending')
+
+        admin_pa0 = get_pending_apps(self.user2)
+        owner_pa0 = get_pending_apps(self.user1)
+
+        app = {"max_members": 11}
+        status, body = self.modify(app, project_id, h_admin)
+        self.assertEqual(status, 201)
+
+        admin_pa1 = get_pending_apps(self.user2)
+        owner_pa1 = get_pending_apps(self.user1)
+        self.assertEqual(admin_pa1, admin_pa0+1)
+        self.assertEqual(owner_pa1, owner_pa0)
+        status, body = self.modify(app, project_id, h_owner)
+        self.assertEqual(status, 201)
+
+        admin_pa2 = get_pending_apps(self.user2)
+        owner_pa2 = get_pending_apps(self.user1)
+        self.assertEqual(admin_pa2, admin_pa1-1)
+        self.assertEqual(owner_pa2, owner_pa1+1)
+
+        status, body = self.modify(app, project_id, h_owner)
+        self.assertEqual(status, 201)
+
+        admin_pa3 = get_pending_apps(self.user2)
+        owner_pa3 = get_pending_apps(self.user1)
+        self.assertEqual(admin_pa3, admin_pa2)
+        self.assertEqual(owner_pa3, owner_pa2)
 
 
 class TestProjects(TestCase):
@@ -718,13 +771,17 @@ class TestProjects(TestCase):
         self.assertEqual(form.is_valid(), True)
 
     @im_settings(PROJECT_ADMINS=['uuid1'])
-    def no_test_applications(self):
+    def test_applications(self):
         # let user have 2 pending applications
 
         # TODO figure this out
-        request = {"resources": {"astakos.pending_app":
-                                     {"member_capacity": 2,
-                                      "project_capacity": 2}}}
+        request = {
+            "resources": {
+                "astakos.pending_app": {
+                    "member_capacity": 2,
+                    "project_capacity": 2}
+                }
+            }
         functions.modify_project(self.user.uuid, request)
 
         r = self.user_client.get(reverse('project_add'), follow=True)
@@ -741,13 +798,17 @@ class TestProjects(TestCase):
             'end_date': dto.strftime("%Y-%m-%d"),
             'member_join_policy': 2,
             'member_leave_policy': 1,
-            'service1.resource_m_uplimit': 100,
+            'service1.resource_m_uplimit': 10,
+            'service1.resource_p_uplimit': 100,
             'is_selected_service1.resource': "1",
             'user': self.user.pk
         }
         r = self.user_client.post(post_url, data=application_data, follow=True)
         self.assertEqual(r.status_code, 200)
-        self.assertEqual(r.context['form'].is_valid(), False)
+        form = r.context['form']
+        form.is_valid()
+        # no limit_on_members_number was set, form is still valid
+        self.assertEqual(r.context['form'].is_valid(), True)
 
         application_data['limit_on_members_number'] = 5
         r = self.user_client.post(post_url, data=application_data, follow=True)
@@ -780,35 +841,45 @@ class TestProjects(TestCase):
 
         # login
         self.admin_client.get(reverse("edit_profile"))
+
         # admin approves
         r = self.admin_client.post(reverse('project_app_approve',
-                                           kwargs={'application_id': app1_id}),
+                                           kwargs={
+                                            'application_id': app1_id,
+                                            'project_uuid': app1.chain.uuid}),
                                    follow=True)
         self.assertEqual(r.status_code, 200)
-
-        Q_ACTIVE = Project.o_state_q(Project.O_ACTIVE)
-        self.assertEqual(Project.objects.filter(Q_ACTIVE).count(), 1)
+        self.assertEqual(Project.objects.filter(is_base=False,
+            state=Project.O_ACTIVE).count(), 1)
 
         # login
         self.member_client.get(reverse("edit_profile"))
         # cannot join project2 (not approved yet)
-        join_url = reverse("project_join", kwargs={'chain_id': project2_id})
+        join_url = reverse("project_join", kwargs={
+            'project_uuid': app2.chain.uuid})
         r = self.member_client.post(join_url, follow=True)
 
         # can join project1
         self.member_client.get(reverse("edit_profile"))
-        join_url = reverse("project_join", kwargs={'chain_id': project1_id})
+        join_url = reverse("project_join", kwargs={
+            'project_uuid': app1.chain.uuid})
         r = self.member_client.post(join_url, follow=True)
         self.assertEqual(r.status_code, 200)
 
-        memberships = ProjectMembership.objects.all()
+        memberships = ProjectMembership.objects.filter(project__is_base=False)
         self.assertEqual(len(memberships), 1)
         memb_id = memberships[0].id
 
         reject_member_url = reverse('project_reject_member',
-                                    kwargs={'memb_id': memb_id})
+                                    kwargs={
+                                        'project_uuid': app1.chain.uuid,
+                                        'memb_id': memb_id
+                                    })
         accept_member_url = reverse('project_accept_member',
-                                    kwargs={'memb_id': memb_id})
+                                    kwargs={
+                                        'memb_id': memb_id,
+                                        'project_uuid': app1.chain.uuid
+                                    })
 
         # only project owner is allowed to reject
         r = self.member_client.post(reject_member_url, follow=True)
@@ -817,38 +888,45 @@ class TestProjects(TestCase):
 
         # user (owns project) rejects membership
         r = self.user_client.post(reject_member_url, follow=True)
-        self.assertEqual(ProjectMembership.objects.any_accepted().count(), 0)
+        membs = ProjectMembership.objects.any_accepted().filter(
+            project__is_base=False)
+        self.assertEqual(membs.count(), 0)
 
         # user rejoins
         self.member_client.get(reverse("edit_profile"))
-        join_url = reverse("project_join", kwargs={'chain_id': project1_id})
+        join_url = reverse("project_join", kwargs={'project_uuid':
+                                                   app1.chain.uuid})
         r = self.member_client.post(join_url, follow=True)
         self.assertEqual(r.status_code, 200)
         self.assertEqual(ProjectMembership.objects.requested().count(), 1)
 
         # user (owns project) accepts membership
         r = self.user_client.post(accept_member_url, follow=True)
-        self.assertEqual(ProjectMembership.objects.any_accepted().count(), 1)
-        membership = ProjectMembership.objects.get()
+        self.assertEqual(membs.count(), 1)
+        membership = membs.get()
         self.assertEqual(membership.state, ProjectMembership.ACCEPTED)
 
-        user_quotas = quotas.get_users_quotas([self.member])
+        user_quotas = quotas.get_users_quotas([self.member]).get(
+            self.member.uuid).get(app1.chain.uuid)
         resource = 'service1.resource'
-        newlimit = user_quotas[self.member.uuid]['system'][resource]['limit']
-        # 100 from initial uplimit + 100 from project
-        self.assertEqual(newlimit, 200)
+        newlimit = user_quotas[resource]['limit']
+        self.assertEqual(newlimit, 10)
 
         remove_member_url = reverse('project_remove_member',
-                                    kwargs={'memb_id': membership.id})
+                                    kwargs={
+                                        'project_uuid': app1.chain.uuid,
+                                        'memb_id': membership.id
+                                    })
         r = self.user_client.post(remove_member_url, follow=True)
         self.assertEqual(r.status_code, 200)
 
-        user_quotas = quotas.get_users_quotas([self.member])
+        user_quotas = quotas.get_users_quotas([self.member]).get(
+            self.member.uuid).get(app1.chain.uuid)
         resource = 'service1.resource'
-        newlimit = user_quotas[self.member.uuid]['system'][resource]['limit']
-        # 200 - 100 from project
-        self.assertEqual(newlimit, 100)
+        newlimit = user_quotas[resource]['limit']
+        self.assertEqual(newlimit, 0)
 
+        # TODO: handy to be here, but should be moved to a separate test method
         # support email gets rendered in emails content
         for mail in get_mailbox('user@synnefo.org'):
             self.assertTrue(settings.CONTACT_EMAIL in

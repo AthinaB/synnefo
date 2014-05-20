@@ -1,31 +1,17 @@
-# Copyright 2011-2014 GRNET S.A. All rights reserved.
+# Copyright (C) 2010-2014 GRNET S.A.
 #
-# Redistribution and use in source and binary forms, with or without
-# modification, are permitted provided that the following conditions
-# are met:
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-#   1. Redistributions of source code must retain the above copyright
-#      notice, this list of conditions and the following disclaimer.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-#  2. Redistributions in binary form must reproduce the above copyright
-#     notice, this list of conditions and the following disclaimer in the
-#     documentation and/or other materials provided with the distribution.
-#
-# THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
-# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
-# ARE DISCLAIMED.  IN NO EVENT SHALL THE REGENTS OR CONTRIBUTORS BE LIABLE
-# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
-# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
-# OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
-# HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
-# OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
-# SUCH DAMAGE.
-#
-# The views and conclusions contained in the software and documentation are
-# those of the authors and should not be interpreted as representing official
-# policies, either expressed or implied, of GRNET S.A.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
 
@@ -114,12 +100,17 @@ def create(userid, name, password, flavor, image_id, metadata={},
     if volumes[0]["source_type"] == "blank":
         raise faults.BadRequest("Root volume cannot be blank")
 
+    server_vtype = flavor.volume_type
     server_volumes = []
     for index, vol_info in enumerate(volumes):
         if vol_info["source_type"] == "volume":
             uuid = vol_info["source_uuid"]
             v = get_volume(userid, uuid, for_update=True,
                            exception=faults.BadRequest)
+            if v.volume_type_id != server_vtype.id:
+                msg = ("Volume '%s' has type '%s' while flavor's volume type"
+                       " is '%s'" % (v.volume_type_id, server_vtype.id))
+                raise faults.BadRequest(msg)
             if v.status != "AVAILABLE":
                 raise faults.BadRequest("Cannot use volume while it is in %s"
                                         " status" % v.status)
@@ -128,6 +119,7 @@ def create(userid, name, password, flavor, image_id, metadata={},
             v.save()
         else:
             v = _create_volume(server=vm, user_id=userid,
+                               volume_type=server_vtype,
                                index=index, **vol_info)
         server_volumes.append(v)
 
@@ -178,7 +170,7 @@ def create_server(vm, nics, volumes, flavor, image, personality, password):
     # the volume with data
     image_id = image["backend_id"]
     root_volume = volumes[0]
-    if root_volume.provider is not None:
+    if root_volume.volume_type.provider is not None:
         image_id = "null"
 
     server_created.send(sender=vm, created_vm_params={
@@ -261,9 +253,9 @@ def _resize(vm, flavor):
                                 % (vm, flavor))
     # Check that resize can be performed
     if old_flavor.disk != flavor.disk:
-        raise faults.BadRequest("Cannot resize instance disk.")
-    if old_flavor.disk_template != flavor.disk_template:
-        raise faults.BadRequest("Cannot change instance disk template.")
+        raise faults.BadRequest("Cannot change instance's disk size.")
+    if old_flavor.volume_type_id != flavor.volume_type_id:
+        raise faults.BadRequest("Cannot change instance's volume type.")
 
     log.info("Resizing VM from flavor '%s' to '%s", old_flavor, flavor)
     return backend.resize_instance(vm, vcpus=flavor.cpu, memory=flavor.ram)
@@ -429,9 +421,6 @@ def _create_port(userid, network, machine=None, use_ipaddress=None,
     elif network.action == "DESTROY":
         msg = "Cannot create port. Network %s is being deleted."
         raise faults.Conflict(msg % network.id)
-    elif network.drained:
-        raise faults.Conflict("Cannot create port while network %s is in"
-                              " 'SNF:DRAINED' status" % network.id)
 
     utils.check_name_length(name, NetworkInterface.NETWORK_IFACE_NAME_LENGTH,
                             "Port name is too long")
@@ -444,6 +433,10 @@ def _create_port(userid, network, machine=None, use_ipaddress=None,
             msg = "IP Address %s does not belong to network %s"
             raise faults.Conflict(msg % (ipaddress.address, network.id))
     else:
+        # Do not allow allocation of new IPs if the network is drained
+        if network.drained:
+            raise faults.Conflict("Cannot create port while network %s is in"
+                                  " 'SNF:DRAINED' status" % network.id)
         # If network has IPv4 subnets, try to allocate the address that the
         # the user specified or a random one.
         if network.subnets.filter(ipversion=4).exists():
@@ -702,7 +695,7 @@ def _port_for_request(user_id, network_dict):
                     return create_public_ipv4_port(user_id, network, address)
             else:
                 raise faults.Forbidden("Cannot connect to IPv6 only public"
-                                       " network %" % network.id)
+                                       " network '%s'" % network.id)
         else:
             return _create_port(user_id, network, address=address)
     else:

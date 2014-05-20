@@ -1,35 +1,17 @@
-// Copyright 2011 GRNET S.A. All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or
-// without modification, are permitted provided that the following
-// conditions are met:
-// 
-//   1. Redistributions of source code must retain the above
-//      copyright notice, this list of conditions and the following
-//      disclaimer.
-// 
-//   2. Redistributions in binary form must reproduce the above
-//      copyright notice, this list of conditions and the following
-//      disclaimer in the documentation and/or other materials
-//      provided with the distribution.
-// 
-// THIS SOFTWARE IS PROVIDED BY GRNET S.A. ``AS IS'' AND ANY EXPRESS
-// OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GRNET S.A OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-// USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-// AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-// POSSIBILITY OF SUCH DAMAGE.
-// 
-// The views and conclusions contained in the software and
-// documentation are those of the authors and should not be
-// interpreted as representing official policies, either expressed
-// or implied, of GRNET S.A.
+// Copyright (C) 2010-2014 GRNET S.A.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // 
 
 ;(function(root){
@@ -150,16 +132,18 @@
                 this.ips_toggle.removeClass("open");
 
                 this.info_el.slideToggle();
-                this.view.vm(this.vm).toggleClass("light-background");
+                var vm_view = this.view.vm(this.vm);
 
                 if (this.info_toggle.hasClass("open")) {
                     this.info_toggle.removeClass("open");
                     this.vm.stop_stats_update();
+                    vm_view.removeClass("light-background");
                 } else {
                     this.info_toggle.addClass("open");
                     this.view.details_views[this.vm.id].update_layout();
                     this.view.tags_views[this.vm.id].update_layout();
                     this.view.stats_views[this.vm.id].update_layout();
+                    vm_view.addClass("light-background");
                 }
                 
                 var self = this;
@@ -172,14 +156,16 @@
                 }
                 this.info_el.slideUp();
                 this.info_toggle.removeClass("open");
+                var vm_view = this.view.vm(this.vm);
 
                 this.ips_el.slideToggle();
-                this.view.vm(this.vm).toggleClass("light-background");
                 var self = this;
                 if (this.ips_toggle.hasClass("open")) {
                     this.ips_toggle.removeClass("open");
+                    vm_view.removeClass("light-background");
                 } else {
                     this.ips_toggle.addClass("open");
+                    vm_view.addClass("light-background");
                 }
                 window.setTimeout(function() {$(self.view).trigger("resize")}, 300);
             }, this));
@@ -663,7 +649,9 @@
         init_handlers: function() {
           this.resize_actions.bind('click', _.bind(function(e){
               if (this.vm.in_error_state()) { return }
-              ui.main.vm_resize_view.show(this.vm);
+              if (this.vm.can_resize()) {
+                ui.main.vm_resize_view.show(this.vm);
+              }
           }, this));
         },
 
@@ -806,7 +794,6 @@
             // FIXME: code from old js api
             this.$("div.separator").show();
             this.$("div.machine-container:last-child").find("div.separator").hide();
-            fix_v6_addresses();
         },
   
         update_status_message: function(vm) {

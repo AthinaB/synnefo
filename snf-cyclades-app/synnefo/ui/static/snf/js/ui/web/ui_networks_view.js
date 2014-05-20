@@ -1,35 +1,17 @@
-// Copyright 2014 GRNET S.A. All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or
-// without modification, are permitted provided that the following
-// conditions are met:
-// 
-//   1. Redistributions of source code must retain the above
-//      copyright notice, this list of conditions and the following
-//      disclaimer.
-// 
-//   2. Redistributions in binary form must reproduce the above
-//      copyright notice, this list of conditions and the following
-//      disclaimer in the documentation and/or other materials
-//      provided with the distribution.
-// 
-// THIS SOFTWARE IS PROVIDED BY GRNET S.A. ``AS IS'' AND ANY EXPRESS
-// OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GRNET S.A OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-// USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-// AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-// POSSIBILITY OF SUCH DAMAGE.
-// 
-// The views and conclusions contained in the software and
-// documentation are those of the authors and should not be
-// interpreted as representing official policies, either expressed
-// or implied, of GRNET S.A.
+// Copyright (C) 2010-2014 GRNET S.A.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // 
 
 ;(function(root){
@@ -219,6 +201,7 @@
             var project_id = this.project_select.val();
             var project = synnefo.storage.projects.get(project_id);
 
+            var gateway = undefined;
 
             if (dhcp) {
                 if (this.subnet_select.val() == "custom") {
@@ -229,10 +212,10 @@
                     subnet = this.subnet_select.val();
                 }
                 
-            }
+            }t
 
             snf.storage.networks.create(
-              project, name, type, subnet, dhcp, _.bind(function(){
+              project, name, type, subnet, dhcp, gateway, _.bind(function(){
                 this.hide();
             }, this));
         },
@@ -922,12 +905,13 @@
         var parent = this.parent_view;
         var self = this;
         
-        this.quota = this.options.project.quotas.get("cyclades.floating_ip");
+        this.quotas = this.options.project.quotas.get("cyclades.floating_ip");
+        this.project = this.options.project;
         this.selected_ips = [];
         this.handle_ip_select = _.bind(this.handle_ip_select, this);
         this.create = this.$(".floating-ip.create");
         
-        this.quota.bind("change", _.bind(this.update_available, this));
+        synnefo.storage.quotas.bind("change", _.bind(this.update_available, this));
         this.collection.bind("change", _.bind(this.update_available, this))
         this.collection.bind("add", _.bind(this.update_available, this))
         this.collection.bind("remove", _.bind(this.update_available, this))
@@ -952,22 +936,21 @@
       },
 
       show_parent: function() {
-        var left = this.quota.get_available();
+        var left = this.quotas.get_available();
         var available = this.collection.length || left;
         if (!available) { 
           this.hide_parent();
           return;
         }
-        this.select_first();
         this.parent_view.item.addClass("selected");
         this.parent_view.input.attr("checked", true);
         this.parent_view.selected = true;
+        this.select_first();
         this.show(true);
       },
 
       update_available: function() {
-        var left = this.quota.get_available();
-        var available = this.collection.length || left;
+        var can_create = synnefo.storage.quotas.can_create('ip');
         var available_el = this.parent_view.$(".available");
         var no_available_el = this.parent_view.$(".no-available");
         var parent_check = this.parent_view.$("input[type=checkbox]");
@@ -975,23 +958,7 @@
         var create_link = this.$(".create a");
         var create_no_available = this.$(".create .no-available");
 
-        if (!available) {
-          // no ip's available to select
-          this.hide_parent();
-          available_el.hide();
-          no_available_el.show();
-          parent_check.attr("disabled", true);
-        } else {
-          // available floating ip
-          var available_text = "".format(
-            this.collection.length + this.quota.get_available());
-          available_el.removeClass("hidden").text(available_text).show();
-          available_el.show();
-          no_available_el.hide();
-          parent_check.attr("disabled", false);
-        }
-
-        if (left) {
+        if (can_create) {
           // available quota
           create.removeClass("no-available");
           create.show();
@@ -1002,7 +969,6 @@
           create.addClass("no-available");
           create.hide();
           create_link.hide();
-          //create_no_available.show();
         }
         this.update_selected();
       },
@@ -1029,6 +995,7 @@
       post_remove_model_view: function(view) {
         view.deselect();
         view.unbind("change:select", this.handle_ip_select)
+        this.update_available();
       },
 
       handle_create_error: function() {},
@@ -1048,10 +1015,26 @@
       },
 
       create_ip: function() {
-        if (!this.quota.get_available()) { return }
+        var quotas = synnefo.storage.quotas;
+        var required_quota = quotas.required_quota['ip'];
+        var projects = quotas.get_available_projects(required_quota);
+        var project = undefined;
+        var use_view_project = projects.indexOf(this.project) > -1;
+        if (use_view_project) {
+          project = this.project;
+        } else {
+          if (projects.length) {
+            project = projects[0];
+          }
+        }
+
         var self = this;
         this.set_creating();
-        synnefo.storage.floating_ips.create({floatingip:{}}, {
+        var data = {floatingip:{}};
+        if (project) {
+          data.floatingip['project'] = project.get('id');
+        }
+        synnefo.storage.floating_ips.create(data, {
           error: _.bind(this.handle_create_error, this),
           complete: function() {
             synnefo.storage.quotas.fetch();
@@ -1061,17 +1044,37 @@
       },
       
       select_first: function() {
-        if (this.selected_ips.length > 0) { return }
+        // automaticaly select a public IP address. Priority to the IPs 
+        // assigned to the project selected in wizard.
+        
+        this.deselect_all();
         if (this._subviews.length == 0) { return }
-        this._subviews[0].select();
-        if (!_.contains(this.selected_ips, this._subviews[0].model)) {
-          this.selected_ips.push(this._subviews[0].model);
+        
+        var project_ip_found = false;
+        var project_uuid = this.project && this.project.get('id');
+        _.each(this._subviews, function(view) {
+          var view_project_uuid = view.model.get('project') && 
+                                  view.model.get('project').get('id');
+          if (view_project_uuid == project_uuid) {
+            this.deselect_all();
+            view.select();
+            project_ip_found = true;
+          }
+        }, this);
+
+        if (!project_ip_found) {
+          this._subviews[0] && this._subviews[0].select();
         }
       },
-
+      
       post_add_model_view: function(view, model) {
         view.bind("change:select", this.handle_ip_select)
-        if (!this.selected_ips.length && this._subviews.length == 1) {
+      },
+      
+      auto_select: true,
+      post_update_models: function() {
+        if (this.collection.length && this.auto_select) {
+          this.auto_select = false;
           this.select_first();
         }
       },

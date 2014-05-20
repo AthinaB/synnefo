@@ -1,35 +1,17 @@
-# Copyright 2011-2014 GRNET S.A. All rights reserved.
+# Copyright (C) 2010-2014 GRNET S.A.
 #
-# Redistribution and use in source and binary forms, with or
-# without modification, are permitted provided that the following
-# conditions are met:
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-#   1. Redistributions of source code must retain the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-#   2. Redistributions in binary form must reproduce the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer in the documentation and/or other materials
-#      provided with the distribution.
-#
-# THIS SOFTWARE IS PROVIDED BY GRNET S.A. ``AS IS'' AND ANY EXPRESS
-# OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GRNET S.A OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-# USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-# The views and conclusions contained in the software and
-# documentation are those of the authors and should not be
-# interpreted as representing official policies, either expressed
-# or implied, of GRNET S.A.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from django.conf import settings
 from django.db import transaction
 from django.utils import simplejson as json
@@ -249,14 +231,14 @@ def find_new_flavor(vm, cpu=None, ram=None):
         return None
 
     try:
-        new_flavor = Flavor.objects.get(cpu=cpu, ram=ram,
-                                        disk=old_flavor.disk,
-                                        disk_template=old_flavor.disk_template)
+        new_flavor = Flavor.objects.get(
+            cpu=cpu, ram=ram, disk=old_flavor.disk,
+            volume_type_id=old_flavor.volume_type_id)
     except Flavor.DoesNotExist:
         raise Exception("There is no flavor to match the instance specs!"
-                        " Instance: %s CPU: %s RAM %s: Disk: %s Template: %s"
+                        " Instance: %s CPU: %s RAM %s: Disk: %s VolumeType: %s"
                         % (vm.backend_vm_id, cpu, ram, old_flavor.disk,
-                           old_flavor.disk_template))
+                           old_flavor.volume_type_id))
     log.info("Flavor of VM '%s' changed from '%s' to '%s'", vm,
              old_flavor.name, new_flavor.name)
     return new_flavor
@@ -757,12 +739,12 @@ def create_instance(vm, nics, volumes, flavor, image):
     kw['name'] = vm.backend_vm_id
     # Defined in settings.GANETI_CREATEINSTANCE_KWARGS
 
-    kw['disk_template'] = volumes[0].template
+    kw['disk_template'] = volumes[0].volume_type.template
     disks = []
     for volume in volumes:
         disk = {"name": volume.backend_volume_uuid,
                 "size": volume.size * 1024}
-        provider = volume.provider
+        provider = volume.volume_type.provider
         if provider is not None:
             disk["provider"] = provider
             disk["origin"] = volume.origin
@@ -894,6 +876,7 @@ def network_exists_in_backend(backend_network):
     except rapi.GanetiApiError as e:
         if e.code == 404:
             return False
+        raise e
 
 
 def job_is_still_running(vm, job_id=None):
@@ -903,8 +886,10 @@ def job_is_still_running(vm, job_id=None):
                 job_id = vm.backendjobid
             job_info = c.GetJobStatus(job_id)
             return not (job_info["status"] in rapi.JOB_STATUS_FINALIZED)
-        except rapi.GanetiApiError:
-            return False
+        except rapi.GanetiApiError as e:
+            if e.code == 404:
+                return False
+            raise e
 
 
 def disk_is_stale(vm, disk, timeout=60):
@@ -928,18 +913,18 @@ def disk_is_stale(vm, disk, timeout=60):
 def nic_is_stale(vm, nic, timeout=60):
     """Check if a NIC is stale or exists in the Ganeti backend."""
     # First check the state of the NIC and if there is a pending CONNECT
-    if nic.state == "BUILD" and vm.task == "CONNECT":
+    if nic.state in ["BUILD", "DOWN"]:
         if datetime.now() < nic.created + timedelta(seconds=timeout):
             # Do not check for too recent NICs to avoid the time overhead
             return False
-        if job_is_still_running(vm, job_id=vm.task_job_id):
+        if vm.task == "CONNECT" and\
+           job_is_still_running(vm, job_id=vm.task_job_id):
             return False
-        else:
-            # If job has finished, check that the NIC exists, because the
-            # message may have been lost or stuck in the queue.
-            vm_info = get_instance_info(vm)
-            if nic.backend_uuid in vm_info["nic.names"]:
-                return False
+        # If the NIC is old or the job has finished, check Ganeti to see if the
+        # NIC exists
+        vm_info = get_instance_info(vm)
+        if nic.backend_uuid in vm_info["nic.names"]:
+            return False
     return True
 
 
@@ -1117,14 +1102,14 @@ def disconnect_from_network(vm, nic):
         kwargs["dry_run"] = True
 
     with pooled_rapi_client(vm) as client:
-        jobID = client.ModifyInstance(**kwargs)
+        job_id = client.ModifyInstance(**kwargs)
         firewall_profile = nic.firewall_profile
         if firewall_profile and firewall_profile != "DISABLED":
             tag = _firewall_tags[firewall_profile] % nic.backend_uuid
             client.DeleteInstanceTags(vm.backend_vm_id, [tag],
                                       dry_run=settings.TEST)
 
-        return jobID
+        return job_id
 
 
 def set_firewall_profile(vm, profile, nic):
@@ -1163,7 +1148,7 @@ def attach_volume(vm, volume, depends=[]):
     disk = {"size": int(volume.size) << 10,
             "name": volume.backend_volume_uuid}
 
-    disk_provider = volume.provider
+    disk_provider = volume.volume_type.provider
     if disk_provider is not None:
         disk["provider"] = disk_provider
 

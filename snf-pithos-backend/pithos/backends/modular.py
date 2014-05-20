@@ -1,35 +1,17 @@
-# Copyright 2011-2014 GRNET S.A. All rights reserved.
+# Copyright (C) 2010-2014 GRNET S.A.
 #
-# Redistribution and use in source and binary forms, with or
-# without modification, are permitted provided that the following
-# conditions are met:
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-#   1. Redistributions of source code must retain the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-#   2. Redistributions in binary form must reproduce the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer in the documentation and/or other materials
-#      provided with the distribution.
-#
-# THIS SOFTWARE IS PROVIDED BY GRNET S.A. ``AS IS'' AND ANY EXPRESS
-# OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GRNET S.A OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-# USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-# The views and conclusions contained in the software and
-# documentation are those of the authors and should not be
-# interpreted as representing official policies, either expressed
-# or implied, of GRNET S.A.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
 import uuid as uuidlib
@@ -108,10 +90,10 @@ DEFAULT_BLOCK_PATH = 'data/'
 DEFAULT_BLOCK_UMASK = 0o022
 DEFAULT_BLOCK_SIZE = 4 * 1024 * 1024  # 4MB
 DEFAULT_HASH_ALGORITHM = 'sha256'
-#DEFAULT_QUEUE_MODULE = 'pithos.backends.lib.rabbitmq'
+# DEFAULT_QUEUE_MODULE = 'pithos.backends.lib.rabbitmq'
 DEFAULT_BLOCK_PARAMS = {'mappool': None, 'blockpool': None}
-#DEFAULT_QUEUE_HOSTS = '[amqp://guest:guest@localhost:5672]'
-#DEFAULT_QUEUE_EXCHANGE = 'pithos'
+# DEFAULT_QUEUE_HOSTS = '[amqp://guest:guest@localhost:5672]'
+# DEFAULT_QUEUE_EXCHANGE = 'pithos'
 DEFAULT_PUBLIC_URL_ALPHABET = ('0123456789'
                                'abcdefghijklmnopqrstuvwxyz'
                                'ABCDEFGHIJKLMNOPQRSTUVWXYZ')
@@ -254,7 +236,7 @@ class ModularBackend(BaseBackend):
         block_params = block_params or DEFAULT_BLOCK_PARAMS
         block_size = block_size or DEFAULT_BLOCK_SIZE
         hash_algorithm = hash_algorithm or DEFAULT_HASH_ALGORITHM
-        #queue_module = queue_module or DEFAULT_QUEUE_MODULE
+        # queue_module = queue_module or DEFAULT_QUEUE_MODULE
         account_quota_policy = account_quota_policy or DEFAULT_ACCOUNT_QUOTA
         container_quota_policy = container_quota_policy \
             or DEFAULT_CONTAINER_QUOTA
@@ -271,8 +253,8 @@ class ModularBackend(BaseBackend):
             VERSIONING_POLICY: container_versioning_policy,
             PROJECT: None
         }
-        #queue_hosts = queue_hosts or DEFAULT_QUEUE_HOSTS
-        #queue_exchange = queue_exchange or DEFAULT_QUEUE_EXCHANGE
+        # queue_hosts = queue_hosts or DEFAULT_QUEUE_HOSTS
+        # queue_exchange = queue_exchange or DEFAULT_QUEUE_EXCHANGE
 
         self.public_url_security = (public_url_security or
                                     DEFAULT_PUBLIC_URL_SECURITY)
@@ -1039,7 +1021,7 @@ class ModularBackend(BaseBackend):
                                                            names)
         access_objects = self.permissions.access_check_bulk(permissions_path,
                                                             user)
-        #group_parents = access_objects['group_parents']
+        # group_parents = access_objects['group_parents']
         nobject_permissions = {}
         cpath = '/'.join((account, container, ''))
         cpath_idx = len(cpath)
@@ -1778,7 +1760,7 @@ class ModularBackend(BaseBackend):
             src_map_check_timestamp = None
         if size is None:  # Set metadata.
             hash = src_hash  # This way hash can be set to None
-                             # (account or container).
+            # (account or container).
             size = src_size
         if type is None:
             type = src_type
@@ -1828,8 +1810,8 @@ class ModularBackend(BaseBackend):
 
         src_version_id, dest_version_id = self._put_version_duplicate(
             user, node,
-            update_statistics_ancestors_depth=
-            update_statistics_ancestors_depth)
+            update_statistics_ancestors_depth=update_statistics_ancestors_depth
+            )
         self._put_metadata_duplicate(
             src_version_id, dest_version_id, domain, node, meta, replace)
         return src_version_id, dest_version_id

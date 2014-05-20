@@ -1,35 +1,17 @@
-# Copyright 2011-2014 GRNET S.A. All rights reserved.
+# Copyright (C) 2010-2014 GRNET S.A.
 #
-# Redistribution and use in source and binary forms, with or
-# without modification, are permitted provided that the following
-# conditions are met:
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-#   1. Redistributions of source code must retain the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-#   2. Redistributions in binary form must reproduce the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer in the documentation and/or other materials
-#      provided with the distribution.
-#
-# THIS SOFTWARE IS PROVIDED BY GRNET S.A. ``AS IS'' AND ANY EXPRESS
-# OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GRNET S.A OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-# USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-# The views and conclusions contained in the software and
-# documentation are those of the authors and should not be
-# interpreted as representing official policies, either expressed
-# or implied, of GRNET S.A.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf import settings
 from django.conf.urls import patterns
@@ -401,7 +383,7 @@ def create_server(request):
     #                       badRequest (400),
     #                       serverCapacityUnavailable (503),
     #                       overLimit (413)
-    req = utils.get_request_dict(request)
+    req = utils.get_json_body(request)
     user_id = request.user_uniq
     log.info('create_server user: %s request: %s', user_id, req)
 
@@ -539,7 +521,7 @@ def update_server_name(request, server_id):
     #                       buildInProgress (409),
     #                       overLimit (413)
 
-    req = utils.get_request_dict(request)
+    req = utils.get_json_body(request)
     log.info('update_server_name %s %s', server_id, req)
 
     req = utils.get_attribute(req, "server", attr_type=dict, required=True)
@@ -591,7 +573,7 @@ def key_to_action(key):
 @api.api_method(http_method='POST', user_required=True, logger=log)
 @transaction.commit_on_success
 def demux_server_action(request, server_id):
-    req = utils.get_request_dict(request)
+    req = utils.get_json_body(request)
     log.debug('server_action %s %s', server_id, req)
 
     if not isinstance(req, dict) and len(req) != 1:
@@ -690,7 +672,7 @@ def update_metadata(request, server_id):
     #                       badMediaType(415),
     #                       overLimit (413)
 
-    req = utils.get_request_dict(request)
+    req = utils.get_json_body(request)
     log.info('update_server_metadata %s %s', server_id, req)
     vm = util.get_vm(server_id, request.user_uniq, non_suspended=True)
     metadata = utils.get_attribute(req, "metadata", required=True,
@@ -739,7 +721,7 @@ def create_metadata_item(request, server_id, key):
     #                       badMediaType(415),
     #                       overLimit (413)
 
-    req = utils.get_request_dict(request)
+    req = utils.get_json_body(request)
     log.info('create_server_metadata_item %s %s %s', server_id, key, req)
     vm = util.get_vm(server_id, request.user_uniq, non_suspended=True)
     try:
@@ -1095,7 +1077,7 @@ def get_volume_info(request, server_id, volume_id):
 
 @api.api_method(http_method='POST', user_required=True, logger=log)
 def attach_volume(request, server_id):
-    req = utils.get_request_dict(request)
+    req = utils.get_json_body(request)
     log.debug("attach_volume server_id %s request", server_id, req)
     user_id = request.user_uniq
     vm = util.get_vm(server_id, user_id, for_update=True)

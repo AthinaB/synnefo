@@ -260,7 +260,7 @@
     </div>
 
     <div class="empty-list hidden">
-      <p>{% trans "The list is empty" %}</p>
+      <p>{% trans "No networks found. Start by clicking the orange button on the top left." %}</p>
     </div>
 
     <div class="items-list clearfix">
@@ -275,7 +275,10 @@
     <div class="checkbox">
       <input type="checkbox" data-rv-data-id="model.id" />
     </div>
-    <div class="name" data-rv-text="model.floating_ip_address"></div>
+    <div class="name">
+      <span data-rv-text="model.floating_ip_address"></span>
+      <span class="project-name" data-rv-text="model.project.name|truncate 30"></span>
+    </div>
   </div>
 </div>
 

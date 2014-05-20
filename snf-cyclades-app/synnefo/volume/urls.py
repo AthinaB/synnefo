@@ -1,35 +1,17 @@
-# Copyright 2013-2014 GRNET S.A. All rights reserved.
+# Copyright (C) 2010-2014 GRNET S.A.
 #
-# Redistribution and use in source and binary forms, with or
-# without modification, are permitted provided that the following
-# conditions are met:
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-#   1. Redistributions of source code must retain the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-#   2. Redistributions in binary form must reproduce the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer in the documentation and/or other materials
-#      provided with the distribution.
-#
-# THIS SOFTWARE IS PROVIDED BY GRNET S.A. ``AS IS'' AND ANY EXPRESS
-# OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GRNET S.A OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-# USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-# The views and conclusions contained in the software and
-# documentation are those of the authors and should not be
-# interpreted as representing official policies, either expressed
-# or implied, of GRNET S.A.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.conf.urls.defaults import patterns, include
 from django.http import HttpResponseNotAllowed
@@ -57,6 +39,24 @@ def volume_item_demux(request, volume_id):
         return HttpResponseNotAllowed(["GET", "PUT", "DELETE"])
 
 
+def volume_metadata_demux(request, volume_id):
+    if request.method == 'GET':
+        return views.list_volume_metadata(request, volume_id)
+    elif request.method == 'POST':
+        return views.update_volume_metadata(request, volume_id, reset=False)
+    elif request.method == 'PUT':
+        return views.update_volume_metadata(request, volume_id, reset=True)
+    else:
+        return HttpResponseNotAllowed(['GET', 'POST', 'PUT'])
+
+
+def volume_metadata_item_demux(request, volume_id, key):
+    if request.method == 'DELETE':
+        return views.delete_volume_metadata_item(request, volume_id, key)
+    else:
+        return HttpResponseNotAllowed(['DELETE'])
+
+
 def snapshot_demux(request):
     if request.method == 'GET':
         return views.list_snapshots(request)
@@ -76,14 +76,41 @@ def snapshot_item_demux(request, snapshot_id):
     else:
         return HttpResponseNotAllowed(["GET", "PUT", "DELETE"])
 
+
+def snapshot_metadata_demux(request, snapshot_id):
+    if request.method == 'GET':
+        return views.list_snapshot_metadata(request, snapshot_id)
+    elif request.method == 'POST':
+        return views.update_snapshot_metadata(request, snapshot_id,
+                                              reset=False)
+    elif request.method == 'PUT':
+        return views.update_snapshot_metadata(request, snapshot_id, reset=True)
+    else:
+        return HttpResponseNotAllowed(['GET', 'POST', 'PUT'])
+
+
+def snapshot_metadata_item_demux(request, snapshot_id, key):
+    if request.method == 'DELETE':
+        return views.delete_snapshot_metadata_item(request, snapshot_id, key)
+    else:
+        return HttpResponseNotAllowed(['DELETE'])
+
+
 volume_v2_patterns = patterns(
     '',
-    (r'^volumes/$', volume_demux),
-    (r'^volumes/detail$', views.list_volumes, {'detail': True}),
+    (r'^volumes/?(?:.json)?$', volume_demux),
+    (r'^volumes/detail(?:.json)?$', views.list_volumes, {'detail': True}),
     (r'^volumes/(\d+)(?:.json)?$', volume_item_demux),
-    (r'^snapshots/$', snapshot_demux),
+    (r'^volumes/(\d+)/metadata/?(?:.json)?$', volume_metadata_demux),
+    (r'^volumes/(\d+)/metadata/(.+)(?:.json)?$', volume_metadata_item_demux),
+    (r'^snapshots/?(?:.json)?$', snapshot_demux),
     (r'^snapshots/detail$', views.list_snapshots, {'detail': True}),
-    (r'^snapshots/(\d+)(?:.json)?$', snapshot_item_demux),
+    (r'^snapshots/([\w-]+)(?:.json)?$', snapshot_item_demux),
+    (r'^snapshots/([\w-]+)/metadata/?(?:.json)?$', snapshot_metadata_demux),
+    (r'^snapshots/([\w-]+)/metadata/(.+)(?:.json)?$',
+        snapshot_metadata_item_demux),
+    (r'^types/?(?:.json)?$', views.list_volume_types),
+    (r'^types/(\d+)(?:.json)?$', views.get_volume_type),
 )
 
 urlpatterns = patterns(

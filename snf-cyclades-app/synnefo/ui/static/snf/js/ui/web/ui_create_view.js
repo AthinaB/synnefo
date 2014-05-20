@@ -1,35 +1,17 @@
-// Copyright 2014 GRNET S.A. All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or
-// without modification, are permitted provided that the following
-// conditions are met:
-// 
-//   1. Redistributions of source code must retain the above
-//      copyright notice, this list of conditions and the following
-//      disclaimer.
-// 
-//   2. Redistributions in binary form must reproduce the above
-//      copyright notice, this list of conditions and the following
-//      disclaimer in the documentation and/or other materials
-//      provided with the distribution.
-// 
-// THIS SOFTWARE IS PROVIDED BY GRNET S.A. ``AS IS'' AND ANY EXPRESS
-// OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GRNET S.A OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-// USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-// AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-// POSSIBILITY OF SUCH DAMAGE.
-// 
-// The views and conclusions contained in the software and
-// documentation are those of the authors and should not be
-// interpreted as representing official policies, either expressed
-// or implied, of GRNET S.A.
+// Copyright (C) 2010-2014 GRNET S.A.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // 
 
 ;(function(root){
@@ -64,11 +46,11 @@
         _.each(min_vm_quota, function(val, key) {
           var q = this.model.quotas.get(key);
           if (!q) { return }
-          var content = '{0}: {1}  ';
+          var content = '{0}: {1},  ';
           data += content.format(q.get('resource').get('display_name'), 
                                  q.get_readable('available'));
         }, this);
-        data = data.substring(0, data.length-2);
+        data = data.substring(0, data.length-3);
         data += ")";
         return data;
       }
@@ -1587,7 +1569,7 @@
             this.name = this.$("h3.vm-name");
             this.keys = this.$(".confirm-params.ssh");
             this.meta = this.$(".confirm-params.meta");
-            this.project = this.$(".confirm-cont.image .project-title");
+            this.project = this.$(".confirm-cont.flavor .project-name");
             this.ip_addresses = this.$(".confirm-params.ip-addresses");
             this.private_networks = this.$(".confirm-params.private-networks");
             this.init_handlers();
@@ -1612,8 +1594,16 @@
                                            'No ip addresses selected'))
             }
             _.each(ips, _.bind(function(ip) {
+                var ip_address = $('<span class="ip"></span>');
+                ip_address.text(ip.get('floating_ip_address'));
+
                 var el = this.make("li", {'class':'selected-ip-address'}, 
-                                  ip.get('floating_ip_address'));
+                                  ip_address);
+                var project_name = ip.get('project').get('name');
+                project_name = util.truncate(project_name, 30)
+                var name = $('<span class="project"></span>')
+                $(name).text(project_name);
+                $(el).append(name);
                 this.ip_addresses.append(el);
             }, this))
 

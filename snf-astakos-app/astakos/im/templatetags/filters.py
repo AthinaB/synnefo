@@ -1,35 +1,17 @@
-# Copyright 2011-2012 GRNET S.A. All rights reserved.
+# Copyright (C) 2010-2014 GRNET S.A.
 #
-# Redistribution and use in source and binary forms, with or
-# without modification, are permitted provided that the following
-# conditions are met:
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-#   1. Redistributions of source code must retain the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-#   2. Redistributions in binary form must reproduce the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer in the documentation and/or other materials
-#      provided with the distribution.
-#
-# THIS SOFTWARE IS PROVIDED BY GRNET S.A. ``AS IS'' AND ANY EXPRESS
-# OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GRNET S.A OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-# USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-# The views and conclusions contained in the software and
-# documentation are those of the authors and should not be
-# interpreted as representing official policies, either expressed
-# or implied, of GRNET S.A.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import calendar
 import datetime
@@ -44,12 +26,15 @@ from django.utils.safestring import mark_safe
 from django.template import defaultfilters
 
 from synnefo.lib.ordereddict import OrderedDict
+from synnefo.util import units
 
 from astakos.im import settings
 from astakos.im.models import ProjectResourceGrant, Project
 from astakos.im.views import util as views_util
 from astakos.im import util
 from astakos.im import presentation
+
+from astakos.im import quotas
 
 register = template.Library()
 
@@ -250,6 +235,34 @@ def sorted_resources(resources_set):
 
 
 @register.filter
+def display_resource_usage_for_project(resource, project):
+    usage_map = presentation.USAGE_TAG_MAP
+    quota = quotas.get_project_quota(project).get(resource.name, None)
+
+    if not quota:
+        return "No usage"
+
+    cls = ''
+    usage = quota['project_usage']
+    limit = quota['project_limit']
+
+    if limit == 0 and usage == 0:
+        return "--"
+
+    usage_perc = "%d" % ((usage / limit) * 100) if limit else "100"
+    _keys = usage_map.keys()
+    closest = min(_keys, key=lambda x: abs(x - int(usage_perc)))
+    cls = usage_map[closest]
+
+    usage_display = units.show(usage, resource.unit)
+    usage_perc_display = "%s%%" % usage_perc
+
+    resp = """<span class="%s policy-diff">%s (%s)</span>""" % \
+            (cls, usage_perc_display, usage_display)
+    return mark_safe(resp)
+
+
+@register.filter
 def is_pending_app(app):
     if not app:
         return False
@@ -275,7 +288,7 @@ def _owner_formatter(form_or_app, value, changed):
         changed_name = None
     else:
         changed_name = changed.realname
-    return value.realname, changed_name, None, None
+    return value.realname if value else None, changed_name, None, None
 
 
 def _owner_admin_formatter(form_or_app, value, changed):
@@ -283,7 +296,7 @@ def _owner_admin_formatter(form_or_app, value, changed):
         changed_name = None
     else:
         changed_name = changed.realname + " (%s)" % changed.email
-    return value.realname + " (%s)" % value.email, changed_name, None, None
+    return value.realname + " (%s)" % value.email if value else None, changed_name, None, None
 
 
 def _owner_owner_formatter(form_or_app, value, changed):
@@ -359,6 +372,9 @@ def display_modification_param(form_or_app, param, formatter=None):
         tpl += """<span class="policy-diff %(changed_cls)s">""" + \
                """%(changed_prefix)s%(changed)s</span>"""
 
+    if not app_value:
+        app_value = "(not set)"
+
     return mark_safe(tpl % {
         'value': app_value,
         'changed': changed,
@@ -403,3 +419,14 @@ def display_date_modification_param(form_or_app, params):
 
     return display_modification_param(form_or_app, param, formatter)
 
+
+@register.filter
+def inf_display(value):
+    if value == units.PRACTICALLY_INFINITE:
+        return 'Infinite'
+    return value
+
+
+@register.filter
+def project_name_for_user(project, user):
+    return project.display_name_for_user(user)

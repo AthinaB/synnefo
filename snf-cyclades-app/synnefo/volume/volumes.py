@@ -1,35 +1,17 @@
-# Copyright 2013-2014 GRNET S.A. All rights reserved.
+# Copyright (C) 2010-2014 GRNET S.A.
 #
-# Redistribution and use in source and binary forms, with or
-# without modification, are permitted provided that the following
-# conditions are met:
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
 #
-#   1. Redistributions of source code must retain the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-#   2. Redistributions in binary form must reproduce the above
-#      copyright notice, this list of conditions and the following
-#      disclaimer in the documentation and/or other materials
-#      provided with the distribution.
-#
-# THIS SOFTWARE IS PROVIDED BY GRNET S.A. ``AS IS'' AND ANY EXPRESS
-# OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GRNET S.A OR
-# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-# SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-# LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-# USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-# AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-# LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-# ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-# POSSIBILITY OF SUCH DAMAGE.
-#
-# The views and conclusions contained in the software and
-# documentation are those of the authors and should not be
-# interpreted as representing official policies, either expressed
-# or implied, of GRNET S.A.
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import logging
 
@@ -46,13 +28,25 @@ log = logging.getLogger(__name__)
 @transaction.commit_on_success
 def create(user_id, size, server_id, name=None, description=None,
            source_volume_id=None, source_snapshot_id=None,
-           source_image_id=None, volume_type=None, metadata=None):
+           source_image_id=None, volume_type_id=None, metadata=None):
 
     # Currently we cannot create volumes without being attached to a server
     if server_id is None:
         raise faults.BadRequest("Volume must be attached to server")
     server = util.get_server(user_id, server_id, for_update=True,
                              exception=faults.BadRequest)
+
+    server_vtype = server.flavor.volume_type
+    if volume_type_id is not None:
+        volume_type = util.get_volume_type(volume_type_id,
+                                           include_deleted=False,
+                                           exception=faults.BadRequest)
+        if volume_type != server_vtype:
+            raise faults.BadRequest("Cannot create a volume with type '%s' to"
+                                    " a server with volume type '%s'."
+                                    % (volume_type.id, server_vtype.id))
+    else:
+        volume_type = server_vtype
 
     # Assert that not more than one source are used
     sources = filter(lambda x: x is not None,
@@ -74,7 +68,8 @@ def create(user_id, size, server_id, name=None, description=None,
         source_uuid = None
 
     volume = _create_volume(server, user_id, size, source_type, source_uuid,
-                            name, description, index=None)
+                            volume_type=volume_type, name=name,
+                            description=description, index=None)
 
     if metadata is not None:
         for meta_key, meta_val in metadata.items():
@@ -90,22 +85,22 @@ def create(user_id, size, server_id, name=None, description=None,
 
 
 def _create_volume(server, user_id, size, source_type, source_uuid,
-                   name=None, description=None, index=None,
+                   volume_type, name=None, description=None, index=None,
                    delete_on_termination=True):
 
     utils.check_name_length(name, Volume.NAME_LENGTH,
                             "Volume name is too long")
     utils.check_name_length(description, Volume.DESCRIPTION_LENGTH,
                             "Volume name is too long")
+
     # Only ext_ disk template supports cloning from another source. Otherwise
     # is must be the root volume so that 'snf-image' fill the volume
-    disk_template = server.flavor.disk_template
-    teplate, provider = util.get_disk_template_provider(disk_template)
     can_have_source = (index == 0 or
-                       provider in settings.GANETI_CLONE_PROVIDERS)
+                       volume_type.provider in settings.GANETI_CLONE_PROVIDERS)
     if not can_have_source and source_type != "blank":
-        msg = ("Volumes of '%s' disk template cannot have a source" %
-               disk_template)
+        msg = ("Cannot specify a 'source' attribute for volume type '%s' with"
+               " disk template '%s'" %
+               (volume_type.id, volume_type.disk_template))
         raise faults.BadRequest(msg)
 
     # TODO: Check Volume/Snapshot Status
@@ -165,14 +160,13 @@ def _create_volume(server, user_id, size, source_type, source_uuid,
 
     volume = Volume.objects.create(userid=user_id,
                                    size=size,
-                                   disk_template=disk_template,
+                                   volume_type=volume_type,
                                    name=name,
                                    machine=server,
                                    description=description,
                                    delete_on_termination=delete_on_termination,
                                    source=source,
                                    origin=origin,
-                                   #volume_type=volume_type,
                                    status="CREATING")
     return volume
 

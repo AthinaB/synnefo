@@ -1,35 +1,17 @@
-// Copyright 2014 GRNET S.A. All rights reserved.
-// 
-// Redistribution and use in source and binary forms, with or
-// without modification, are permitted provided that the following
-// conditions are met:
-// 
-//   1. Redistributions of source code must retain the above
-//      copyright notice, this list of conditions and the following
-//      disclaimer.
-// 
-//   2. Redistributions in binary form must reproduce the above
-//      copyright notice, this list of conditions and the following
-//      disclaimer in the documentation and/or other materials
-//      provided with the distribution.
-// 
-// THIS SOFTWARE IS PROVIDED BY GRNET S.A. ``AS IS'' AND ANY EXPRESS
-// OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-// WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-// PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL GRNET S.A OR
-// CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
-// SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
-// LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF
-// USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED
-// AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
-// LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
-// ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
-// POSSIBILITY OF SUCH DAMAGE.
-// 
-// The views and conclusions contained in the software and
-// documentation are those of the authors and should not be
-// interpreted as representing official policies, either expressed
-// or implied, of GRNET S.A.
+// Copyright (C) 2010-2014 GRNET S.A.
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // 
 
 ;(function(root){
@@ -364,6 +346,14 @@
             var self = this;
             var el = this.vm(vm);
 
+            var project = vm.get('project');
+            if (project) {
+              project.bind('change', function() {
+                el.find(".project-name").text(
+                  _.truncate(project.get('name'), 20));
+              }, this);
+            };
+
             // hidden feature, double click on indicators to display 
             // vm diagnostics.
             el.find(".indicators").bind("dblclick", function(){
@@ -431,6 +421,10 @@
         update_toggles_visibility: function(vm) {
           if (vm.is_building() || vm.in_error_state() || vm.get("status") == "DESTROY") {
             this.vm(vm).find(".cont-toggler-wrapper.ips").addClass("disabled");
+            var info_view = this.info_views && this.info_views[vm.id];
+            if (info_view && info_view.ips_el) {
+              info_view.ips_el.hide();
+            }
           } else {
             this.vm(vm).find(".cont-toggler-wrapper.ips").removeClass("disabled");
           }
@@ -628,6 +622,16 @@
           el.addClass("disabled-visible")
         },
 
+        set_can_resize: function() {
+          var el = $(this.el).find("a.action-resize").parent();
+          el.removeClass("disabled-visible");
+        },
+
+        set_cannot_resize: function() {
+          var el = $(this.el).find("a.action-resize").parent();
+          el.addClass("disabled-visible");
+        },
+
         // update the actions layout, depending on the selected actions
         update_layout: function() {
             
@@ -636,6 +640,11 @@
                 this.set_can_start();
               } else {
                 this.set_cannot_start();
+              }
+              if (this.vm.can_resize()) {
+                this.set_can_resize();
+              } else {
+                this.set_cannot_resize();
               }
             }
 
@@ -695,6 +704,8 @@
                 this.view.hide_indicator(this.vm);
             }
                 
+            var vm_view = this.view.vm(this.vm);
+            vm_view.removeClass("action-pending");
             // update action link styles and shit
             _.each(models.VM.ACTIONS, function(action, index) {
                 if (actions.indexOf(action) > -1) {
@@ -712,6 +723,7 @@
                         this.action_confirm(action).show();
                         this.action(action).removeClass("disabled");
                         this.action_link(action).addClass("selected");
+                        vm_view.addClass("action-pending");
                     } else {
                         this.action_confirm_cont(action).hide();
                         this.action_confirm(action).hide();
@@ -784,11 +796,13 @@
                       action == "start" && 
                       !self.vm.can_start() && 
                       !vm.in_error_state()) {
+                        if (!vm.can_resize()) { return }
                         ui.main.vm_resize_view.show_with_warning(self.vm);
                         return;
                     }
 
                     if (action == "resize") {
+                      if (!vm.can_resize()) { return }
                       ui.main.vm_resize_view.show(self.vm);
                       return;
                     } else if (action == "reassign") {
