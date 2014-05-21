@@ -640,9 +640,9 @@ td:last-child dl {
   display: none;
   margin-bottom: 0;
   margin-top: 20px;
-  /* dd {
-   display: inline-block;
-   } */
+ /* dd {
+	display: inline-block;
+	} */
 }
 
 /* line 339, ../sass/extra.scss */
@@ -652,7 +652,7 @@ td:last-child dl {
 }
 
 /* a[disabled] {
-    color: #999999;
+		color: #999999;
 } */
 /* line 351, ../sass/extra.scss */
 a:not([disabled]):hover {
@@ -1062,4 +1062,38 @@ html body .dataTables_wrapper table > thead > tr > th.sorting, html body .dataTa
 body table > tbody > tr.selected > td {
   background-color: #D2DFDB !important;
   color: #6144ac;
+}
+
+/* line 745, ../sass/extra.scss */
+.custom-buttons {
+  float: left;
+  margin-right: 10px;
+}
+
+/* .with-shift tbody tr, button { // doesn't show selected highlight -> switch to color
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+} */
+/* line 759, ../sass/extra.scss */
+*::selection {
+  background: #fff2a8;
+}
+
+/* line 763, ../sass/extra.scss */
+*::-moz-selection {
+  background: #fff2a8;
+}
+
+/* line 767, ../sass/extra.scss */
+.with-shift *::selection {
+  background-color: transparent;
+}
+
+/* line 771, ../sass/extra.scss */
+.with-shift *::-moz-selection {
+  background: transparent;
 }
