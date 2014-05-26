@@ -85,7 +85,7 @@ $(function(){
 			"url": url,
 			"data": function(data) {
 				// here must be placed the additional data that needs to be send with the ajax call
-				// data.extraKey = "extraValue";
+				data.sSearch_status = "STOPPED";
 			},
 			"dataSrc" : function(response) {
 				console.log(response);
