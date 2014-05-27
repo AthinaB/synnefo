@@ -12,7 +12,7 @@ them appropriately.
 {% endcomment %}
 
 <div class="well well-lg">
-    <div class="btn-group filters">
+    <div class="filters">  <!-- use it to center it (sort of) -->
     {% for filter_name, filter in filter_dict.items %}
         {% if filter.type == "choice" %}
             {% include "admin/filter_choice.html" %}
