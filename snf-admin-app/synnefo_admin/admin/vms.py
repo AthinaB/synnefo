@@ -49,6 +49,8 @@ from synnefo.logic.commands import validate_server_action
 
 from eztables.views import DatatablesView
 
+from django.db.models import Q
+
 templates = {
     'list': 'admin/vm_list.html',
     'details': 'admin/vm_details.html',
@@ -67,9 +69,12 @@ class Filter():
 def filter_status(query, queryset):
     if not isinstance(query, list):
         query = [query]
-    for value in query:
-        queryset = queryset.filter(operstate=value)
-    return queryset
+
+    q = Q()
+    for choice in query:
+        q = q | Q(operstate=choice)
+
+    return queryset.filter(q)
 
 
 def filter_name(query, queryset):
