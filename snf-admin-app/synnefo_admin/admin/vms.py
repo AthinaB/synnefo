@@ -55,6 +55,40 @@ templates = {
 }
 
 
+class Filter():
+    def __init__(self, name, label, type, f, choices=None):
+        self.name = name
+        self.label = label
+        self.type = type
+        self.choices = choices
+        self.filter = f
+
+
+def filter_status(query, queryset):
+    if not isinstance(query, list):
+        query = [query]
+    for value in query:
+        queryset = queryset.filter(operstate=value)
+    return queryset
+
+
+def filter_name(query, queryset):
+    return queryset.filter(name__icontains=query)
+
+
+def generate_filters():
+    filters = OrderedDict()
+
+    filters['status'] = Filter(name='status', label='Status', type='choice',
+                               f=filter_status,
+                               choices=map(lambda t: t[0],
+                                           VirtualMachine.OPER_STATES))
+
+    filters['name'] = Filter(name='name', label='Name', type='text',
+                             f=filter_name)
+    return filters
+
+
 def get_allowed_actions(vm):
     """Get a list of actions that can apply to a user."""
     allowed_actions = []
@@ -78,6 +112,7 @@ class VMJSONView(DatatablesView):
     fields = ('pk', 'pk', 'name', 'operstate', 'suspended',)
 
     extra = True
+    filters = generate_filters()
 
     def get_extra_data_row(self, inst):
         extra_dict = OrderedDict()
@@ -265,6 +300,7 @@ def catalog(request):
     """List view for Cyclades VMs."""
     context = {}
     context['action_dict'] = generate_actions()
+    context['filter_dict'] = generate_filters()
     context['columns'] = ["Column 1", "ID", "Name", "State", "Suspended",
                           "Details", "Summary"]
     context['item_type'] = 'vm'

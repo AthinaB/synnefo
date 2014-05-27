@@ -1,0 +1,26 @@
+{% comment %}
+Hi Athens! This is the place where we iterate the filters. You can insert
+any code you want above and below the for-loop.
+Also, check out the filter_choice.html and filter_text.html templates to
+create the filters.
+
+Note, filter.name must be sent with the Ajax request as in the following format
+"sSearch_{{filter.name}}". Also, you don't have to join choices with a comma.
+You can send them like so:
+"...&sSearch_filter=value1...&sSearch_filter=value3..." and Django will handle
+them appropriately.
+{% endcomment %}
+
+<div class="well well-lg">
+    <div class="btn-group filters">
+    {% for filter_name, filter in filter_dict.items %}
+        {% if filter.type == "choice" %}
+            {% include "admin/filter_choice.html" %}
+        {% elif filter.type == "text" %}
+            {% include "admin/filter_text.html" %}
+        {% else %}
+            <p>Incorrect filter type: {{ filter.type }}</p>
+        {% endif %}
+    {% endfor %}
+    </div>
+</div>
