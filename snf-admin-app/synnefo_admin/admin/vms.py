@@ -265,8 +265,7 @@ def catalog(request):
     """List view for Cyclades VMs."""
     context = {}
     context['action_dict'] = generate_actions()
-    context['columns'] = ["Column 1", "ID", "Name", "State", "Suspended",
-                          "Details", "Summary"]
+    context['columns'] = ["Column 1", "ID", "Name", "State", "Suspended", ""]
     context['item_type'] = 'vm'
 
     return context

@@ -76,107 +76,107 @@ $(function(){
 
 	var tableDomID = '#table-items-total';
 	var tableSelectedDomID = '#table-items-selected'
-	table = $(tableDomID).DataTable({
-		"bPaginate": true,
-		//"sPaginationType": "bootstrap",
-		"bProcessing": true,
-		"serverSide": serverside,
-		"ajax": {
-			"url": url,
-			"data": function(data) {
-				// here must be placed the additional data that needs to be send with the ajax call
-				// data.extraKey = "extraValue";
-			},
-			"dataSrc" : function(response) {
-				console.log(response);
-				mydata = response;
-				extraData = response.extra;
-				if(response.aaData.length != 0) {
-					var cols = response.aaData;
-					var rowL = cols.length;
-					var detailsCol = cols[0].length;
-					var summaryCol = ++cols[0].length;
-					for (var i=0; i<rowL; i++) {
-						cols[i][detailsCol] = response.extra[i].details_url;
-						cols[i][summaryCol] = response.extra[i]
-					}
-				}
-				return response.aaData;
-			}
-		},
-		"columnDefs": [{
-			"targets": -2, // the second column counting from the right is "Details"
-			"orderable": false,
-			"render": function(data, type, rowData)  {
-				return detailsTemplate(data);
-			}
-		},
-		{
-			"targets": -1, // the first column counting from the right is "Summary"
-			"orderable": false,
-			"render": function(data, type, rowData) {
-				return summaryTemplate(data);
-			},
-		},
-		{
-			targets: 0,
-			visible: false
-		}
-		],
-		"order": [1, "asc"],
-		"createdRow": function(row, data, dataIndex) {
-			var extraIndex = data.length - 1;
-			row.id = data[extraIndex].id.value; //sets the dom id
-			var selectedL = selected.items.length;
-			if(selectedL !== 0) {
-				for(var i = 0; i<selectedL; i++){
-					if (selected.items[i].id === row.id) {
-						$(row).addClass('selected')
-					}
-				}
-			}
+	// table = $(tableDomID).DataTable({
+	// 	"bPaginate": true,
+	// 	//"sPaginationType": "bootstrap",
+	// 	"bProcessing": true,
+	// 	"serverSide": serverside,
+	// 	"ajax": {
+	// 		"url": url,
+	// 		"data": function(data) {
+	// 			// here must be placed the additional data that needs to be send with the ajax call
+	// 			// data.extraKey = "extraValue";
+	// 		},
+	// 		"dataSrc" : function(response) {
+	// 			console.log(response);
+	// 			mydata = response;
+	// 			extraData = response.extra;
+	// 			if(response.aaData.length != 0) {
+	// 				var cols = response.aaData;
+	// 				var rowL = cols.length;
+	// 				var detailsCol = cols[0].length;
+	// 				var summaryCol = ++cols[0].length;
+	// 				for (var i=0; i<rowL; i++) {
+	// 					cols[i][detailsCol] = response.extra[i].details_url;
+	// 					cols[i][summaryCol] = response.extra[i]
+	// 				}
+	// 			}
+	// 			return response.aaData;
+	// 		}
+	// 	},
+	// 	"columnDefs": [{
+	// 		"targets": -2, // the second column counting from the right is "Details"
+	// 		"orderable": false,
+	// 		"render": function(data, type, rowData)  {
+	// 			return detailsTemplate(data);
+	// 		}
+	// 	},
+	// 	{
+	// 		"targets": -1, // the first column counting from the right is "Summary"
+	// 		"orderable": false,
+	// 		"render": function(data, type, rowData) {
+	// 			return summaryTemplate(data);
+	// 		},
+	// 	},
+	// 	{
+	// 		targets: 0,
+	// 		visible: false
+	// 	}
+	// 	],
+	// 	"order": [1, "asc"],
+	// 	"createdRow": function(row, data, dataIndex) {
+	// 		var extraIndex = data.length - 1;
+	// 		row.id = data[extraIndex].id.value; //sets the dom id
+	// 		var selectedL = selected.items.length;
+	// 		if(selectedL !== 0) {
+	// 			for(var i = 0; i<selectedL; i++){
+	// 				if (selected.items[i].id === row.id) {
+	// 					$(row).addClass('selected')
+	// 				}
+	// 			}
+	// 		}
 
-			clickSummary(row);
-			clickDetails(row);
-		},
-		"dom": '<"custom-buttons">frtilp',
-		"language" : {
-			"sLengthMenu": 'Pagination _MENU_'
-		}
-	});
-	$("div.custom-buttons").html('<button class="select-all select">Select All</button>');
+	// 		clickSummary(row);
+	// 		clickDetails(row);
+	// 	},
+	// 	"dom": '<"custom-buttons">frtilp',
+	// 	"language" : {
+	// 		"sLengthMenu": 'Pagination _MENU_'
+	// 	}
+	// });
+	// $("div.custom-buttons").html('<button class="select-all select">Select All</button>');
 
-	tableSelected = $(tableSelectedDomID).DataTable({
-		"columnDefs": [{
-			"targets": -2, // the second column counting from the right is "Details"
-			"orderable": false,
-			"render": function(data, type, rowData)  {
-				return detailsTemplate(data);
-			}
-		},
-		{
-			"targets": -1, // the first column counting from the right is "Summary"
-			"orderable": false,
-			"render": function(data, type, rowData) {
-				return summaryTemplate(data);
-			},
-		},
-		{
-			targets: 0,
-			visible: false
-		}
-		],
-		"order": [1, "asc"],
-		"createdRow": function(row, data, dataIndex) {
-			clickSummary(row);
-			clickDetails(row);
-		},
-		"lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
-		"dom": 'frtilp',
-		"language" : {
-			"sLengthMenu": 'Pagination _MENU_'
-		}
-	});
+	// tableSelected = $(tableSelectedDomID).DataTable({
+	// 	"columnDefs": [{
+	// 		"targets": -2, // the second column counting from the right is "Details"
+	// 		"orderable": false,
+	// 		"render": function(data, type, rowData)  {
+	// 			return detailsTemplate(data);
+	// 		}
+	// 	},
+	// 	{
+	// 		"targets": -1, // the first column counting from the right is "Summary"
+	// 		"orderable": false,
+	// 		"render": function(data, type, rowData) {
+	// 			return summaryTemplate(data);
+	// 		},
+	// 	},
+	// 	{
+	// 		targets: 0,
+	// 		visible: false
+	// 	}
+	// 	],
+	// 	"order": [1, "asc"],
+	// 	"createdRow": function(row, data, dataIndex) {
+	// 		clickSummary(row);
+	// 		clickDetails(row);
+	// 	},
+	// 	"lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+	// 	"dom": 'frtilp',
+	// 	"language" : {
+	// 		"sLengthMenu": 'Pagination _MENU_'
+	// 	}
+	// });
 
 	function keepSelected(data) {
 		var itemID = data[data.length - 1].id.value;
@@ -203,7 +203,7 @@ $(function(){
 		}
 	}
 
-	$(tableDomID).on('click', 'tbody tr', function(e) {
+/* *** */	$(tableDomID+':not([data-content="vm"])').on('click', 'tbody tr', function(e) {
 		selectRow(this, e.type);
 		var select;
 		if($(this).hasClass('selected')) {
@@ -285,28 +285,28 @@ $(function(){
 		}
 	};
 
-	function detailsTemplate(data) {
-		var html = '<a href="'+ data.value +'" class="details-link">'+ data.display_name+'</a>';
-		return html;
-	};
+	// function detailsTemplate(data) {
+	// 	var html = '<a href="'+ data.value +'" class="details-link">'+ data.display_name+'</a>';
+	// 	return html;
+	// };
 
-	function summaryTemplate(data) {
-		var listTemplate = '<dt>{key}:</dt><dd>{value}</dd>';
-		var list = '';
-		var listItem = listTemplate.replace('{key}', prop).replace('{value}',data[prop]);
-		var html;
+	// function summaryTemplate(data) {
+	// 	var listTemplate = '<dt>{key}:</dt><dd>{value}</dd>';
+	// 	var list = '';
+	// 	var listItem = listTemplate.replace('{key}', prop).replace('{value}',data[prop]);
+	// 	var html;
 
-		for(var prop in data) {
-			if(prop !== "details_url") {
-				if(data[prop].visible) {
-					list += listTemplate.replace('{key}', data[prop].display_name).replace('{value}',data[prop].value);
-				}
-			}
-		}
+	// 	for(var prop in data) {
+	// 		if(prop !== "details_url") {
+	// 			if(data[prop].visible) {
+	// 				list += listTemplate.replace('{key}', data[prop].display_name).replace('{value}',data[prop].value);
+	// 			}
+	// 		}
+	// 	}
 
-		html = '<a href="#" class="summary-expand expand-area"><span class="snf-icon snf-angle-down"></span></a><dl class="info-summary dl-horizontal">'+ list +'</dl>';
-		return html;
-	};
+	// 	html = '<a href="#" class="summary-expand expand-area"><span class="snf-icon snf-angle-down"></span></a><dl class="info-summary dl-horizontal">'+ list +'</dl>';
+	// 	return html;
+	// };
 
 	function clickDetails(row) {
 		$(row).find('a.details-link').click(function(e) {

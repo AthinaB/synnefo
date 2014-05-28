@@ -262,7 +262,7 @@ def catalog(request):
     context['action_dict'] = generate_actions()
     context['columns'] = ["Column 1", "E-mail", "First Name", "Last Name",
                           "Active", "Rejected", "Moderated", "Verified",
-                          "Details", "Summary"]
+                          "Details", ""]
     context['item_type'] = 'user'
 
     return context

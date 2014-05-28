@@ -1,5 +1,5 @@
 <div class="info-block well info">
-	<table class="table table-striped table-selected-main" id="table-items-selected">
+	<table class="table table-striped table-selected-main" id="table-items-selected" data-content="{{ item_type }}">
 		<thead>
 			<tr>
 			{% for column in columns %}
@@ -8,7 +8,8 @@
 			</tr>
 		</thead>
 	</table>
-
+	<!-- <button class="popover-test button" data-trigger="mousein" data-toggle="popover" data-placement="right" data-html="true" data-content="<a href=>do u see me??</a>">Press me</button> -->
+	<button class="popover-test button">Popover Demo</button>
 	<table class="table table-striped table-items" id="table-items-total"
 		data-url="{% url admin-json item_type %}" data-server-side="true"
 		data-content="{{ item_type }}">
