@@ -784,6 +784,11 @@ table thead th {
 	font-size: 0.95em;
 	font-style: italic;
 }
+
+/* Expiraments with tables */
+
+/* bubbles - vm-table */
+
 .mypopover {
 	padding: 10px;
 	background: cyan;
@@ -797,7 +802,12 @@ table[data-content="vm"] {
 	display: block;
 }
 
+
+/* link+arrow user-table */
+
 html body .dataTables_wrapper table[data-content="user"] > thead > tr > th:last-child, html body .dataTables_wrapper table[data-content="user"] > thead > tr > th.sorting:last-child, html body .dataTables_wrapper table[data-content="user"] > thead > tr > th.sorting_asc:last-child, html body .dataTables_wrapper table[data-content="user"] > thead > tr > th.sorting_desc:last-child, html body .dataTables_wrapper table[data-content="user"] > tbody > tr > td:last-child {
 	padding-left: 0;
 	padding-right: 6px;
 }
+
+/* lens+arrow project-table  */
