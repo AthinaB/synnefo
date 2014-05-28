@@ -1121,3 +1121,9 @@ table[data-content="vm"] {
 .popover a {
   display: block;
 }
+
+/* line 800, ../sass/extra.scss */
+html body .dataTables_wrapper table[data-content="user"] > thead > tr > th:last-child, html body .dataTables_wrapper table[data-content="user"] > thead > tr > th.sorting:last-child, html body .dataTables_wrapper table[data-content="user"] > thead > tr > th.sorting_asc:last-child, html body .dataTables_wrapper table[data-content="user"] > thead > tr > th.sorting_desc:last-child, html body .dataTables_wrapper table[data-content="user"] > tbody > tr > td:last-child {
+  padding-left: 0;
+  padding-right: 6px;
+}

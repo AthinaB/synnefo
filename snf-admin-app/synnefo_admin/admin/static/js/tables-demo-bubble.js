@@ -1,3 +1,5 @@
+/* Demo: VMs table */
+
 (function($, Django){
 
 $(function(){

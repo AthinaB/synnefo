@@ -261,8 +261,7 @@ def catalog(request):
     context = {}
     context['action_dict'] = generate_actions()
     context['columns'] = ["Column 1", "E-mail", "First Name", "Last Name",
-                          "Active", "Rejected", "Moderated", "Verified",
-                          "Details", ""]
+                          "Active", "Rejected", "Moderated", "Verified", ""]
     context['item_type'] = 'user'
 
     return context
