@@ -15,27 +15,11 @@
     <div class="container-fluid">
         <div class="row-fluid">
 
-          <div class="navbar navbar-inverse nav-main navbar-fixed-top">
-
-            <div class="navbar-sides">
-              <a class="navbar-header navbar-brand navbar-left" href="{% url admin-home %}">Synnefo Admin Panel</a>
-              <ul class="nav navbar-nav navbar-right">
-                <li class="dropdown">
-                  <a href="" class="dropdown" data-toggle="dropdown">
-                    adminuser@synnefo.org
-                    <span class="snf-angle-down arrow"></span>
-                  </a>
-                  <ul class="dropdown-menu">
-                    <li>
-                      <a href="" class="align-2"><span>[i]</span>Sign Out</a>
-                    </li>
-                  </ul>
-              </ul>
-            </div> <!-- /navbar-sides -->
+          <div class="navbar main-nav navbar-fixed-top">
 
             {% with user_type='user' vm_type='vm' project_type='project' volume_type='volume' network_type='network' ip_type='ip' group_type='group' auth_provider_type='auth_provider' quota_type='quota'%}
-            <ul class="nav navbar-nav navbar-center">
-              <li><a href="{% url admin-list user_type %}">Users</a></li>
+            <ul class="nav navbar-nav navbar-left">
+              <li class="active"><a href="{% url admin-list user_type %}">Users</a></li>
               <li><a href="{% url admin-list vm_type %}">VMs</a></li>
               <li><a href="{% url admin-list volume_type %}">Volumes</a></li>
               <li><a href="{% url admin-list network_type %}">Networks</a></li>
@@ -44,18 +28,65 @@
               <li><a href="{% url admin-list project_type %}">Projects</a></li>
               <li><a href="{% url admin-list group_type %}">User Groups</a></li>
               <li><a href="{% url admin-list auth_provider_type %}">User Auth Providers</a></li>
-              <li class="dropdown">
-                <a href="#" class="dropdown" data-toggle="dropdown">Reports
+              <li class="dropdown" data-toggle="dropdown">
+                <a href="#">Reports
                 <span class="snf-angle-down arrow"></span></a>
-                <ul class="dropdown-menu">
-                  <li><a href="{% url admin-stats %}" class="align-1">Statistics</a></li>
-                  <li><a href="{% url admin-charts %}" class="align-1">Demo Charts</a></li>
-                  <li><a href="" class="align-1">Another Category</a></li>
+                <ul class="dropdown-menu align-left">
+                  <li><a href="{% url admin-stats %}">Statistics</a></li>
+                  <li><a href="{% url admin-charts %}">Demo Charts</a></li>
+                  <li><a href="">Another Category</a></li>
                 </ul>
               </li>
             </ul>
             {% endwith %}
-          </div> <!-- /navbar-fixed -->
+
+            <ul class="nav navbar-nav navbar-right">
+                <li class="dropdown" data-toggle="dropdown">
+                  <a href="">
+                    adminuser@synnefo.org
+                    <span class="snf-angle-down arrow"></span>
+                  </a>
+                  <ul class="dropdown-menu align-right">
+                    <li>
+                      <a href=""><span>[i]</span>Sign Out</a>
+                    </li>
+                  </ul>
+              </ul>
+          </div> <!-- /nav-main -->
+          <div class="navbar sub-nav navbar-fixed-top">
+            <ul class="nav navbar-nav navbar-left custom-breadcrumb">
+              <li><a class="" href="{% url admin-home %}">Synnefo Admin Panel</a></li>
+              <li class="seperator"><span>/</span></li>
+              <li><a href="">Users</a></li>
+              <li class="seperator"><span>/</span></li>
+              <li><a href="" disabled>Details of John Doe</a></li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+              <li><a href="">Account: John Doe</a></li>
+              <li class="dropdown" data-toggle="dropdown">
+                <a href="">
+                  VMs
+                  <span class="snf-angle-down arrow"></span>
+                </a>
+                <ul class="dropdown-menu align-right">
+                  <li><a href="">cute pc</a></li>
+                  <li><a href="">Windows</a></li>
+                  <li><a href="">Debian</a></li>
+                </ul>
+              </li>
+              <li class="dropdown" data-toggle="dropdown">
+                <a href="">
+                  Networks
+                  <span class="snf-angle-down arrow"></span>
+                </a>
+                <ul class="dropdown-menu align-right">
+                  <li><a href="">Public</a></li>
+                  <li><a href="">Private-1</a></li>
+                  <li><a href="">grnet</a></li>
+                </ul>
+              </li>
+            </ul>
+          </div> <!-- /sub-nav -->
         </div> <!-- /row-fluid -->
       </div>
       {% endblock nav-bar %}
@@ -90,6 +121,7 @@
     <script src="{{ MEDIA_URL }}admin/js/timelineData.js"></script>
     <script src="{{ MEDIA_URL }}admin/js/charts.js"></script>
 
+    <script src="{{ MEDIA_URL }}admin/js/navigation.js"></script>
     <script src="{{ MEDIA_URL }}admin/js/common.js"></script> 
     <script src="{{ MEDIA_URL }}admin/js/extra.js"></script>
     <script src="{{ MEDIA_URL }}admin/js/stats.js"></script>
