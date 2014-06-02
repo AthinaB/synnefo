@@ -14,7 +14,7 @@ $(function(){
 	var allowedActions= {};
 
 	/* Actionbar */
-	$('.actionbar button').each(function() {
+	$('.actionbar a').each(function() {
 		availableActions[$(this).data('action')] = true;
 	});
 
@@ -23,7 +23,7 @@ $(function(){
 	}
 
 	/* If the sidebar link is not disabled show the corresponding modal */
-	$('.actionbar button').click(function(e) {
+	$('.actionbar a').click(function(e) {
 		if($(this).hasClass('disabled')) {
 			e.preventDefault();
 			e.stopPropagation();
@@ -139,9 +139,12 @@ $(function(){
 			clickSummary(row);
 			clickDetails(row);
 		},
-		"dom": '<"custom-buttons">lfrtip'
+		"dom": '<"custom-buttons">frtilp',
+		"language" : {
+			"sLengthMenu": 'Pagination _MENU_'
+		}
 	});
-	$("div.custom-buttons").html('<button class="select-all select">Select All</button>');
+	$("div.custom-buttons").html('<a href="" class="select-all select custom-btn" data-karma="neutral"><span>Select All</span></a>');
 
 	tableSelected = $(tableSelectedDomID).DataTable({
 		"columnDefs": [{
@@ -168,7 +171,11 @@ $(function(){
 			clickSummary(row);
 			clickDetails(row);
 		},
-		"lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]]
+		"lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
+		"dom": 'frtilp',
+		"language" : {
+			"sLengthMenu": 'Pagination _MENU_'
+		}
 	});
 
 	function keepSelected(data) {
@@ -189,10 +196,10 @@ $(function(){
 
 	function updateDisplaySelected() {
 		if(selected.items.length > 0) {
-			$('.actionbar').find('button.toggle-selected').removeClass('disabled');
+			$('.actionbar').find('a.toggle-selected').removeClass('disabled');
 		}
 		else {
-			$('.actionbar').find('button.toggle-selected').addClass('disabled');	
+			$('.actionbar').find('a.toggle-selected').addClass('disabled');	
 		}
 	}
 
@@ -337,7 +344,7 @@ $(function(){
 
 
 	function addItem(infoObj) {
-		var $selectedNum = $('.actionbar button').find('.selected-num');
+		var $selectedNum = $('.actionbar a').find('.selected-num');
 		var itemsL;
 		var newItem = {}
 		var isNew = true;
@@ -421,10 +428,10 @@ $(function(){
 		}
 		for(var prop in allowedActions) {
 			if(allowedActions[prop]) {
-				$actionBar.find('button[data-action='+prop+']').removeClass('disabled');
+				$actionBar.find('a[data-action='+prop+']').removeClass('disabled');
 			}
 			else {
-				$actionBar.find('button[data-action='+prop+']').addClass('disabled');
+				$actionBar.find('a[data-action='+prop+']').addClass('disabled');
 			}
 		}
 	};
@@ -451,7 +458,8 @@ $(function(){
 
 	 /* Select-all button */
 
-	$('.select-all').click(function() {
+	$('.select-all').click(function(e) {
+		e.preventDefault();
 		toggleVisSelected(tableDomID, $(this).hasClass('select'));
 	});
 
@@ -476,7 +484,8 @@ $(function(){
 	function updateToggleAllSelect() {
 
 		var $toggleAll = $('.select-all');
-		$tr = $(tableDomID).find('tbody tr');
+		var $label = $toggleAll.find('span')
+		var $tr = $(tableDomID).find('tbody tr');
 
 		if($tr.length > 1) {
 			var allSelected = true
@@ -485,16 +494,16 @@ $(function(){
 			});
 			if($toggleAll.hasClass('select') && allSelected) {
 				$toggleAll.addClass('deselect').removeClass('select');
-				$toggleAll.text('Clear All')
+				$label.text('Clear All')
 			}
 			else if(!($toggleAll.hasClass('select')) && !allSelected) {
 				$toggleAll.addClass('select').removeClass('deselect');
-				$toggleAll.text('Select All')
+				$label.text('Select All')
 			}
 		}
 		else {
 			$toggleAll.addClass('select').removeClass('deselect')
-			$toggleAll.text('Select All')
+			$label.text('Select All')
 		}
 	};
 
@@ -688,17 +697,6 @@ $(function(){
 
 	/* General */
 
-	var curPath = window.location.pathname;
-	$('.nav-main li').each(function () {
-		if($(this).find('a').attr('href') === curPath) {
-			$(this).closest('li').addClass('active');
-		}
-		else {
-			$(this).closest('li').removeClass('active');
-		}
-	});
-
-
 	/* When the user scrolls check if sidebar needs to get fixed position */
 	/*$(window).scroll(function() {
 		fixedMimeSubnav();
@@ -739,7 +737,12 @@ $(function(){
 		});
 	};
 
+$('.actionbar .toggle-selected').click(function (e) {
+	e.preventDefault();
+})
 
+$('.main .object-details').first().find('h4').addClass('expanded');
+$('.main .object-details').first().find('.object-details-content').slideDown('slow');
 
 });
 }(window.jQuery, window.Django));

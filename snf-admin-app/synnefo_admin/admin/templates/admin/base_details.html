@@ -16,6 +16,7 @@
             {% include main_type|get_details_template with item=main_item %}
         {% endblock %}
 
+    
         {# End of the decoration of main item #}
         {% block main-item-tail %}
             {% include "admin/_base_main_item_tail.html" %}
@@ -55,5 +56,6 @@
         <p>No associations for this item</p>
         {% endfor %}
     {% endblock item-associations-list %}
+
 
 {% endblock content %}

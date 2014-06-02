@@ -124,7 +124,7 @@ a               { color:#659CEF; }
 a:hover             { color:#2956B2 }
 
 h3                { font-size:21px; cursor:pointer; margin:0 20px;}
-h4                { font-size:18px; margin-bottom:1em; }
+h4                { font-size:18px; /* margin-bottom:1em; */ margin-bottom: 0; margin-top: 0; padding-top: 0; }
 input:focus,
 textarea:focus          {
 	border-color: #659CEF;
@@ -142,7 +142,7 @@ textarea:focus          {
 .dropdown-menu .active > a, 
 .dropdown-menu .active > a:hover { background-color: #d5d5d5; } 
 
-.object-details-content     { margin:1em 0; display:none; }
+.object-details-content     { /*margin:1em 0;*/ margin: 1em 0 0 0; display:none; }
 .account .object-details-content{ display:block; }
 .nav-tabs           { margin:0; border:0 none; }
 .tab-content .dl-horizontal   { margin:0; }
@@ -156,7 +156,7 @@ textarea:focus          {
 .badge-important        { background-color: #F81A23; }
 .badge-info           { background-color:#659CEF }
 .show-hide-tabs         { margin:2em 0; }
-.show-hide-all          { float:right; /*margin:20px 0;*/ line-height:27px;}
+.show-hide-all          { float:right; /*margin:20px 0;*/ line-height:27px; /* margin-right: 20px; */}
 .toggle .badge          { font-size:14px; padding:5px 9px; }
 .toggle .badge:hover      { cursor:pointer;  }
 .show-hide-tabs .badge      { background-color:#8BBA00; }
@@ -175,11 +175,11 @@ textarea:focus          {
 .account h4           { color:#444 }
 .account h3:hover,
 .account h4:hover       { color:#666 }
-.object-details         { padding:20px;  }
-.object-details h4        { cursor:pointer; }
+.object-details         { /* padding: 10px 20px; */  padding: 10px 20px 0 20px;}
+.object-details h4        { cursor:pointer; margin-left: 20px; margin-right: 20px; }
 .object-details h4 em     { float:right; font-style:normal; font-size:0.833em;}
 .object-details h4 em img   { margin:0 5px; }
-h4 .badge           { padding:6px 9px 2px; background:url(../img/glyphicons-halflings.png) 160px 43px transparent;}
+h4 .badge.arrow           { padding:6px 9px 2px; background:url(../img/glyphicons-halflings.png) 160px 43px transparent;}
 h4.expanded .badge        { background-position: 185px 43px}
 .row2             { background-color:#EDEDED; }
 
@@ -190,7 +190,7 @@ h4 i              { margin-top: 4px; margin-right: 10px;}
 .container-fluid        { margin-left:auto; margin-right:auto; /*max-width:960px;*/ }
 h3.info             { cursor:default; color:#2956B2; text-align:center; font-size:16px; margin-bottom:0;}
 
-.vm-actions { margin-top: 20px; text-align: right; }
+.vm-actions {/*  margin-top: 20px; text-align: right; */ }
 .vm-action { float: right; margin-left: 10px;}
 .vm-action form { margin-bottom: 0px; }
 .vm-action.inactive form input { background-color: #2956B2; color: #ffffff;}
@@ -207,9 +207,10 @@ h3.info             { cursor:default; color:#2956B2; text-align:center; font-siz
 
 
 // Part B
+@import "settings";
+@import "bars-btns";
+@import "details";
 
-$total-width: 960px;
-$nav-height: 36px;
 
 /* All checkboxes */
 
@@ -259,45 +260,17 @@ $nav-height: 36px;
 	padding-bottom: 10px;
 }
 
-.subnav .nav li.active a{
-	color: rgb(41, 86, 178);
-}
 
-
-/* Area that includes all the info and a sidebar */
+/* Area that includes all the info and */
 
 .info {
-	overflow: hidden;
+	overflow: auto;
+	border-color: $blue-light-extra;
 }
 
 .info-fixed {
 	overflow: hidden;
 	margin-left: 200px;
-}
-
-
-/* Sidebar */
-
-.sidebar {
-	margin: 0 30px 0 0;
-	width: 150px;
-	height: auto;
-	float: left;
-	.btn-group-vertical {
-		width: 100%;
-	}
-}
-
-.sidebar.sidebar-fixed {
-	top: $nav-height + 30px;
-	left: auto;
-	right: auto;
-	border: 1px solid #e5e5e5;
-	-webkit-border-radius: 4px;
-	-moz-border-radius: 4px;
-	border-radius: 4px;
-	width: 170px;
-	float: left;
 }
 
 
@@ -379,10 +352,6 @@ a:not([disabled]):hover {
 		width: 56px;
 	}
 
-	.modal-header {
-		padding: 0 15px;
-	}
-
 	.modal-body {
 		background-color: white;
 
@@ -414,7 +383,7 @@ a:not([disabled]):hover {
 }
 
 .filters.subnav-fixed {
-	top: $nav-height;
+	top: $nav-top-height;
 }
 
 
@@ -437,8 +406,7 @@ a:not([disabled]):hover {
 	select {
 		width: 55px;
 		display: inline-block;
-		margin-left: 8px;
-		margin-left: 8px;
+		margin-left: 4px;
 		vertical-align: baseline;
 	}
 }
@@ -517,8 +485,19 @@ a:not([disabled]):hover {
 
 
 
-body .object-details:not(.vm-details) h4 em {
-	float: none;
+body .object-details:not(.vm-details) h4 {
+	em {
+		float: none;
+		&.os-info {
+			float: right;
+			position: relative;
+			bottom: 3px;
+			margin-right: 6px;
+			img {
+				height: 26px; // *** i think that is the size of all images temp use for preview
+			}
+		}
+	}
 }
 
 .container-demo, .chart {
@@ -533,64 +512,12 @@ svg>text:last-child {
 	display: none;
 }
 
-.navbar-center {
-	margin-left: auto;
-	margin-right: auto;
-	margin-top: 0;
-	max-width: 900px;
-	float: none;
-	text-align: center;
-	&>li {
-		display: inline-block;
-		float: none;
-	}
-}
-
-.navbar-sides {
-	position: fixed;
-	width: 100%;
-	top: 0;
-	padding-left: 20px;
-	padding-right: 20px;
-}
 
 .dropdown .arrow {
 	margin-left: 6px;
 	vertical-align: middle;
 }
 
-.nav-main .dropdown-menu {
-	min-width: 200px;
-	a {
-		text-align: left;
-	}
-	.align-1, .align-2 {
-		padding-left: 11px;
-	}
-}
-
-ul.nav li.dropdown:hover > ul.dropdown-menu {
-		display: block;
-}
-
-.navbar-header {
-	// background-color: #7493B9;
-	// border-radius: 5px;
-	margin-right: 6px;
-	float: left;
-	padding: 12px 15px;
-	height: 46px;
-	position: relative;
-	top: 2px;
-	border: 1px solid white;
-	border-radius: 10px;
-}
-
-
-
-.navbar * {
-	letter-spacing: -0.5px;
-}
 
 .error-sign {
 	color: red;
@@ -630,7 +557,7 @@ ul.nav li.dropdown:hover > ul.dropdown-menu {
 	max-width: 1200px;
 	margin-left: auto;
 	margin-right: auto;
-	margin-top: 60px;
+	padding-top: 84px; // 60+24
 
 	outline: 0;
 	outline: thin dotted \9;
@@ -645,62 +572,7 @@ box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px #659cef;
 	margin-bottom: 40px;
 }
 
-body {
 
-	/* Fallback for web browsers that don't support RGBa */
-	// background-color: rgb(173, 212, 238);
-	/* RGBa with 0.6 opacity */
-	// background-color: rgba(173, 212, 238, 0.6);
-	// background-color: #ADD4EE;
-	background-color: rgba(62, 117, 153, 0.2);
-	color: #3D3D3D;
-	.well {
-		border-color: #AFC6D6;
-		background-color: white;
-	}
-	a {
-		color: #13499B
-	}
-}
-
-.nav > li > a {
-	padding-right: 12px;
-	padding-left: 12px;
-}
-
-.object-details h4 .label {
-// font-size: 0.65em;
-font-style: normal;
-font-weight: normal;
-float: right;
-margin-left: 6px;
-}
-
-.main h4 em{
-	font-size: 21px;
-	cursor: pointer;
-	margin-left: 20px;
-}
-
-.object-details {
-	p {
-		margin: 10px 20px;
-		font-style: italic;
-	}
-	.length {
-		margin-left: 6px;
-	}
-	&>.object-details {
-		margin-left: -20px;
-		margin-right: -20px;
-	}
-}
-
-.object-details-content .nav-tabs>li.active>a {
-	// border: 1px solid #ADD4EE;
-	border-color: #AFC6D6;
-	border-bottom-color: transparent;
-}
 
 /* Landscape phone to portrait tablet */
 @media (max-width: 1300px) { // temp
@@ -711,6 +583,7 @@ margin-left: 6px;
 
 html, body {
 	height: 100%;
+	background: $gray-dark;
 }
 
 html body .dataTables_wrapper {
@@ -725,7 +598,10 @@ table {
 	}
 }
 }
-
+.main-content {
+	background: white;
+	border-color: $blue-light-extra;
+}
 // if we replace bootwatch with the corresponding sass file this should be @import .btn-primary
 .main-content .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
 	background-image: -webkit-linear-gradient(#6d94bf, #446e9b 50%, #3e648d);
@@ -788,4 +664,55 @@ background: #fff2a8;
 .warning-duplicate {
 	font-size: 0.95em;
 	font-style: italic;
+}
+div.dataTables_length {
+	padding-left: 2em;
+	padding-top: 0.55em;
+}
+
+table thead th {
+	white-space: nowrap;
+}
+
+/* buttons */
+
+.custom-btn {
+	display: inline-block;
+	border: 1px solid;
+	text-align: center;
+	&>span {
+		border: 1px solid transparent;
+		display: block;
+		height: 100%;
+	}
+	&:hover {
+		text-decoration: none;
+	}
+	
+}
+
+/* Home */
+
+.app-list {
+	margin: auto;
+	position: relative;
+	text-align: center;
+	top: 30%;
+	.custom-btn {
+		border-color: white;
+		color: white;
+		width: 210px;
+		font-size: 24px;
+		span {
+			line-height: 40px;
+		}
+		&:first-child {
+			margin-right: 40px;
+		}
+		&:hover {
+			span {
+				border-color: white;
+			}
+		}
+	}
 }
