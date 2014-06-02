@@ -21,6 +21,7 @@ from snf_django.lib.api import faults
 from synnefo.db.models import Volume, VolumeMetadata
 from synnefo.volume import util
 from synnefo.logic import server_attachments, utils
+from synnefo import quotas
 
 log = logging.getLogger(__name__)
 
@@ -28,12 +29,14 @@ log = logging.getLogger(__name__)
 @transaction.commit_on_success
 def create(user_id, size, server_id, name=None, description=None,
            source_volume_id=None, source_snapshot_id=None,
-           source_image_id=None, volume_type_id=None, metadata=None):
+           source_image_id=None, volume_type_id=None, metadata=None,
+           project=None):
 
     # Currently we cannot create volumes without being attached to a server
     if server_id is None:
         raise faults.BadRequest("Volume must be attached to server")
     server = util.get_server(user_id, server_id, for_update=True,
+                             non_deleted=True,
                              exception=faults.BadRequest)
 
     server_vtype = server.flavor.volume_type
@@ -67,7 +70,11 @@ def create(user_id, size, server_id, name=None, description=None,
         source_type = "blank"
         source_uuid = None
 
-    volume = _create_volume(server, user_id, size, source_type, source_uuid,
+    if project is None:
+        project = user_id
+
+    volume = _create_volume(server, user_id, project, size,
+                            source_type, source_uuid,
                             volume_type=volume_type, name=name,
                             description=description, index=None)
 
@@ -84,7 +91,7 @@ def create(user_id, size, server_id, name=None, description=None,
     return volume
 
 
-def _create_volume(server, user_id, size, source_type, source_uuid,
+def _create_volume(server, user_id, project, size, source_type, source_uuid,
                    volume_type, name=None, description=None, index=None,
                    delete_on_termination=True):
 
@@ -92,6 +99,12 @@ def _create_volume(server, user_id, size, source_type, source_uuid,
                             "Volume name is too long")
     utils.check_name_length(description, Volume.DESCRIPTION_LENGTH,
                             "Volume name is too long")
+    validate_volume_termination(volume_type, delete_on_termination)
+
+    if index is None:
+        # Counting a server's volumes is safe, because we have an
+        # X-lock on the server.
+        index = server.volumes.filter(deleted=False).count()
 
     # Only ext_ disk template supports cloning from another source. Otherwise
     # is must be the root volume so that 'snf-image' fill the volume
@@ -104,22 +117,7 @@ def _create_volume(server, user_id, size, source_type, source_uuid,
         raise faults.BadRequest(msg)
 
     # TODO: Check Volume/Snapshot Status
-    if source_type == "volume":
-        source_volume = util.get_volume(user_id, source_uuid,
-                                        for_update=True,
-                                        exception=faults.BadRequest)
-        if source_volume.status != "IN_USE":
-            raise faults.BadRequest("Cannot clone volume while it is in '%s'"
-                                    " status" % source_volume.status)
-        # If no size is specified, use the size of the volume
-        if size is None:
-            size = source_volume.size
-        elif size < source_volume.size:
-            raise faults.BadRequest("Volume size cannot be smaller than the"
-                                    " source volume")
-        source = Volume.prefix_source(source_uuid, source_type="volume")
-        origin = source_volume.backend_volume_uuid
-    elif source_type == "snapshot":
+    if source_type == "snapshot":
         source_snapshot = util.get_snapshot(user_id, source_uuid,
                                             exception=faults.BadRequest)
         snap_status = source_snapshot.get("status", "").upper()
@@ -155,10 +153,28 @@ def _create_volume(server, user_id, size, source_type, source_uuid,
         if size is None:
             raise faults.BadRequest("Volume size is required")
         source = origin = None
+    elif source_type == "volume":
+        # Currently, Archipelago does not support cloning a volume
+        raise faults.BadRequest("Cloning a volume is not supported")
+        # source_volume = util.get_volume(user_id, source_uuid,
+        #                                 for_update=True, non_deleted=True,
+        #                                 exception=faults.BadRequest)
+        # if source_volume.status != "IN_USE":
+        #     raise faults.BadRequest("Cannot clone volume while it is in '%s'"
+        #                             " status" % source_volume.status)
+        # # If no size is specified, use the size of the volume
+        # if size is None:
+        #     size = source_volume.size
+        # elif size < source_volume.size:
+        #     raise faults.BadRequest("Volume size cannot be smaller than the"
+        #                             " source volume")
+        # source = Volume.prefix_source(source_uuid, source_type="volume")
+        # origin = source_volume.backend_volume_uuid
     else:
-        raise faults.BadRequest("Unknwon source type")
+        raise faults.BadRequest("Unknown source type")
 
     volume = Volume.objects.create(userid=user_id,
+                                   project=project,
                                    size=size,
                                    volume_type=volume_type,
                                    name=name,
@@ -167,6 +183,7 @@ def _create_volume(server, user_id, size, source_type, source_uuid,
                                    delete_on_termination=delete_on_termination,
                                    source=source,
                                    origin=origin,
+                                   index=index,
                                    status="CREATING")
     return volume
 
@@ -193,7 +210,41 @@ def update(volume, name=None, description=None, delete_on_termination=None):
     if description is not None:
         volume.description = description
     if delete_on_termination is not None:
+        validate_volume_termination(volume.volume_type, delete_on_termination)
         volume.delete_on_termination = delete_on_termination
 
     volume.save()
     return volume
+
+
+@transaction.commit_on_success
+def reassign_volume(volume, project):
+    if volume.index == 0:
+        raise faults.Conflict("Cannot reassign: %s is a system volume" %
+                              volume)
+    action_fields = {"from_project": volume.project, "to_project": project}
+    log.info("Reassigning volume %s from project %s to %s",
+             volume, volume.project, project)
+    volume.project = project
+    volume.save()
+    quotas.issue_and_accept_commission(volume, action="REASSIGN",
+                                       action_fields=action_fields)
+
+
+def validate_volume_termination(volume_type, delete_on_termination):
+    """Validate volume's termination mode based on volume's type.
+
+    NOTE: Currently, detached volumes are not supported, so all volumes
+    must be terminated upon instance deletion.
+
+    """
+    if delete_on_termination is False:
+        # Only ext_* volumes can be preserved
+        if volume_type.template != "ext":
+            raise faults.BadRequest("Volumes of '%s' disk template cannot have"
+                                    " 'delete_on_termination' attribute set"
+                                    " to 'False'" % volume_type.disk_template)
+        # But currently all volumes must be terminated
+        raise faults.NotImplemented("Volumes with the 'delete_on_termination'"
+                                    " attribute set to False are not"
+                                    " supported")

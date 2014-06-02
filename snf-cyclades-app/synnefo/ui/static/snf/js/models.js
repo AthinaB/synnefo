@@ -1762,7 +1762,7 @@
     }
 
     models.VM.AVAILABLE_ACTIONS = {
-        'UNKNWON'       : ['destroy'],
+        'UNKNOWN'       : ['destroy'],
         'BUILD'         : ['destroy'],
         'REBOOT'        : ['destroy'],
         'STOPPED'       : ['start', 'destroy', 'reassign', 'resize', 'snapshot'],
@@ -1782,7 +1782,7 @@
 
     // api status values
     models.VM.STATUSES = [
-        'UNKNWON',
+        'UNKNOWN',
         'BUILD',
         'REBOOT',
         'STOPPED',
@@ -2823,7 +2823,7 @@
 
         parse: function(resp) {
           _.each(resp, function(project){
-            if (project.base_project) {
+            if (project.system_project) {
               this.user_project_uuid = project.id;
             }
             if (project.id == synnefo.user.get_username()) {
@@ -2838,7 +2838,7 @@
         },
 
         comparator: function(project) {
-            if (project.get('base_project')) { return -100 }
+            if (project.get('system_project')) { return -100 }
             return project.get('name');
         }
     });

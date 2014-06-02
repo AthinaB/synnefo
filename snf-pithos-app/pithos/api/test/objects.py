@@ -124,7 +124,7 @@ class ObjectGet(PithosAPITest):
         m = p.match(content_disposition)
         self.assertTrue(m is not None)
         disposition_type = m.group(1)
-        self.assertEqual(disposition_type, 'attachment')
+        self.assertEqual(disposition_type, 'inline')
         filename = m.group(2)
         self.assertEqual(o, filename)
 
@@ -156,7 +156,7 @@ class ObjectGet(PithosAPITest):
         m = p.match(content_disposition)
         self.assertTrue(m is not None)
         disposition_type = m.group(1)
-        self.assertEqual(disposition_type, 'attachment')
+        self.assertEqual(disposition_type, 'inline')
         filename = m.group(2)
 
         user_defined_disposition = content_disposition.replace(
@@ -1801,7 +1801,7 @@ class ObjectPost(PithosAPITest):
         block_size = pithos_settings.BACKEND_BLOCK_SIZE
         oname, odata = self.upload_object(
             self.container, length=random.randint(
-                block_size + 1, 2 * block_size))[:2]
+                block_size + 2, 2 * block_size))[:2]
 
         length = len(odata)
         first_byte_pos = random.randint(1, block_size)
@@ -1935,7 +1935,7 @@ class ObjectPost(PithosAPITest):
         r = self.put(url, data=initial_data)
         self.assertEqual(r.status_code, 201)
 
-        offset = random.randint(0, source_length - 1)
+        offset = random.randint(0, source_length - 2)
         upto = random.randint(offset, source_length - 1)
         r = self.post(url,
                       HTTP_CONTENT_RANGE='bytes %s-%s/*' % (offset, upto),

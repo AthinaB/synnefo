@@ -25,27 +25,16 @@ from django.contrib.auth.models import Group
 from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 
-from snf_django.management.commands import SynnefoCommand
 from astakos.im.models import AstakosUser
-from astakos.im import activation_backends
 from ._common import (remove_user_permission, add_user_permission, is_uuid)
-from astakos.logic import users as ulogic
+from astakos.im import user_logic as user_action
 
 
 class Command(SynnefoCommand):
-    args = "<user ID> (or --all)"
+    args = "<user ID>"
     help = "Modify a user's attributes"
 
     option_list = SynnefoCommand.option_list + (
-        make_option('--all',
-                    action='store_true',
-                    default=False,
-                    help=("Operate on all users. Currently only setting "
-                          "base quota is supported in this mode. Can be "
-                          "combined with `--exclude'.")),
-        make_option('--exclude',
-                    help=("If `--all' is given, exclude users given as a "
-                          "list of uuids: uuid1,uuid2,uuid3")),
         make_option('--invitations',
                     dest='invitations',
                     metavar='NUM',
@@ -138,18 +127,8 @@ class Command(SynnefoCommand):
 
     @transaction.commit_on_success
     def handle(self, *args, **options):
-        if options['all']:
-            if not args:
-                return self.handle_all_users(*args, **options)
-            else:
-                raise CommandError("Please provide a user ID or --all")
-
         if len(args) != 1:
-            raise CommandError("Please provide a user ID or --all")
-
-        if options["exclude"] is not None:
-            m = "Option --exclude is meaningful only combined with --all."
-            raise CommandError(m)
+            raise CommandError("Please provide a user ID")
 
         if args[0].isdigit():
             try:
@@ -174,14 +153,14 @@ class Command(SynnefoCommand):
 
         if options.get('reject'):
             reject_reason = options.get('reject_reason', None)
-            res = ulogic.reject(user, reject_reason)
+            res = user_action.reject(user, reject_reason)
             if res.is_error():
                 self.stderr.write("Failed to reject: %s\n" % res.message)
             else:
                 self.stderr.write("Account rejected\n")
 
         if options.get('verify'):
-            res = ulogic.verify(user)
+            res = user_action.verify(user)
             if res.is_error():
                 self.stderr.write("Failed to verify: %s\n" % res.message)
             else:
@@ -189,14 +168,14 @@ class Command(SynnefoCommand):
                                   % res.status_display())
 
         if options.get('accept'):
-            res = ulogic.accept(user)
+            res = user_action.accept(user)
             if res.is_error():
                 self.stderr.write("Failed to accept: %s\n" % res.message)
             else:
                 self.stderr.write("Account accepted and activated\n")
 
         if options.get('active'):
-            res = ulogic.activate(user)
+            res = user_action.activate(user)
             if res.is_error():
                 self.stderr.write("Failed to activate: %s\n" % res.message)
             else:
@@ -204,7 +183,7 @@ class Command(SynnefoCommand):
 
         elif options.get('inactive'):
             inactive_reason = options.get('inactive_reason', None)
-            res = ulogic.deactivate(user, inactive_reason)
+            res = user_action.deactivate(user, inactive_reason)
             if res.is_error():
                 self.stderr.write("Failed to deactivate: %s\n" % res.message)
             else:
@@ -333,6 +312,3 @@ class Command(SynnefoCommand):
         if string.lower(response) not in ['y', 'yes']:
             self.stderr.write("Aborted.\n")
             exit()
-
-    def handle_all_users(self, *args, **options):
-        pass

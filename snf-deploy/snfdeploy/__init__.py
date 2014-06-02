@@ -79,6 +79,7 @@ Usage: snf-deploy [-h] [-c CONFDIR] [-t TEMPLATE_DIR] [-s STATE_DIR]
   The command can be either of:
 
       packages    Download synnefo packages and stores them locally
+      image       Create a debian base image for vcluster
       vcluster    Create a local virtual cluster with KVM, dnsmasq, and NAT
       cleanup     Cleanup the local virtual cluster
       test        Print the configuration
@@ -189,6 +190,10 @@ def parse_options():
                         default=True, action="store_false",
                         help="Whether to inject ssh key pairs to hosts")
 
+    parser.add_argument("--pass-gen", dest="passgen",
+                        default=False, action="store_true",
+                        help="Whether to create random passwords")
+
     # backend related options
     parser.add_argument("--cluster", dest="cluster",
                         default=constants.DEFAULT_CLUSTER,
@@ -217,7 +222,7 @@ def parse_options():
 
     # available commands
     parser.add_argument("command", type=str,
-                        choices=["packages", "vcluster", "cleanup",
+                        choices=["packages", "vcluster", "cleanup", "image",
                                  "setup", "test", "synnefo", "keygen",
                                  "ganeti", "ganeti-qa", "help"],
                         help="Run on of the supported deployment commands")
@@ -333,8 +338,8 @@ def main():
     args = parse_options()
 
     config.init(args)
-    context.init(args)
     status.init()
+    context.init(args)
 
     create_dir(config.run_dir, False)
     create_dir(config.dns_dir, False)
@@ -360,19 +365,30 @@ def main():
 
     if args.command == "test":
         config.print_config()
+        return 0
+
+    if args.command == "image":
+        vcluster.image()
+        return 0
 
     if args.command == "cleanup":
         vcluster.cleanup()
+        return 0
 
     if args.command == "packages":
         create_dir(config.package_dir, True)
         get_packages()
+        return 0
 
     if args.command == "vcluster":
+        status.reset()
+        vcluster.cleanup()
         vcluster.launch()
+        return 0
 
     if args.command == "help":
         print_help_msg(args.cmds)
+        return 0
 
     actions = get_actions(args.command)
     fabcommand(args, actions)

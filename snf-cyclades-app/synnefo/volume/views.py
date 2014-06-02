@@ -58,7 +58,10 @@ def volume_to_dict(volume, detail=True):
             "image_id": display_null_field(volume.source_image_id),
             "attachments": get_volume_attachments(volume),
             "volume_type": volume.volume_type_id,
+            "deleted": volume.deleted,
             "delete_on_termination": volume.delete_on_termination,
+            "user_id": volume.userid,
+            "tenant_id": volume.project,
             #"availabilit_zone": None,
             #"bootable": None,
             #"os-vol-tenant-attr:tenant_id": None,
@@ -103,6 +106,10 @@ def create_volume(request):
         raise faults.BadRequest("Volume 'size' needs to be a positive integer"
                                 " value. '%s' cannot be accepted." % size)
 
+    project = vol_dict.get("project")
+    if project is None:
+        project = user_id
+
     # Optional parameters
     volume_type_id = utils.get_attribute(vol_dict, "volume_type",
                                          attr_type=(basestring, int),
@@ -134,7 +141,7 @@ def create_volume(request):
                             volume_type_id=volume_type_id,
                             description=description,
                             metadata=metadata,
-                            server_id=server_id)
+                            server_id=server_id, project=project)
 
     # Render response
     data = json.dumps(dict(volume=volume_to_dict(volume, detail=False)))
@@ -160,7 +167,8 @@ def list_volumes(request, detail=False):
 def delete_volume(request, volume_id):
     log.debug("delete_volume volume_id: %s", volume_id)
 
-    volume = util.get_volume(request.user_uniq, volume_id, for_update=True)
+    volume = util.get_volume(request.user_uniq, volume_id, for_update=True,
+                             non_deleted=True)
     volumes.delete(volume)
 
     return HttpResponse(status=202)
@@ -170,7 +178,7 @@ def delete_volume(request, volume_id):
 def get_volume(request, volume_id):
     log.debug('get_volume volume_id: %s', volume_id)
 
-    volume = util.get_volume(request.user_uniq, volume_id)
+    volume = util.get_volume(request.user_uniq, volume_id, non_deleted=False)
 
     data = json.dumps({'volume': volume_to_dict(volume, detail=True)})
     return HttpResponse(data, content_type="application/json", status=200)
@@ -181,7 +189,8 @@ def update_volume(request, volume_id):
     req = utils.get_json_body(request)
     log.debug('update_volume volume_id: %s, request: %s', volume_id, req)
 
-    volume = util.get_volume(request.user_uniq, volume_id, for_update=True)
+    volume = util.get_volume(request.user_uniq, volume_id, for_update=True,
+                             non_deleted=True)
 
     vol_req = utils.get_attribute(req, "volume", attr_type=dict,
                                   required=True)
@@ -207,7 +216,8 @@ def update_volume(request, volume_id):
 @api.api_method(http_method="GET", user_required=True, logger=log)
 def list_volume_metadata(request, volume_id):
     log.debug('list_volume_meta volume_id: %s', volume_id)
-    volume = util.get_volume(request.user_uniq, volume_id, for_update=False)
+    volume = util.get_volume(request.user_uniq, volume_id, for_update=False,
+                             non_deleted=False)
     metadata = volume.metadata.values_list('key', 'value')
     data = json.dumps({"metadata": dict(metadata)})
     return HttpResponse(data, content_type="application/json", status=200)
@@ -219,7 +229,6 @@ def update_volume_metadata(request, volume_id, reset=False):
     req = utils.get_json_body(request)
     log.debug('update_volume_meta volume_id: %s, reset: %s request: %s',
               volume_id, reset, req)
-    volume = util.get_volume(request.user_uniq, volume_id, for_update=True)
     meta_dict = utils.get_attribute(req, "metadata", required=True,
                                     attr_type=dict)
     for key, value in meta_dict.items():
@@ -227,6 +236,8 @@ def update_volume_metadata(request, volume_id, reset=False):
                           "Metadata key is too long.")
         check_name_length(value, VolumeMetadata.VALUE_LENGTH,
                           "Metadata value is too long.")
+    volume = util.get_volume(request.user_uniq, volume_id, for_update=True,
+                             non_deleted=True)
     if reset:
         volume.metadata.all().delete()
         for key, value in meta_dict.items():
@@ -251,11 +262,26 @@ def update_volume_metadata(request, volume_id, reset=False):
 def delete_volume_metadata_item(request, volume_id, key):
     log.debug('delete_volume_meta_item volume_id: %s, key: %s',
               volume_id, key)
-    volume = util.get_volume(request.user_uniq, volume_id, for_update=False)
+    volume = util.get_volume(request.user_uniq, volume_id, for_update=False,
+                             non_deleted=True)
     try:
         volume.metadata.get(key=key).delete()
     except VolumeMetadata.DoesNotExist:
         raise faults.BadRequest("Metadata key not found")
+    return HttpResponse(status=200)
+
+
+@api.api_method(http_method="POST", user_required=True, logger=log)
+@transaction.commit_on_success
+def reassign_volume(request, volume_id, args):
+    req = utils.get_json_body(request)
+    log.debug('reassign_volume volume_id: %s, request: %s', volume_id, req)
+    project = args.get("project")
+    if project is None:
+        raise faults.BadRequest("Missing 'project' attribute.")
+    volume = util.get_volume(request.user_uniq, volume_id, for_update=True,
+                             non_deleted=True)
+    volumes.reassign_volume(volume, project)
     return HttpResponse(status=200)
 
 
@@ -294,6 +320,7 @@ def create_snapshot(request):
                                     attr_type=dict)
     volume_id = utils.get_attribute(snap_dict, "volume_id", required=True)
     volume = util.get_volume(user_id, volume_id, for_update=True,
+                             non_deleted=True,
                              exception=faults.BadRequest)
 
     metadata = utils.get_attribute(snap_dict, "metadata", required=False,
