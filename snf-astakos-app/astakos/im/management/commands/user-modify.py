@@ -27,7 +27,7 @@ from django.core.validators import validate_email
 
 from astakos.im.models import AstakosUser
 from ._common import (remove_user_permission, add_user_permission, is_uuid)
-from astakos.logic import users as user_action
+from astakos.im import user_logic as user_action
 
 
 class Command(SynnefoCommand):

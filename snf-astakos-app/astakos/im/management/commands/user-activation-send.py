@@ -14,7 +14,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 from snf_django.management.commands import SynnefoCommand, CommandError
-from astakos.logic.users import send_verification_email
+from astakos.im.user_logic import send_verification_email
 
 from ._common import get_user
 
