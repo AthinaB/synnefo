@@ -54,7 +54,7 @@ from eztables.views import DatatablesView
 import django_filters
 from django.db.models import Q
 
-from .users import filter_name as get_users_by_name
+import users as user_views
 
 templates = {
     'list': 'admin/vm_list.html',
@@ -63,7 +63,8 @@ templates = {
 
 
 def filter_owner_name(queryset, search):
-    users = get_users_by_name(AstakosUser.objects.all(), search).values('uuid')
+    users = user_views.filter_name(AstakosUser.objects.all(),
+                                   search).values('uuid')
     criterions = [Q(userid=user['uuid']) for user in users]
     if not criterions:
         return queryset.none()

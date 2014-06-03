@@ -57,6 +57,11 @@ from actions import (AdminAction, AdminActionUnknown, AdminActionNotPermitted,
 import django_filters
 from django.db.models import Q
 
+import vms as vm_views
+import projects as project_views
+import networks as network_views
+import vms as vm_views
+
 UUID_SEARCH_REGEX = re.compile('([0-9a-z]{8}-([0-9a-z]{4}-){3}[0-9a-z]{12})')
 SHOW_DELETED_VMS = getattr(settings, 'ADMIN_SHOW_DELETED_VMS', False)
 
@@ -435,11 +440,12 @@ def details(request, query):
     context = {
         'main_item': user,
         'main_type': 'user',
+        'action_dict': generate_actions(),
         'associations_list': [
-            (quotas, 'quota'),
-            (projects, 'project'),
-            (vms, 'vm'),
-            (networks, 'network'),
+            (quotas, 'quota', None),
+            (projects, 'project', project_views.generate_actions()),
+            (vms, 'vm', vm_views.generate_actions()),
+            (networks, 'network', network_views.generate_actions()),
         ]
     }
 

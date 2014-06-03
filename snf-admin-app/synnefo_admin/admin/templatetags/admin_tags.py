@@ -230,3 +230,9 @@ def get_filter_template(filter):
     template = 'admin/filter_' + type + '.html'
     logging.info("Requested the %s", template)
     return template
+
+
+@register.filter
+def can_apply(action, item):
+    """Return if action can apply on item."""
+    return action.can_apply(item)
