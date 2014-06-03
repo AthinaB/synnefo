@@ -191,6 +191,12 @@ def display_list_type(type):
         return "Virtual Machines"
     elif type == "network":
         return "Networks"
+    elif type == "nic":
+        return "Network Interfaces"
+    elif type == "ip":
+        return "IP Addresses"
+    elif type == "volume":
+        return "Volumes"
     else:
         return "Unknown type"
 
@@ -230,3 +236,27 @@ def get_filter_template(filter):
     template = 'admin/filter_' + type + '.html'
     logging.info("Requested the %s", template)
     return template
+
+
+@register.filter
+def repr(item):
+    """Return the string representation of an item.
+
+    If an item has a "realname" attribute that is not emprty, we return this.
+    Else, if an item has a "name" attribute that is not empty, we return this.
+    Finally, if an item has none of the above attributes, or the attributes are
+    empty, return the result of the __str__ method of the item.
+    """
+    try:
+        if item.realname:
+            return item.realname
+    except AttributeError:
+        pass
+
+    try:
+        if item.name:
+            return item.name
+    except AttributeError:
+        pass
+
+    return item.__str__()
