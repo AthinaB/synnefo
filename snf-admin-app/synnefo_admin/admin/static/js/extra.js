@@ -83,17 +83,19 @@ $(function(){
 		"serverSide": serverside,
 		"ajax": {
 			"url": url,
-			"data": function(data) {
-				// here must be placed the additional data that needs to be send with the ajax call
-				// data.sSearch_status = "STOPPED";
+			"data": function(data, callback, settings) {
+
+				var prefix = 'sSearch_';
+
 				if($.isEmptyObject(filters)) {
 					console.log('no filter!')
 				}
 				else {
 					for (var prop in filters) {
-						data[prop] = filters[prop];
+						data[prefix+prop] = filters[prop];
 					}
 				}
+				qq = data;
 			},
 			"dataSrc" : function(response) {
 				console.log(response);
@@ -752,43 +754,104 @@ $(function(){
     $('.main .object-details').first().find('h4').addClass('expanded');
     $('.main .object-details').first().find('.object-details-content').slideDown('slow');
 
+
+
 	 /* Filters */
 
-	var filters = {};
+	 var filters = {};
 
-	function dropdownSelect(dropdownUL) {
-		var $dropdown = $(dropdownUL);
-		$dropdown.find('li a').click(function(e) {
-			var selected = $(this).text();
-			var key = $dropdown.data('filter');
-			var value = selected;
-			$(this).closest('.btn-group').find('.dropdown-toggle .category').text(selected);
-			setFilter(key, value);
-			$(tableDomID).dataTable().api().ajax.reload();
+	function dropdownSelect(filterEl) {
+		var $dropdownList = $(filterEl).find('.choices');
+
+		$dropdownList.find('li a').click(function(e) {
+				e.preventDefault();
+				var $li = $(this).closest('li');
+				var key = $(this).closest(filterEl).data('filter');
+				var value = $(this).text();
+
+
+				if($li.hasClass('reset')) {
+					delete filters[key];
+					$li.addClass('active')
+					$li.siblings('.active').removeClass('active');
+					$(this).closest(filterEl).find('.selected-value').text(value);
+				}
+				else {
+					$li.toggleClass('active')
+					if($li.hasClass('active')) {
+						$li.siblings('.reset').removeClass('active')
+
+						if($li.siblings('.active').length > 0) {
+							arrayFilter(filters, key, value);
+							$(this).closest(filterEl).find('.selected-value').append(','+value)
+						}
+						else {
+							$(this).closest(filterEl).find('.selected-value').text(value);
+							filters[key] = [value]
+						}
+					}
+					else {
+						if($li.siblings('.active').length >0) {
+							arrayFilter(filters, key, value, true);
+							$(this).closest(filterEl).find('.selected-value').text(filters[key])
+						}
+						else {
+							delete filters[key];
+							var resetLabel = $li.siblings('li').find('.reset').text();
+							$li.siblings('li').find('.reset').closest('li').addClass('active');
+							$(this).closest(filterEl).find('.selected-value').text()
+
+						}
+					}
+				}
+				$(tableDomID).dataTable().api().ajax.reload();
 		});
 	};
 
-	function setFilter(key, value) {
-		var searchKey = 'sSearch_'+key;
-		filters[searchKey] = value;
+	function arrayFilter(filters, key, value, removeItem) {
+		var prefix = 'sSearch_';
+		console.log(filters, key, value, removeItem)
+		if(!removeItem) {
+			for(var prop in filters) {
+				if(prop === key) {
+						filters[prop].push(value);
+				}
+			}
+		}
+		else {
+			if(filters[key].lenght === 1) {
+				delete filters[key];
+			}
+			else {
+				var index = filters[key].indexOf(value);
+				filters[key].splice(index, 1);
+			}
+		}
 	};
-
-	dropdownSelect('.filters .choices');
 
 	function textFilter(extraSearch) {
-		var $btn = $(extraSearch).find('button');
-		$btn.click(function() {
-			var key, value;
-			var $input = $(this).closest(extraSearch).find('input')
-			key = $input.data('filter');
-			value = $input.val();
-			setFilter(key, value);
-			$(tableDomID).dataTable().api().ajax.reload();
-		})
+		var $input = $(extraSearch).find('input');
+		$input.keyup(function(e) {
+			// if enter or space is pressed do nothing
+			console.log(e.keyCode)
+			if(e.which !== '32' && e.which !== '13') {
+				var key, value;
+				key = $(this).data('filter');
+				value = $.trim($(this).val());
 
+				filters[key] = value;
+				if (filters[key] === '') {
+					delete filters[key];
+				}
+					$(tableDomID).dataTable().api().ajax.reload();
+			}
+		})
 	};
 
-	textFilter('.extra-search')
+	textFilter('.filter-text');
+	dropdownSelect('.filters .filter-dropdown .dropdown');
+
+	$('input').blur(); // onload there is no input field focus
 
 });
 }(window.jQuery, window.Django));

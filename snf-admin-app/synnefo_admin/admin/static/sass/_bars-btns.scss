@@ -23,9 +23,6 @@
 	background: $blue-light;
 	height: $nav-top-height;
 	z-index: 1040;
-	// .dropdown-menu {
-	// 	z-index: 1040;
-	// }
 }
 
 .nav-simple {
@@ -87,6 +84,10 @@
 			}
 		}
 	}
+}
+
+.label-notice {
+	background: $gray-light;
 }
 
 .nav .dropdown:hover > ul.dropdown-menu, .nav-simple .dropdown:hover > ul.dropdown-menu {

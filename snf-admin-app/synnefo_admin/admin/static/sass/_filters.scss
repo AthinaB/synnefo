@@ -1,0 +1,69 @@
+@import "settings";
+
+.filters {
+	// margin-left: 200px;
+}
+
+.filters .badge {
+	margin-left: 6px;
+	opacity: 0.9;
+	padding: 2px 9px;
+}
+
+.filters ul.nav a {
+	padding-bottom: 10px;
+}
+
+
+.filter-input {
+	width: 300px;
+	margin-top: 10px;
+	margin-right: 10px;
+	display: inline-block;
+	input {
+		border-radius: 0;
+	}
+}
+
+.filter-dropdown {
+	vertical-align: bottom;
+	margin-right: 10px;
+	margin-top: 10px;
+	display: inline-block;
+	background: white;
+	height: 38px;
+	.dropdown {
+		border: 1px solid #cccccc;
+		border-radius: 0px;
+		padding: 8px 12px;
+		line-height: 1.4; //same as inputs
+		&>a {
+			.selected-value {
+				margin-left: 4px;
+			}
+			.arrow {
+				font-weight: bold;
+			}
+			// border: 1px solid $gray-dark;
+		}
+		&.open {
+			a {
+				text-decoration: none;
+				color: $blue-intense;
+			}
+		}
+		a {
+			color: $gray-dark;
+		}
+		.dropdown-menu {
+			width: auto;
+			a {
+				input {
+					margin-right: 6px;
+				}
+				padding-left: 12px;
+				padding-right: 12px;
+			}
+		}
+	}
+}
