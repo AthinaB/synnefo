@@ -5,7 +5,7 @@ var mydata; // temp
 $(function(){
 	var lastClicked = null;
 	var prevClicked = null;
-	var selected = {
+	 selected = {
 		items: [],
 		actions: {}
 	};
@@ -33,16 +33,9 @@ $(function(){
 				if($(this).hasClass('open')) {
 					$(this).removeClass('open');
 					$('#table-items-selected_wrapper').slideUp('slow');
-					// $('#table-items-selected_wrapper').animate({'min-height': 0}, 'slow',
-					// 	function() {
-					// 		$(this).slideUp('slow');
-					// 	})
 				}
 				else {
 					$(this).addClass('open');
-					// $('#table-items-selected_wrapper').slideDown('slow', function() {
-					// 	$(this).animate({'min-height': '400px'})
-					// })
 					$('#table-items-selected_wrapper').slideDown('slow');
 				}
 			}
@@ -76,10 +69,10 @@ $(function(){
 
 	var tableDomID = '#table-items-total';
 	var tableSelectedDomID = '#table-items-selected'
+	var tableMassiveDomID = '#total-list'
 	table = $(tableDomID).DataTable({
-		"bPaginate": true,
-		//"sPaginationType": "bootstrap",
-		"bProcessing": true,
+		"paging": true,
+		"processing": true,
 		"serverSide": serverside,
 		"ajax": {
 			"url": url,
@@ -104,6 +97,7 @@ $(function(){
 						rowsArray[i][extraCol] = response.extra[i]
 					}
 				}
+				console.log('return response', new Date)
 				return response.aaData;
 			}
 		},
@@ -113,33 +107,120 @@ $(function(){
 			"orderable": false,
 			"render": function(data, type, rowData) {
 				return extraTemplate(data);
-			},
+			}
 		},
 		],
 		"order": [1, "asc"],
 		"createdRow": function(row, data, dataIndex) {
-			var extraIndex = data.length - 1;
-			row.id = data[extraIndex].id.value; //sets the dom id
-			var selectedL = selected.items.length;
-			if(selectedL !== 0) {
-				for(var i = 0; i<selectedL; i++){
-					if (selected.items[i].id === row.id) {
-						$(row).addClass('selected')
-					}
-				}
-			}
+			// var extraIndex = data.length - 1;
+			// row.id = data[extraIndex].id.value; //sets the dom id
 		},
 		"dom": '<"custom-buttons">frtilp',
 		"language" : {
 			"sLengthMenu": 'Pagination _MENU_'
 		},
 		"drawCallback": function(settings) {
-			updateToggleAllSelect(this);
+
+			isSelected();
+			updateToggleAllSelect();
 			clickSummary(this);
 			clickDetails(this);
+
 		}
 	});
-	$("div.custom-buttons").html('<a href="" class="select-all select custom-btn" data-karma="neutral"><span>Select All</span></a>');
+	$("div.custom-buttons").html('<a href="" class="select-page select custom-btn" data-karma="neutral"><span>Select Page</span></a><a href="" class="select custom-btn" data-karma="neutral" data-toggle="modal" data-target="#massive-actions-warning"><span>Do not press me yet!</span></a>');
+
+	// *********
+	function isSelected() {
+		console.log('isSelected', table.rows()[0].length);
+		var tableLength = table.rows()[0].length;
+		var selectedL = selected.items.length;
+		if(selectedL !== 0 && tableLength !== 0) { // ***
+			var dataLength = table.row(0).data().length
+			var extraIndex = dataLength - 1;
+			for(var j = 0; j<tableLength; j++) { // index of rows start from zero
+				for(var i = 0; i<selectedL; i++){
+					if (selected.items[i].id === table.row(j).data()[extraIndex].id.value) {
+						$(table.row(j).nodes()).addClass('selected');
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	var newTable = true;
+	$('.select-all').click(function(e) {
+		$(this).closest('.modal').addClass('in-progress')
+		console.log('select all items', new Date);
+
+	if(newTable) {
+		console.log('gia na ta paroume ola')
+		newTable = false;
+		countme = true;
+		$(tableMassiveDomID).DataTable({
+			"paging": false,
+			"processing": false,
+			"serverSide": true,
+			"ajax": {
+				"url": url,
+				"data": function(data, callback, settings) {
+
+					var prefix = 'sSearch_';
+
+					if(!$.isEmptyObject(filters)) {
+						for (var prop in filters) {
+							data[prefix+prop] = filters[prop];
+						}
+					}
+				},
+
+				"dataSrc" : function(response) {
+					alldata = response;
+					extraData = response.extra;
+					if(response.aaData.length != 0) {
+						var rowsArray = response.aaData;
+						var rowL = rowsArray.length;
+						var extraCol = rowsArray[0].length; //last column
+						for (var i=0; i<rowL; i++) {
+							rowsArray[i][extraCol] = response.extra[i]
+						}
+					}
+					console.log('return response', new Date)
+					return response.aaData;
+				}
+			},
+			createdRow: function(row, data, dataIndex) {
+				if(countme) {
+					console.log('1st row', new Date);
+					countme = false
+					
+				}
+				var info = data[data.length - 1];
+				// console.log(info);
+				var newItem = addItem(info);
+				enableActions(newItem.actions);
+				keepSelected(data);
+
+			},
+			"drawCallback": function(settings) {
+				console.log('1-drawCallback', new Date)
+				isSelected();
+				updateCounter('.selected-num')
+				console.log('2-drawCallback', new Date)
+				$('#massive-actions-warning').modal('hide')
+				$('#massive-actions-warning').removeClass('in-progress')
+			}
+		});
+	}
+	else {
+		$(tableMassiveDomID).dataTable().api().ajax.reload();
+	}
+	});
+
+
+	// *********
+
 
 	tableSelected = $(tableSelectedDomID).DataTable({
 		"columnDefs": [
@@ -150,10 +231,6 @@ $(function(){
 				return extraTemplate(data);
 			},
 		},
-		{
-			targets: 0,
-			visible: false
-		}
 		],
 		"order": [1, "asc"],
 		"lengthMenu": [[5, 10, 25, 50, -1], [5, 10, 25, 50, "All"]],
@@ -245,8 +322,9 @@ $(function(){
 			prevClicked = lastClicked;
 			lastClicked = $row
 		}
-		var info = $(tableDomID).dataTable().api().cell($row.find('td:last-child')).data();
-		arow = $(tableDomID).dataTable().api();
+		var infoRow = table.row($row).data();
+		var info = infoRow[infoRow.length - 1]
+		// var info = $(tableDomID).dataTable().api().cell($row.find('td:last-child')).data();
 		if($row.hasClass('selected')) {
 			$row.removeClass('selected');
 			removeItem(info.id.value);
@@ -257,7 +335,7 @@ $(function(){
 			$row.addClass('selected');
 			var newItem = addItem(info);
 			enableActions(newItem.actions)
-			selData = $(tableDomID).dataTable().api().row($row).data();
+			selData = table.row($row).data();
 			keepSelected(selData)
 		}
 		updateCounter('.selected-num');
@@ -278,7 +356,8 @@ $(function(){
 	function extraTemplate(data) {
 		yy= data;
 		var listTemplate = '<dt>{key}:</dt><dd>{value}</dd>';
-		var list = '';		var listItem = listTemplate.replace('{key}', prop).replace('{value}',data[prop]);
+		var list = '';
+		var listItem = listTemplate.replace('{key}', prop).replace('{value}',data[prop]);
 		var html;
 
 		for(var prop in data) {
@@ -363,7 +442,8 @@ $(function(){
 			selected.items.push(newItem);
 			return newItem
 		}
-		return null;
+		else
+			return null;
 	};
 
 	function removeItem(itemID) {
@@ -422,7 +502,7 @@ $(function(){
 	};
 
 	function resetTable(tableDomID) {
-		// $(tableDomID).find('thead .select-all input[type=checkbox]').attr('checked', false);
+		// $(tableDomID).find('thead .select-page input[type=checkbox]').attr('checked', false);
 		selected.items = [];
 		removeSelected(true); //removes all selected items from the table of selected items
 		// $(tableDomID).find('thead .selected-num').html(selected.items.length);
@@ -441,14 +521,14 @@ $(function(){
 		}
 	});
 
-	 /* Select-all button */
+	 /* select-page button */
 
-	$('.select-all').click(function(e) {
+	$('.select-page').click(function(e) {
 		e.preventDefault();
 		toggleVisSelected(tableDomID, $(this).hasClass('select'));
 	});
 
-	/* select-all / deselect-all */
+	/* select-page / deselect-page */
 	function toggleVisSelected(tableDomID, selectFlag) {
 		lastClicked = null;
 		prevClicked = null;
@@ -467,10 +547,10 @@ $(function(){
 	/* Checks how many rows are selected and adjusts the classes and
 	the text of the select-qll btn */
 	function updateToggleAllSelect() {
-		var $toggleAll = $('.select-all');
+		// console.log('updateToggleAllSelect', new Date)
+		var $toggleAll = $('.select-page');
 		var $label = $toggleAll.find('span')
 		var $tr = $(tableDomID).find('tbody tr');
-
 		if($tr.length > 1) {
 			var allSelected = true
 			$tr.each(function() {
@@ -545,7 +625,7 @@ $(function(){
 		// }
 		if($modal.attr('id') === 'contact') {
 			var $emailSubj = $modal.find('.subject')
-			var $emailCont = $modal.find('.content')
+			var $emailCont = $modal.find('.email-content')
 			if(!$.trim($emailSubj.val())) {
 				e.preventDefault();
 				showError($modal, 'empty-subject');
