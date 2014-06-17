@@ -103,6 +103,12 @@ $(function(){
 		},
 		"columnDefs": [
 		{
+			"targets": 0,
+			"render": function(data, type, rowData) {
+				return checkboxTemplate(data, 'unchecked');
+			}
+		},
+		{
 			"targets": -1, // the first column counting from the right is "Summary"
 			"orderable": false,
 			"render": function(data, type, rowData) {
@@ -126,7 +132,7 @@ $(function(){
 			clickDetails(this);
 		}
 	});
-	$("div.custom-buttons").html('<a href="" class="select-page select custom-btn" data-karma="neutral"><span>Select Page</span></a><a href="" class="select select-all custom-btn" data-karma="neutral" data-toggle="modal" data-target="#massive-actions-warning"><span>Select All</span></a>');
+	$("div.custom-buttons").html('<a href="" class="select-page select custom-btn" data-karma="neutral"><span>Select Page</span></a>'+'<a href="" class="select select-all custom-btn" data-karma="neutral" data-toggle="modal" data-target="#massive-actions-warning"><span>Select All</span></a>'+'<a href="" class="deselect clear-all custom-btn" data-karma="neutral" data-toggle="modal" data-target="#clear-all-warning"><span>Clear All</span></a>');
 
 	function isSelected() {
 		var tableLength = table.rows()[0].length;
@@ -138,6 +144,7 @@ $(function(){
 				for(var i = 0; i<selectedL; i++){
 					if (selected.items[i].id === table.row(j).data()[extraIndex].id.value) {
 						$(table.row(j).nodes()).addClass('selected');
+						$(table.row(j).nodes()).find('td:first-child .selection-indicator').toggleClass('snf-checkbox-checked snf-checkbox-unchecked');
 						break;
 					}
 				}
@@ -219,6 +226,12 @@ $(function(){
 	tableSelected = $(tableSelectedDomID).DataTable({
 		"columnDefs": [
 		{
+			"targets": 0,
+			"render": function(data, type, rowData) {
+				return checkboxTemplate(data, 'checked');
+			}
+		},
+		{
 			"targets": -1, // the first column counting from the right is "Summary"
 			"orderable": false,
 			"render": function(data, type, rowData) {
@@ -239,7 +252,7 @@ $(function(){
 		"createdRow": function(row, data, dataIndex) {
 			var extraIndex = data.length - 1;
 			row.id = 'selected-'+data[extraIndex].id.value; //sets the dom id
-		}
+		},
 	});
 
 	function keepSelected(data, drawNow) {
@@ -311,12 +324,26 @@ $(function(){
 
 	$(document).bind('keyup', function(e){
 		if(e.which === 16) {
+			deselectText();
 			$(tableDomID).removeClass('with-shift')
 		}
 	});
 
+	function deselectText() {
+	if (window.getSelection) {
+		if (window.getSelection().empty) {  // Chrome
+			window.getSelection().empty();
+		} else if (window.getSelection().removeAllRanges) {  // Firefox
+			window.getSelection().removeAllRanges();
+		}
+		} else if (document.selection) {  // IE?
+			document.selection.empty();
+		}
+	}
+
 	function selectRow(row, event) {
 		var $row = $(row);
+		$row.find('td:first-child .selection-indicator').toggleClass('snf-checkbox-checked snf-checkbox-unchecked');
 		if(event === "click") { // the param is event from a tr
 			prevClicked = lastClicked;
 			lastClicked = $row
@@ -351,9 +378,13 @@ $(function(){
 		}
 	};
 
+	function checkboxTemplate(data, initState) {
+		var html = '<span class="snf-icon snf-checkbox-'+initState+' selection-indicator"></span>'+data;
+		return html;
+	}
 
 	function extraTemplate(data) {
-		yy= data;
+
 		var listTemplate = '<dt>{key}:</dt><dd>{value}</dd>';
 		var list = '';
 		var listItem = listTemplate.replace('{key}', prop).replace('{value}',data[prop]);
@@ -501,14 +532,13 @@ $(function(){
 	};
 
 	function resetTable(tableDomID) {
-		// $(tableDomID).find('thead .select-page input[type=checkbox]').attr('checked', false);
 		selected.items = [];
 		removeSelected(true); //removes all selected items from the table of selected items
-		// $(tableDomID).find('thead .selected-num').html(selected.items.length);
-		// $(this).siblings('table').find('thead .selected-num');
 		updateCounter('.selected-num');
 		enableActions(undefined, true);
+		$(table.rows('.selected').nodes()).find('td:first-child .selection-indicator').toggleClass('snf-checkbox-checked snf-checkbox-unchecked');
 		$(tableDomID).dataTable().api().rows('.selected').nodes().to$().removeClass('selected');
+
 		updateToggleAllSelect();
 	};
 
@@ -810,63 +840,77 @@ $(function(){
 		var $dropdownList = $(filterEl).find('.choices');
 
 		$dropdownList.find('li a').click(function(e) {
-				e.preventDefault();
-				var $li = $(this).closest('li');
-				var key = $(this).closest(filterEl).data('filter');
-				var value = $(this).text();
-
-
+			e.preventDefault();
+			var $li = $(this).closest('li');
+			var key = $(this).closest(filterEl).data('filter');
+			var value = $(this).text();
+			if($(this).closest('.filter-dropdown').hasClass('filter-boolean')) {
 				if($li.hasClass('reset')) {
 					delete filters[key];
-					$li.addClass('active')
+					$li.find('.selection-indicator').toggleClass('snf-radio-unchecked snf-radio-checked');
+					$li.addClass('active');
+					$li.siblings('.active').find('.selection-indicator').toggleClass('snf-radio-unchecked snf-radio-checked');
+					$li.siblings('.active').removeClass('active');
+					$(this).closest(filterEl).find('.selected-value').text(value);
+				}
+				$li.toggleClass('active')
+				if($li.hasClass('active')) {
+					$li.find('.selection-indicator').removeClass('snf-radio-unchecked').addClass('snf-radio-checked');
+					$li.siblings('li').removeClass('active');
+					$li.siblings('li').find('.selection-indicator').removeClass('snf-radio-checked').addClass('snf-radio-unchecked');
+					$(this).closest(filterEl).find('.selected-value').text(value);
+					filters[key] = value;
+				}
+				else {
+					delete filters[key];
+					var resetLabel = $li.siblings('.reset').text();
+					$li.siblings('li.reset').addClass('active');
+					$li.siblings('li.reset').find('.selection-indicator').removeClass('snf-radio-unchecked').addClass('snf-radio-checked');
+					$(this).closest(filterEl).find('.selected-value').text(resetLabel);
+				}
+			}
+			else {
+				if($li.hasClass('reset')) {
+					delete filters[key];
+					$li.find('.selection-indicator').toggleClass('snf-checkbox-unchecked snf-checkbox-checked');
+					$li.addClass('active');
+
+					$li.siblings('.active').find('.selection-indicator').toggleClass('snf-checkbox-unchecked snf-checkbox-checked');
 					$li.siblings('.active').removeClass('active');
 					$(this).closest(filterEl).find('.selected-value').text(value);
 				}
 				else {
-					$li.toggleClass('active')
-					if($(this).closest('.filter-dropdown').hasClass('filter-boolean')) {
-						if($li.hasClass('active')) {
-							$li.siblings('li').removeClass('active');
+					$li.toggleClass('active');
+					$li.find('.selection-indicator').toggleClass('snf-checkbox-unchecked snf-checkbox-checked');
+					if($li.hasClass('active')) {
+						$li.siblings('.reset').removeClass('active')
+						$li.siblings('.reset').find('.selection-indicator').addClass('snf-checkbox-unchecked').removeClass('snf-radio-checked');
+						if($li.siblings('.active').length > 0) {
+							arrayFilter(filters, key, value);
+							$(this).closest(filterEl).find('.selected-value').append(','+value)
+						}
+						else {
 							$(this).closest(filterEl).find('.selected-value').text(value);
-								filters[key] = value;
+							filters[key] = [value]
+						}
+					}
+					else {
+						if($li.siblings('.active').length >0) {
+							arrayFilter(filters, key, value, true);
+							$(this).closest(filterEl).find('.selected-value').text(filters[key])
 						}
 						else {
 							delete filters[key];
 							var resetLabel = $li.siblings('.reset').text();
-							$li.siblings('li').find('.reset').closest('li').addClass('active');
+							$li.siblings('li.reset').addClass('active');
+							$li.siblings('li.reset').find('.selection-indicator').removeClass('snf-radio-unchecked').addClass('snf-checkbox-checked');
 							$(this).closest(filterEl).find('.selected-value').text(resetLabel)
 
 						}
 					}
-					else {
-						if($li.hasClass('active')) {
-							$li.siblings('.reset').removeClass('active')
-
-							if($li.siblings('.active').length > 0) {
-								arrayFilter(filters, key, value);
-								$(this).closest(filterEl).find('.selected-value').append(','+value)
-							}
-							else {
-								$(this).closest(filterEl).find('.selected-value').text(value);
-								filters[key] = [value]
-							}
-						}
-						else {
-							if($li.siblings('.active').length >0) {
-								arrayFilter(filters, key, value, true);
-								$(this).closest(filterEl).find('.selected-value').text(filters[key])
-							}
-							else {
-								delete filters[key];
-								var resetLabel = $li.siblings('.reset').text();
-								$li.siblings('li').find('.reset').closest('li').addClass('active');
-								$(this).closest(filterEl).find('.selected-value').text(resetLabel)
-
-							}
-						}
-					}
 				}
-				$(tableDomID).dataTable().api().ajax.reload();
+			}
+			$(tableDomID).dataTable().api().ajax.reload();
 		});
 	};
 
