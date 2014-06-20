@@ -132,7 +132,12 @@ $(function(){
 			clickDetails(this);
 		}
 	});
-	$("div.custom-buttons").html('<a href="" class="select-page select custom-btn" data-karma="neutral"><span>Select Page</span></a>'+'<a href="" class="select select-all custom-btn" data-karma="neutral" data-toggle="modal" data-target="#massive-actions-warning"><span>Select All</span></a>'+'<a href="" class="deselect clear-all custom-btn" data-karma="neutral" data-toggle="modal" data-target="#clear-all-warning"><span>Clear All</span></a>');
+	$("div.custom-buttons").html('<a href="" id="select-page" class="select custom-btn" data-karma="neutral"><span>Select Page</span></a>'+'<a href="" class="select select-all custom-btn" data-karma="neutral" data-toggle="modal" data-target="#massive-actions-warning"><span>Select All</span></a>'+'<a href="" id="clear-all" class="disabled deselect custom-btn" data-karma="neutral" data-toggle="modal" data-target="#clear-all-warning"><span>Clear All</span></a>');
+
+	$('.content').on('click', '#clear-all.disabled', function(e) {
+		e.preventDefault();
+		e.stopPropagation();
+	})
 
 	function isSelected() {
 		var tableLength = table.rows()[0].length;
@@ -144,7 +149,7 @@ $(function(){
 				for(var i = 0; i<selectedL; i++){
 					if (selected.items[i].id === table.row(j).data()[extraIndex].id.value) {
 						$(table.row(j).nodes()).addClass('selected');
-						$(table.row(j).nodes()).find('td:first-child .selection-indicator').toggleClass('snf-checkbox-checked snf-checkbox-unchecked');
+						$(table.row(j).nodes()).find('td:first-child .selection-indicator').addClass('snf-checkbox-checked').removeClass('snf-checkbox-unchecked');
 						break;
 					}
 				}
@@ -154,6 +159,8 @@ $(function(){
 
 	var newTable = true;
 	$('.select-all-confirm').click(function(e) {
+		console.profile("test");
+		console.time("test");
 		$(this).closest('.modal').addClass('in-progress');
 		console.log('select all items', new Date);
 		if(newTable) {
@@ -185,7 +192,7 @@ $(function(){
 							var rowL = rowsArray.length;
 							var extraCol = rowsArray[0].length; //last column
 							for (var i=0; i<rowL; i++) {
-								rowsArray[i][extraCol] = response.extra[i]
+								rowsArray[i][extraCol] = response.extra[i] // ***
 							}
 						}
 						console.log('return response', new Date)
@@ -198,13 +205,24 @@ $(function(){
 						countme = false;
 					}
 					var info = data[data.length - 1];
-					// console.log(info);
 					var newItem = addItem(info);
 					if(newItem !== null) {
-						enableActions(newItem.actions);
-						keepSelected(data);
+						if(dataIndex>=1000) {
+							if(dataIndex%1000 === 0){
+								setTimeout(function() {
+									console.log('stop');
+									enableActions(newItem.actions);
+									keepSelected(data);
+								}, 50)
+							}
+						}
+						else {
+							enableActions(newItem.actions);
+							//console.time("keepSelected");
+							keepSelected(data);
+							//console.timeEnd("keepSelected");
+						}
 					}
-
 				},
 				"drawCallback": function(settings) {
 					console.log('1-drawCallback', new Date)
@@ -215,6 +233,10 @@ $(function(){
 					console.log('2-drawCallback', new Date)
 					tableSelected.rows().draw();
 					console.log('3-drawCallback', new Date)
+					updateToggleAllSelect();
+					console.profileEnd("test");
+					console.timeEnd("test");
+					updateClearAll();
 				}
 			});
 		}
@@ -256,6 +278,7 @@ $(function(){
 	});
 
 	function keepSelected(data, drawNow) {
+		//return;
 		if(drawNow) {
 			tableSelected.row.add(data).draw();
 		}
@@ -281,39 +304,65 @@ $(function(){
 		}
 	}
 
+	$(tableSelectedDomID).on('click', 'tbody tr td:first-child .selection-indicator', function() {
+		var $tr = $(this).closest('tr');
+		var column = $tr.find('td').length - 1;
+		var $trID = $tr.attr('id');
+		var selectedRow = tableSelected.row('#'+$trID);
+		var itemID = tableSelected.cell('#'+$trID, column).data().id.value;
+		$tr.find('td:first-child .selection-indicator').addClass('snf-checkbox-unchecked').removeClass('snf-checkbox-checked');
+		$tr.fadeOut('slow', function() {
+			selectedRow.remove().draw();
+			table.row('#'+itemID).nodes().to$().removeClass('selected');
+			$(table.row('#'+itemID).nodes()).find('td:first-child .selection-indicator').addClass('snf-checkbox-unchecked').removeClass('snf-checkbox-checked');
+
+		});
+		removeItem(itemID);
+		enableActions(undefined, true);
+		updateCounter('.selected-num');
+		updateToggleAllSelect();
+	});
+
+
 	$(tableDomID).on('click', 'tbody tr', function(e) {
-		selectRow(this, e.type);
-		var select;
-		if($(this).hasClass('selected')) {
-			select = true;
+		prevClicked = lastClicked;
+		lastClicked =  $(this);
+		if(!e.shiftKey) {
+			selectRow(this, e.type);
 		}
 		else {
-			select = false;
+			var select;
+			if($(this).hasClass('selected')) {
+				select = false;
+			}
+			else {
+				select = true;
+			}
+			if(e.shiftKey && prevClicked !== null && lastClicked !== null) {
+				var startRow;
+				var start = prevClicked.index();
+				var end = lastClicked.index();
+				if(start < end) {
+					startRow = prevClicked;
+					for (var i = start; i<=end; i++) {
+						if((select && !($(startRow).hasClass('selected'))) || (!select && $(startRow).hasClass('selected'))) {
+							selectRow(startRow);
+						}
+						startRow = startRow.next();
+					}
+				}
+				else if(end < start) {
+					startRow = prevClicked;
+					for (var i = start; i>=end; i--) {
+						if((select && !($(startRow).hasClass('selected'))) || (!select && $(startRow).hasClass('selected'))) {
+							selectRow(startRow);
+						}
+						startRow = startRow.prev();
+					}
+				}
+			}
 		}
-		if(e.shiftKey && prevClicked !== null && lastClicked !== null) {
-			var startRow;
-			var start = prevClicked.index() + 1;
-			var end = lastClicked.index();
-			if(start < end) {
-				startRow = prevClicked.next();
-				for (var i = start; i<end; i++) {
-					if((select && !($(startRow).hasClass('selected'))) || (!select && $(startRow).hasClass('selected'))) {
-						selectRow(startRow);
-					}
-					startRow = startRow.next();
-				}
-			}
-			else if(end < start) {
-				startRow = prevClicked.prev();
-				end = end+2;
-				for (var i = start; i>end; i--) {
-					if((select && !($(startRow).hasClass('selected'))) || (!select && $(startRow).hasClass('selected'))) {
-						selectRow(startRow);
-					}
-					startRow = startRow.prev();
-				}
-			}
-			}
+		updateClearAll();
 	});
 
 	$(document).bind('keydown', function(e){
@@ -341,13 +390,9 @@ $(function(){
 		}
 	}
 
-	function selectRow(row, event) {
+	function selectRow(row) {
 		var $row = $(row);
 		$row.find('td:first-child .selection-indicator').toggleClass('snf-checkbox-checked snf-checkbox-unchecked');
-		if(event === "click") { // the param is event from a tr
-			prevClicked = lastClicked;
-			lastClicked = $row
-		}
 		var infoRow = table.row($row).data();
 		var info = infoRow[infoRow.length - 1]
 		// var info = $(tableDomID).dataTable().api().cell($row.find('td:last-child')).data();
@@ -362,6 +407,7 @@ $(function(){
 			var newItem = addItem(info);
 			enableActions(newItem.actions)
 			selData = table.row($row).data();
+
 			keepSelected(selData, true);
 		}
 		updateCounter('.selected-num');
@@ -412,6 +458,7 @@ $(function(){
 		$(table).find('tbody td:last-child a.expand-area').click(function(e) {
 			e.preventDefault();
 			e.stopPropagation();
+
 			var $summaryTd = $(this).closest('td');
 			var $btn = $summaryTd.find('.expand-area span');
 			var $summaryContent = $summaryTd.find('.info-summary');
@@ -545,9 +592,10 @@ $(function(){
 
 	 /* select-page button */
 
-	$('.select-page').click(function(e) {
+	$('#select-page').click(function(e) {
 		e.preventDefault();
 		toggleVisSelected(tableDomID, $(this).hasClass('select'));
+		updateClearAll();
 	});
 
 
@@ -571,10 +619,10 @@ $(function(){
 	the text of the select-qll btn */
 	function updateToggleAllSelect() {
 		// console.log('updateToggleAllSelect', new Date)
-		var $togglePageItems = $('.select-page');
+		var $togglePageItems = $('#select-page');
 		var $label = $togglePageItems.find('span')
 		var $tr = $(tableDomID).find('tbody tr');
-		if($tr.length > 1) {
+		if($tr.length >= 1) {
 			var allSelected = true
 			$tr.each(function() {
 				allSelected = allSelected && $(this).hasClass('selected');
@@ -591,10 +639,19 @@ $(function(){
 		}
 		else {
 			$togglePageItems.addClass('select').removeClass('deselect')
-			$label.text('Select All')
+			$label.text('Select Page')
 		}
 	};
 
+	function updateClearAll() {
+		var $clearAllBtn = $('#clear-all')
+		if(selected.items.length === 0) {
+			$clearAllBtn.addClass('disabled');
+		}
+		else {
+			$clearAllBtn.removeClass('disabled');
+		}
+	}
 
 	/* Modals */
 
@@ -638,6 +695,7 @@ $(function(){
 		resetInputs($modal);
 		removeWarnings($modal);
 		resetTable(tableDomID);
+		updateClearAll();
 	});
 	$('.modal button[type=submit]').click(function(e) {
 		var $modal = $(this).closest('.modal');
@@ -823,12 +881,12 @@ $(function(){
 		});
 	};
 
-    $('.actionbar .toggle-selected').click(function (e) {
-        e.preventDefault();
-    })
+	$('.actionbar .toggle-selected').click(function (e) {
+		e.preventDefault();
+	})
 
-    $('.main .object-details').first().find('h4').addClass('expanded');
-    $('.main .object-details').first().find('.object-details-content').slideDown('slow');
+	$('.main .object-details').first().find('h4').addClass('expanded');
+	$('.main .object-details').first().find('.object-details-content').slideDown('slow');
 
 
 
@@ -956,6 +1014,37 @@ $(function(){
 	dropdownSelect('.filters .filter-dropdown .dropdown');
 
 	$('input').blur(); // onload there is no input field focus
+	$("[data-toggle=popover]").click(function(e) {
+		e.preventDefault();
+	})
+	$("[data-toggle=popover]").popover();
+
+
+
+  /* For Details page */
+
+  $('.object-details h4 .arrow,.object-details h4 .title').click(function(){
+	var $expandBtn = $(this);
+	var $areas = $expandBtn.closest('.info-block.object-details') // *** add another class
+	$expandBtn.closest('h4').siblings('.object-details-content').toggle('slow');
+	$expandBtn.closest('h4').toggleClass('expanded');
+	var hasClass = $expandBtn.closest('h4').hasClass('expanded');
+	var allSameClass = true;
+
+	($areas.find('.object-details')).each(function() {
+		if(hasClass)
+			allSameClass = allSameClass && $(this).find('h4').hasClass('expanded');
+		else
+			allSameClass = allSameClass && !$(this).find('h4').hasClass('expanded');
+
+		if(!allSameClass)
+			return false;
+	});
+	console.log(allSameClass)
+	if(allSameClass)
+		$expandBtn.closest('.info-block.object-details').find('.show-hide-all').trigger('click');
+  });
+
 });
 
 
