@@ -3,8 +3,8 @@ var mydata; // temp
 (function($, Django){
 
 $(function(){
-	var lastClicked = null;
-	var prevClicked = null;
+	var $lastClicked = null;
+	var $prevClicked = null;
 	 selected = {
 		items: [],
 		actions: {}
@@ -230,7 +230,7 @@ $(function(){
 					console.profileEnd("test");
 					console.timeEnd("test");
 					updateClearAll();
-			console.log($(tableMassiveDomID).find('tr').length)
+				console.log($(tableMassiveDomID).find('tr').length)
 				}
 			});
 		}
@@ -329,26 +329,26 @@ $(function(){
 	});
 
 
-	$(tableDomID).on('click', 'tbody tr', function(e) {
-		prevClicked = lastClicked;
-		lastClicked =  $(this);
+	$(tableDomID).on('click', 'tbody tr .selection-indicator', function(e) {
+		$prevClicked = $lastClicked;
+		$lastClicked =  $(this).closest('tr');
 		if(!e.shiftKey) {
-			selectRow(this, e.type);
+			selectRow($lastClicked, e.type);
 		}
 		else {
 			var select;
-			if($(this).hasClass('selected')) {
+			if($lastClicked.hasClass('selected')) {
 				select = false;
 			}
 			else {
 				select = true;
 			}
-			if(e.shiftKey && prevClicked !== null && lastClicked !== null) {
+			if(e.shiftKey && $prevClicked !== null && $lastClicked !== null) {
 				var startRow;
-				var start = prevClicked.index();
-				var end = lastClicked.index();
+				var start = $prevClicked.index();
+				var end = $lastClicked.index();
 				if(start < end) {
-					startRow = prevClicked;
+					startRow = $prevClicked;
 					for (var i = start; i<=end; i++) {
 						if((select && !($(startRow).hasClass('selected'))) || (!select && $(startRow).hasClass('selected'))) {
 							selectRow(startRow);
@@ -357,7 +357,7 @@ $(function(){
 					}
 				}
 				else if(end < start) {
-					startRow = prevClicked;
+					startRow = $prevClicked;
 					for (var i = start; i>=end; i--) {
 						if((select && !($(startRow).hasClass('selected'))) || (!select && $(startRow).hasClass('selected'))) {
 							selectRow(startRow);
@@ -449,14 +449,13 @@ $(function(){
 			}
 		}
 
-		html = '<a href="'+ data["details_url"].value +' " class="details-link"><span class="snf-icon snf-search"></span></a><a href="#" class="summary-expand expand-area"><span class="snf-icon snf-angle-down"></span></a><dl class="info-summary dl-horizontal">'+ list +'</dl>';
+		html = '<a title="Details" href="'+ data["details_url"].value +' " class="details-link"><span class="snf-icon snf-search"></span></a><a title="Show summary" href="#" class="summary-expand expand-area"><span class="snf-icon snf-angle-down"></span></a><dl class="info-summary dl-horizontal">'+ list +'</dl>';
 		return html;
 	};
 
 	function clickDetails(row) {
 		$(row).find('td:last-child a.details-link').click(function(e) {
 			e.stopPropagation();
-			console.log('clickDetails')
 		})
 	}
 
@@ -583,7 +582,7 @@ $(function(){
 		}
 	};
 
-	function resetTable(tableDomID) {
+	function resetAll(tableDomID) {
 		selected.items = [];
 		removeSelected(true); //removes all selected items from the table of selected items
 		updateCounter('.selected-num');
@@ -607,8 +606,8 @@ $(function(){
 
 	/* select-page / deselect-page */
 	function toggleVisSelected(tableDomID, selectFlag) {
-		lastClicked = null;
-		prevClicked = null;
+		$lastClicked = null;
+		$prevClicked = null;
 		if(selectFlag) {
 			$(tableDomID).find('tbody tr:not(.selected)').each(function() { // temp : shouldn't have a func that calls a named func
 				selectRow(this);
@@ -693,17 +692,22 @@ $(function(){
 		modal.find('.warning-duplicate').remove();
 	}
 
-	$('.modal-footer .cancel').click(function(e) {
+	$('.modal .cancel').click(function(e) {
 		$('[data-toggle="popover"]').popover('hide');
 		var $modal = $(this).closest('.modal');
 		resetErrors($modal);
 		resetInputs($modal);
 		removeWarnings($modal);
-		// resetTable(tableDomID);
+		// resetAll(tableDomID);
 		updateToggleAllSelect();
 		updateClearAll();
 		enableActions(undefined, true);
 	});
+
+	$('.modal .clear-all-confirm').click(function() {
+		resetAll(tableDomID);
+	});
+
 	$('.modal .apply-action').click(function(e) {
 		var $modal = $(this).closest('.modal');
 		var completeAction = true;
@@ -737,7 +741,7 @@ $(function(){
 			resetErrors($modal);
 			resetInputs($modal);
 			removeWarnings($modal);
-			resetTable(tableDomID);
+			resetAll(tableDomID);
 		}
 	});
 
@@ -790,7 +794,7 @@ $(function(){
 		$.ajax({
 		url: url,
 		type: 'POST',
-		data: JSON.stringify(data),
+		// data: JSON.stringify(data),
 		contentType: 'application/json',
 		success: function(response, statusText, jqXHR) {
 		  console.log('did it!', statusText)
@@ -832,7 +836,7 @@ $(function(){
 				if(unique === true) {
 					idsArray.push(selected.items[i][uniqueProp]);
 					currentRow = templateRow.replace('data-itemid=""', 'data-itemid="'+selected.items[i].contact_id+'"');
-					currentRow = currentRow.replace('title=""', 'title="'+selected.items[i].item_name+'"')
+					currentRow = currentRow.replace('title=""', 'title="related with: '+selected.items[i].item_name+'"')
 					currentRow = currentRow.replace('<td class="full-name"></td>', '<td class="full-name">'+selected.items[i].contact_name+'</td>');
 					currentRow = currentRow.replace('<td class="email"><', '<td class="email">'+selected.items[i].contact_email+'<');
 					if(i >= maxVisible)
@@ -852,7 +856,6 @@ $(function(){
 
 		else {
 			uniqueProp = 'id';
-
 			var templateRow = '<tr data-itemid=""><td class="item-name"></td><td class="item-id"></td><td class="owner-name"></td><td class="owner-email"><a class="remove">X</a></td></tr>';
 			for(var i=0; i<rowsNum; i++) {
 				idsArray.push(selected.items[i][uniqueProp]);
