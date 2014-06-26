@@ -1,7 +1,14 @@
 $(document).ready(function(){
 
-
-	 $('.object-details h4 .arrow').click(function(){
+	var navsHeight = $('.main-nav').height() + $('.sub-nav').height();
+	$('.sub-nav .link-to-anchor').click(function(e) {
+		e.preventDefault();
+		var pos = $($.attr(this, 'href')).offset().top - navsHeight;
+		$('html, body').animate({
+			scrollTop: pos
+		}, 500)
+	})
+	$('.object-details h4 .arrow').click(function(){
 		var $expandBtn = $(this);
 		$expandBtn.closest('h4').toggleClass('expanded');
 		var hasClass = $expandBtn.closest('h4').hasClass('expanded');
@@ -30,7 +37,7 @@ $(document).ready(function(){
 		});
 		if(allSameClass)
 			$expandBtn.closest('.info-block.object-details').find('.show-hide-all').trigger('click');
-	  });
+	});
 
 	   // hide/show expand/collapse 
   
@@ -101,10 +108,12 @@ $('.main .object-details h4 .arrow').trigger('click')
 		$modal.find('.error-sign').hide();
 	};
 
+	var defaultEmailSubj = $('.modal[data-type="contact"]').find('.subject').val();
+	var defaultEmailBody = $('.modal[data-type="contact"]').find('.email-content').val();
 	function resetInputs(modal) {
 		var $modal = $(modal);
-		$modal.find('textarea').val('Dear ,\n\n\nIf you did not sign up for this account you can ignore this email.\n\n\nFor any remarks or problems you may contact support@synnefo.live.\nThank you for participating in Synnefo.\n GRNET');
-		$modal.find('input[type=text]').val('New email from ~okeanos');
+		$modal.find('input[type=text]').val(defaultEmailSubj);
+		$modal.find('textarea').val(defaultEmailBody);
 	};
 		
 	function resetItemInfo(modal) {
