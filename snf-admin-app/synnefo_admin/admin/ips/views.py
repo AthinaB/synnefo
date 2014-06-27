@@ -36,7 +36,7 @@ from synnefo_admin.admin.actions import (has_permission_or_403,
 from synnefo_admin.admin.utils import get_actions, render_email
 from synnefo_admin.admin.users.utils import get_user
 
-from .utils import get_contact_mail, get_contact_name
+from .utils import get_contact_email, get_contact_name, get_user_details_href
 from .actions import cached_actions
 from .filters import IPFilterSet
 
@@ -89,15 +89,15 @@ class IPJSONView(DatatablesView):
             'value': inst.userid,
             'visible': False,
         }
-        extra_dict['contact_mail'] = {
-            'display_name': "Contact mail",
-            'value': get_contact_mail(inst),
-            'visible': True,
+        extra_dict['contact_email'] = {
+            'display_name': "Contact email",
+            'value': get_contact_email(inst),
+            'visible': False,
         }
         extra_dict['contact_name'] = {
             'display_name': "Contact name",
             'value': get_contact_name(inst),
-            'visible': True,
+            'visible': False,
         }
 
         if self.form.cleaned_data['iDisplayLength'] < 0:
@@ -113,6 +113,11 @@ class IPJSONView(DatatablesView):
 
     def add_verbose_data(self, inst):
         extra_dict = OrderedDict()
+        extra_dict['user_info'] = {
+            'display_name': "User",
+            'value': get_user_details_href(inst),
+            'visible': True,
+        }
         extra_dict['updated'] = {
             'display_name': "Update date",
             'value': inst.updated,

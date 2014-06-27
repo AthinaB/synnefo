@@ -1,7 +1,6 @@
 {% load admin_tags %}
 
 {% with project=item page='user' %}
-<!--{{ project|admin_debug }}-->
 <div class="object-anchor" id="project-{{project.uuid}}"></div>
 <div class="object-details {{ rowcls }}" data-id="{{project.uuid}}"
     data-type="{{type}}">
@@ -12,7 +11,7 @@
         <span class="label">UUID: {{ project.uuid }}</span>
         <span class="label">
         {% if project.is_base %}
-            BASE
+            SYSTEM
         {% else %}
             Members: {{ project.members_count }}
         {% endif %}

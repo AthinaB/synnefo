@@ -21,6 +21,8 @@ from operator import or_
 from django.db.models import Q
 from django.views.decorators.gzip import gzip_page
 from django.template import Context, Template
+from django.conf import settings
+from django.core.urlresolvers import reverse
 
 from synnefo.util import units
 from astakos.im.models import AstakosUser
@@ -120,6 +122,22 @@ def get_actions(target, user=None, inst=None):
         return get_permitted_actions(actions, user)
 
 
+def update_actions_rbac(actions):
+    """Add allowed groups to actions dictionary from settings.
+
+    Read the settings file to find the allowed groups for this action.
+    """
+    for op, action in actions.iteritems():
+        target = action.target
+        groups = []
+        try:
+            groups = settings.ADMIN_RBAC[target][op]
+        except KeyError:
+            pass
+
+        action.allowed_groups = groups
+
+
 def render_email(request, user):
     """Render an email and return its subject and body.
 
@@ -144,3 +162,13 @@ def render_email(request, user):
     body = t.render(c)
     logging.info("Subject is %s, body is %s", subject, body)
     return subject, body
+
+
+def create_details_href(type, name, id):
+    """Create an href (name + url) for the details page of an item."""
+    url = reverse('admin-details', args=[type, id])
+    if len(str(id)) > 12:
+        href = '<a href=%s>%s</a>' % (url, name)
+    else:
+        href = '<a href=%s>%s (id:%s)</a>' % (url, name, id)
+    return href

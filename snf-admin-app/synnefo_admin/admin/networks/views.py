@@ -40,7 +40,9 @@ from synnefo_admin.admin.users.utils import get_user
 
 from .filters import NetworkFilterSet
 from .actions import cached_actions
-from .utils import get_contact_name, get_contact_mail, get_network
+from .utils import (get_contact_name, get_contact_email, get_network,
+                    get_user_details_href)
+
 
 templates = {
     'list': 'admin/network_list.html',
@@ -97,14 +99,20 @@ class NetworkJSONView(DatatablesView):
             'value': inst.userid,
             'visible': False,
         }
-        extra_dict['contact_mail'] = {
-            'display_name': "Contact mail",
-            'value': get_contact_mail(inst),
-            'visible': True,
+        extra_dict['contact_email'] = {
+            'display_name': "Contact email",
+            'value': get_contact_email(inst),
+            'visible': False,
         }
         extra_dict['contact_name'] = {
             'display_name': "Contact name",
             'value': get_contact_name(inst),
+            'visible': False,
+        }
+
+        extra_dict['user_info'] = {
+            'display_name': "User",
+            'value': get_user_details_href(inst),
             'visible': True,
         }
 
