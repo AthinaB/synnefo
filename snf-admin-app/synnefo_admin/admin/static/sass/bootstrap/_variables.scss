@@ -34,7 +34,7 @@ $body-bg:               $gray-dark;
 $text-color:            #fff;
 
 //** Global textual link color.
-$link-color:            $brand-primary !default;
+$link-color:            #9ED34D;
 //** Link hover color set via `darken()` function.
 $link-hover-color:      darken($link-color, 15%) !default;
 
@@ -741,7 +741,7 @@ $badge-active-bg:             #fff !default;
 
 $badge-font-weight:           bold !default;
 $badge-line-height:           1 !default;
-$badge-border-radius:         10px !default;
+$badge-border-radius:         0;
 
 
 //== Breadcrumbs
