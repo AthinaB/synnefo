@@ -77,7 +77,6 @@ $('.main .object-details h4 .arrow').trigger('click')
 		/* Modals */
 
 	$('.actions-per-item .custom-btn').click(function() {
-		console.log('you clicked me');
 		var itemID = $(this).closest('.object-details').data('id');
 		var itemName = $(this).closest('.object-details').find('h4 .title').text();
 		var modalID = $(this).data('target');
@@ -130,7 +129,7 @@ $('.main .object-details h4 .arrow').trigger('click')
 		$summary.append(html);
 	};
 
-
+	var $notificationArea = $('.notify');
 	function performAction(modal) {
 		var $modal = $(modal);
 		var $actionBtn = $modal.find('.apply-action')
@@ -149,18 +148,65 @@ $('.main .object-details h4 .arrow').trigger('click')
 		}
 		console.log(data)
 		$.ajax({
-		url: url,
-		type: 'POST',
-		data: JSON.stringify(data),
-		contentType: 'application/json',
-		success: function(response, statusText, jqXHR) {
-		  console.log('did it!', statusText)
-		},
-		error: function(jqXHR, statusText) {
-		  console.log('error', statusText)
-		}
+			url: url,
+			type: 'POST',
+			data: JSON.stringify(data),
+			contentType: 'application/json',
+			timeout: 100000,
+			success: function(response, statusText, jqXHR) {
+				var htmlSuccess = '<dl class="dl-horizontal"><dt><span class="success snf-icon snf-exclamation-sign"></span> Action '+data.op+': </dt><dd>'+response.result+'<a href="" class="remove-log" title="Remove this line">X</a></dd></dl>';
+				$notificationArea.find('.btns').before(htmlSuccess);
+				var height = -$notificationArea.outerHeight(true)
+					if($notificationArea.css('bottom') !== '0px')
+						$notificationArea.css('bottom', height)
+					$notificationArea.show();
+					$notificationArea.animate({'bottom': '0px'})
+			},
+			error: function(jqXHR, statusText) {
+				console.log(jqXHR, statusText, jqXHR.status);
+				var htmlError;
+				if(jqXHR.status === 500 || jqXHR.status === 0) {
+					htmlError = '<dl class="dl-horizontal"><dt><span class="error snf-icon snf-exclamation-sign"></span> Action '+data.op+': </dt><dd>[code: '+ jqXHR.status +'] '+jqXHR.statusText+'<a href="" class="remove-log" title="Remove this line">X</a></dd></dl>';
+				}
+				else {
+
+					htmlError ='<dl class="dl-horizontal"><dt><span class="error snf-icon snf-exclamation-sign"></span> Action '+data.op+': </dt><dd>'+jqXHR.result+'</dd><dt>Error for the items: </dt><dd>'+jqXHR.error_ids.toString().replace(/\,/gi, ', ')+'<a href="" class="remove-log" title="Remove this line">X</a></dd></dl>';
+				}
+
+				$notificationArea.find('.btns').before(htmlError);
+				var height = -$notificationArea.outerHeight(true)
+				if($notificationArea.css('bottom') !== '0px') {
+					$notificationArea.css('bottom', height)
+				}
+				$notificationArea.show();
+				$notificationArea.animate({'bottom': '0px'})
+			}
 		});
 	}
+
+	$notificationArea.on('click', '.remove-log', function(e) {
+		e.preventDefault();
+		var $dl = $(this).closest('dl');
+		$dl.fadeOut('slow', function() {
+			$dl.remove();
+			if($notificationArea.find('dl').length === 0) {
+				$notificationArea.find('.close-notifications').trigger('click');
+			}
+		});
+	});
+	$notificationArea.on('click', '.close-notifications', function(e) {
+		e.preventDefault();
+		var height = -$notificationArea.outerHeight(true)
+		$notificationArea.animate({'bottom': height}, 'slow')
+	});
+	$notificationArea.on('click', '.clear-notifications', function(e) {
+		e.preventDefault();
+		$notificationArea.find('dl').fadeOut('slow', function() {
+			$(this).remove();
+			$notificationArea.find('.close-notifications').trigger('click');
+		});
+
+	});
 
 	$('.modal').find('.cancel').click(function() {
 		$modal =$(this).closest('.modal');
@@ -181,7 +227,6 @@ $('.main .object-details h4 .arrow').trigger('click')
 			if(!$.trim($emailSubj.val())) {
 				// e.preventDefault();
 				e.stopPropagation();
-				console.log('empty')
 				showError($modal, 'empty-subject');
 				checkInput($modal, $emailSubj, 'empty-subject');
 				completeAction = false;
