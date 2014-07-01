@@ -52,33 +52,6 @@ body .container .line-btn.disabled:hover {
 }
 
 /* line 93, ../sass/_bars-btns.scss */
-.default-btn {
-  display: inline-block;
-  text-align: center;
-  opacity: 0.7;
-  background-color: #222222;
-  border-bottom: 2px solid #222222;
-  color: #fff;
-}
-/* line 10, ../sass/_bars-btns.scss */
-.default-btn span {
-  display: block;
-  height: 100%;
-  line-height: 100%;
-  padding: 8px;
-}
-/* line 16, ../sass/_bars-btns.scss */
-.default-btn:hover {
-  text-decoration: none;
-  opacity: 1;
-}
-/* line 62, ../sass/_bars-btns.scss */
-.default-btn:hover {
-  color: #fff;
-  border-bottom-color: #eeeeee;
-}
-
-/* line 97, ../sass/_bars-btns.scss */
 .custom-btn {
   display: inline-block;
   text-align: center;
@@ -108,38 +81,38 @@ body .container .line-btn.disabled:hover {
 .custom-btn:hover span {
   color: white;
 }
-/* line 113, ../sass/_bars-btns.scss */
+/* line 109, ../sass/_bars-btns.scss */
 .custom-btn[data-karma="neutral"] {
   background-color: #3c96e0;
   border-color: #3c96e0;
 }
-/* line 117, ../sass/_bars-btns.scss */
+/* line 113, ../sass/_bars-btns.scss */
 .custom-btn[data-karma="good"] {
   background-color: #00a551;
   border-color: #00a551;
 }
-/* line 122, ../sass/_bars-btns.scss */
+/* line 118, ../sass/_bars-btns.scss */
 .custom-btn[data-karma="bad"] {
   background-color: #d2881f;
   border-color: #d2881f;
 }
-/* line 127, ../sass/_bars-btns.scss */
+/* line 123, ../sass/_bars-btns.scss */
 .custom-btn[data-caution="warning"][data-karma="good"], .custom-btn[data-caution="warning"][data-karma="neutral"] {
   background-color: #d2881f;
   border-color: #d2881f;
 }
-/* line 132, ../sass/_bars-btns.scss */
+/* line 128, ../sass/_bars-btns.scss */
 .custom-btn[data-caution="dangerous"][data-karma="bad"], .custom-btn[data-caution="dangerous"][data-karma="neutral"] {
   background-color: #e42a48;
   border-color: #e42a48;
 }
 
-/* line 141, ../sass/_bars-btns.scss */
+/* line 137, ../sass/_bars-btns.scss */
 .navbar a {
   color: #404040;
 }
 
-/* line 145, ../sass/_bars-btns.scss */
+/* line 141, ../sass/_bars-btns.scss */
 .main-nav {
   min-width: 1150px;
   padding-left: 20px;
@@ -148,28 +121,28 @@ body .container .line-btn.disabled:hover {
   border: 0 none;
   z-index: 1040;
 }
-/* line 148, ../sass/_bars-btns.scss */
+/* line 144, ../sass/_bars-btns.scss */
 .main-nav > ul > li > a {
   color: white;
   padding-top: 16px;
 }
-/* line 151, ../sass/_bars-btns.scss */
+/* line 147, ../sass/_bars-btns.scss */
 .main-nav > ul > li > a:hover {
   padding-top: 16px;
 }
 
-/* line 167, ../sass/_bars-btns.scss */
+/* line 163, ../sass/_bars-btns.scss */
 .nav-simple {
   padding: 20px;
   border-bottom: 1px solid white;
 }
-/* line 170, ../sass/_bars-btns.scss */
+/* line 166, ../sass/_bars-btns.scss */
 .nav-simple .header {
   float: left;
   line-height: 40px;
   font-size: 26px;
 }
-/* line 175, ../sass/_bars-btns.scss */
+/* line 171, ../sass/_bars-btns.scss */
 .nav-simple .login-info {
   float: right;
   position: relative;
@@ -177,89 +150,89 @@ body .container .line-btn.disabled:hover {
   font-size: 16px;
 }
 
-/* line 186, ../sass/_bars-btns.scss */
+/* line 182, ../sass/_bars-btns.scss */
 .dropdown .dropdown-menu.align-left a {
   text-align: left;
   padding-left: 11px;
 }
-/* line 190, ../sass/_bars-btns.scss */
+/* line 186, ../sass/_bars-btns.scss */
 .dropdown .dropdown-menu.align-right a {
   text-align: right;
 }
-/* line 194, ../sass/_bars-btns.scss */
+/* line 190, ../sass/_bars-btns.scss */
 .dropdown a:hover {
   text-decoration: none;
 }
 
-/* line 200, ../sass/_bars-btns.scss */
+/* line 196, ../sass/_bars-btns.scss */
 .login-info .dropdown a {
   padding-left: 12px;
   padding-right: 12px;
   padding-bottom: 8px;
 }
-/* line 206, ../sass/_bars-btns.scss */
+/* line 202, ../sass/_bars-btns.scss */
 .login-info .dropdown:hover > a {
   color: #404040;
   background: white;
 }
-/* line 213, ../sass/_bars-btns.scss */
+/* line 209, ../sass/_bars-btns.scss */
 .login-info .dropdown-menu {
   right: 0;
   left: auto;
   border-radius: 0;
 }
 
-/* line 229, ../sass/_bars-btns.scss */
+/* line 225, ../sass/_bars-btns.scss */
 .sign-out span {
   margin-right: 10px;
   vertical-align: middle;
   font-size: 18px;
 }
 
-/* line 237, ../sass/_bars-btns.scss */
+/* line 233, ../sass/_bars-btns.scss */
 .label-notice {
   background: #5a5959;
 }
 
-/* line 241, ../sass/_bars-btns.scss */
+/* line 237, ../sass/_bars-btns.scss */
 .nav .dropdown:hover > ul.dropdown-menu, .nav-simple .dropdown:hover > ul.dropdown-menu {
   display: block;
 }
 
-/* line 245, ../sass/_bars-btns.scss */
+/* line 241, ../sass/_bars-btns.scss */
 .nav > li > a {
   padding-right: 12px;
   padding-left: 12px;
 }
 
 /* Submenu with bradcrumb */
-/* line 253, ../sass/_bars-btns.scss */
+/* line 249, ../sass/_bars-btns.scss */
 .sub-nav {
   top: 50px;
   padding-left: 20px;
   padding-right: 20px;
   min-height: initial;
 }
-/* line 260, ../sass/_bars-btns.scss */
+/* line 256, ../sass/_bars-btns.scss */
 .sub-nav .nav > li > a {
   padding-top: 8px;
   padding-bottom: 9px;
 }
 
 /* Sidebar */
-/* line 272, ../sass/_bars-btns.scss */
+/* line 268, ../sass/_bars-btns.scss */
 .sidebar {
   margin: 0 30px 0 0;
   width: 150px;
   height: auto;
   float: left;
 }
-/* line 277, ../sass/_bars-btns.scss */
+/* line 273, ../sass/_bars-btns.scss */
 .sidebar .btn-group-vertical {
   width: 100%;
 }
 
-/* line 282, ../sass/_bars-btns.scss */
+/* line 278, ../sass/_bars-btns.scss */
 .sidebar.sidebar-fixed {
   top: 80px;
   left: auto;
@@ -273,15 +246,15 @@ body .container .line-btn.disabled:hover {
 }
 
 /* new *** */
-/* line 297, ../sass/_bars-btns.scss */
+/* line 293, ../sass/_bars-btns.scss */
 .sidebar a {
   margin-bottom: 6px;
 }
-/* line 298, ../sass/_bars-btns.scss */
+/* line 294, ../sass/_bars-btns.scss */
 .sidebar a:first-child {
   margin-bottom: 48px;
 }
-/* line 301, ../sass/_bars-btns.scss */
+/* line 297, ../sass/_bars-btns.scss */
 .sidebar a:last-child {
   margin-top: 48px;
 }
@@ -289,26 +262,26 @@ body .container .line-btn.disabled:hover {
 /*
 Positioning or customizing buttons
 */
-/* line 315, ../sass/_bars-btns.scss */
+/* line 311, ../sass/_bars-btns.scss */
 .sidebar .custom-btn {
   display: block;
   margin: 0 0 1em;
 }
-/* line 318, ../sass/_bars-btns.scss */
+/* line 314, ../sass/_bars-btns.scss */
 .sidebar .custom-btn span {
   padding: 8px;
 }
 
-/* line 324, ../sass/_bars-btns.scss */
+/* line 320, ../sass/_bars-btns.scss */
 body .custom-buttons {
   float: left;
   margin-right: 10px;
 }
-/* line 327, ../sass/_bars-btns.scss */
+/* line 323, ../sass/_bars-btns.scss */
 body .custom-buttons .line-btn {
   margin-right: 1em;
 }
-/* line 330, ../sass/_bars-btns.scss */
+/* line 326, ../sass/_bars-btns.scss */
 body .custom-buttons .disabled {
   display: none;
 }
@@ -316,7 +289,7 @@ body .custom-buttons .disabled {
 /*
 Extra-button is used to show total selected rows
 */
-/* line 342, ../sass/_bars-btns.scss */
+/* line 338, ../sass/_bars-btns.scss */
 .extra-btn .badge {
   background: transparent;
   line-height: 0.8;
@@ -324,12 +297,12 @@ Extra-button is used to show total selected rows
   padding: 0;
 }
 
-/* line 350, ../sass/_bars-btns.scss */
+/* line 346, ../sass/_bars-btns.scss */
 .show-hide-all {
   float: right;
 }
 
-/* line 355, ../sass/_bars-btns.scss */
+/* line 351, ../sass/_bars-btns.scss */
 .actions-per-item .custom-btn {
   margin: 10px 10px 10px 0;
 }
@@ -797,6 +770,7 @@ p.progress-area {
 .modal .modal-footer form {
   display: inline;
 }
+<<<<<<< HEAD
 /* line 57, ../sass/_modals.scss */
 .modal .modal-footer .cancel {
   float: left;
@@ -805,10 +779,15 @@ p.progress-area {
 }
 
 /* line 67, ../sass/_modals.scss */
+=======
+
+/* line 62, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .modal .custom-btn {
   color: white;
   opacity: 0.9;
 }
+<<<<<<< HEAD
 /* line 70, ../sass/_modals.scss */
 .modal .custom-btn:hover {
   opacity: 1;
@@ -839,36 +818,113 @@ p.progress-area {
 }
 
 /* line 115, ../sass/_modals.scss */
+=======
+/* line 65, ../sass/_modals.scss */
+.modal .custom-btn:hover {
+  opacity: 1;
+}
+/* line 70, ../sass/_modals.scss */
+.modal[data-karma="dark"] .elem {
+  color: #5a5959;
+}
+/* line 73, ../sass/_modals.scss */
+.modal[data-karma="dark"] .area {
+  border: 10px solid #8d8c8c;
+}
+/* line 78, ../sass/_modals.scss */
+.modal[data-karma="neutral"] .elem {
+  color: #207dc9;
+}
+/* line 82, ../sass/_modals.scss */
+.modal[data-karma="neutral"] .area {
+  border: 10px solid #3c96e0;
+}
+/* line 88, ../sass/_modals.scss */
+.modal[data-karma="good"] .elem {
+  color: #007238;
+}
+/* line 92, ../sass/_modals.scss */
+.modal[data-karma="good"] .area {
+  border: 10px solid #00a551;
+}
+/* line 100, ../sass/_modals.scss */
+.modal[data-karma="bad"] .elem {
+  color: #a66b18;
+}
+/* line 104, ../sass/_modals.scss */
+.modal[data-karma="bad"] .area {
+  border: 10px solid #d2881f;
+}
+/* line 111, ../sass/_modals.scss */
+.modal[data-caution="warning"][data-karma="good"] .elem, .modal[data-caution="warning"][data-karma="neutral"] .elem {
+  color: #a66b18;
+}
+/* line 115, ../sass/_modals.scss */
+.modal[data-caution="warning"][data-karma="good"] .area, .modal[data-caution="warning"][data-karma="neutral"] .area {
+  border: 10px solid #d2881f;
+}
+/* line 122, ../sass/_modals.scss */
+.modal[data-caution="dangerous"][data-karma="bad"] .elem, .modal[data-caution="dangerous"][data-karma="neutral"] .elem {
+  color: #c21934;
+}
+/* line 126, ../sass/_modals.scss */
+.modal[data-caution="dangerous"][data-karma="bad"] .area, .modal[data-caution="dangerous"][data-karma="neutral"] .area {
+  border: 10px solid #e42a48;
+}
+
+/* line 133, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .custom-btn[data-karma="dark"] {
   background-color: #222222;
   border-color: transparent;
 }
 
+<<<<<<< HEAD
 /* line 120, ../sass/_modals.scss */
+=======
+/* line 142, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .modal em {
   font-weight: bold;
   font-style: normal;
 }
 
+<<<<<<< HEAD
 /* line 126, ../sass/_modals.scss */
+=======
+/* line 148, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .modal-content {
   padding: 20px;
   color: #404040;
 }
+<<<<<<< HEAD
 /* line 129, ../sass/_modals.scss */
+=======
+/* line 151, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .modal-content .badge {
   background-color: transparent;
 }
 
+<<<<<<< HEAD
 /* line 134, ../sass/_modals.scss */
 .popover {
   z-index: 2000;
 }
 /* line 136, ../sass/_modals.scss */
+=======
+/* line 157, ../sass/_modals.scss */
+.popover {
+  z-index: 2000;
+}
+/* line 159, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .popover dl {
   color: black;
   font-weight: normal;
 }
+<<<<<<< HEAD
 /* line 139, ../sass/_modals.scss */
 .popover dl dt {
   width: 90px;
@@ -878,29 +934,56 @@ p.progress-area {
   margin-left: 110px;
 }
 /* line 146, ../sass/_modals.scss */
+=======
+/* line 162, ../sass/_modals.scss */
+.popover dl dt {
+  width: 90px;
+}
+/* line 165, ../sass/_modals.scss */
+.popover dl dd {
+  margin-left: 110px;
+}
+/* line 169, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .popover h2 {
   font-size: 16px;
   font-weight: bold;
   text-align: center;
 }
 
+<<<<<<< HEAD
 /* line 154, ../sass/_modals.scss */
+=======
+/* line 177, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .instructions-icon {
   color: #3c96e0;
   font-size: 22px;
   margin-left: 62px;
 }
+<<<<<<< HEAD
 /* line 158, ../sass/_modals.scss */
+=======
+/* line 181, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .instructions-icon:hover {
   text-decoration: none;
 }
 
+<<<<<<< HEAD
 /* line 163, ../sass/_modals.scss */
+=======
+/* line 186, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .extra-info {
   margin-top: 10px;
 }
 
+<<<<<<< HEAD
 /* line 167, ../sass/_modals.scss */
+=======
+/* line 190, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .error-sign {
   color: red;
   font-size: 20px;
@@ -910,44 +993,76 @@ p.progress-area {
   top: 2px;
   display: none;
 }
+<<<<<<< HEAD
 /* line 175, ../sass/_modals.scss */
+=======
+/* line 198, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .error-sign:hover {
   color: red;
   text-decoration: none;
 }
 
+<<<<<<< HEAD
 /* line 182, ../sass/_modals.scss */
+=======
+/* line 205, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .form-area {
   position: relative;
 }
 
+<<<<<<< HEAD
 /* line 185, ../sass/_modals.scss */
+=======
+/* line 208, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .form-subject {
   margin-bottom: 15px;
 }
 
+<<<<<<< HEAD
 /* line 189, ../sass/_modals.scss */
+=======
+/* line 212, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .toggle-more {
   margin-top: -16px;
   display: none;
 }
 
+<<<<<<< HEAD
 /* line 195, ../sass/_modals.scss */
+=======
+/* line 218, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .table-selected td:last-child {
   position: relative;
   padding-right: 36px;
 }
+<<<<<<< HEAD
 /* line 200, ../sass/_modals.scss */
 .table-selected tr:hover a {
   color: red;
 }
 /* line 204, ../sass/_modals.scss */
+=======
+/* line 223, ../sass/_modals.scss */
+.table-selected tr:hover a {
+  color: red;
+}
+/* line 227, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .table-selected .remove {
   position: absolute;
   right: 14px;
   color: transparent;
 }
+<<<<<<< HEAD
 /* line 208, ../sass/_modals.scss */
+=======
+/* line 231, ../sass/_modals.scss */
+>>>>>>> admin-ui: Hide 1st column in user's modals
 .table-selected .remove:hover {
   text-decoration: none;
 }
@@ -1185,7 +1300,7 @@ body {
 .dropdown-menu li > a:hover,
 .dropdown-menu .active > a,
 .dropdown-menu .active > a:hover {
-  background-color: #d5d5d5;
+  background-color: #d9d9d9;
 }
 
 /* line 36, ../sass/extra.scss */
@@ -1462,24 +1577,31 @@ svg > text:last-child {
   text-shadow: none;
 }
 
-/* line 179, ../sass/extra.scss */
+/* line 178, ../sass/extra.scss */
 .nav > li > a:hover,
 .nav > li > a:focus,
-.nav > li.active > a,
 .nav > li:hover > a {
+  color: #404040;
+  -webkit-transition: all 0 ease 0;
+  transition: all 0 ease 0;
+  background: #d9d9d9;
+}
+
+/* line 185, ../sass/extra.scss */
+.nav > li.active > a {
   color: #404040;
   -webkit-transition: all 0 ease 0;
   transition: all 0 ease 0;
   background: white;
 }
 
-/* line 186, ../sass/extra.scss */
+/* line 192, ../sass/extra.scss */
 .nav > li > a {
   -webkit-transition: all 0 ease 0;
   transition: all 0 ease 0;
 }
 
-/* line 191, ../sass/extra.scss */
+/* line 197, ../sass/extra.scss */
 .dropdown-menu {
   border-radius: 0;
   border: 0 none;
@@ -1487,59 +1609,64 @@ svg > text:last-child {
   background-color: white;
 }
 
-/* line 200, ../sass/extra.scss */
-.dropdown-menu li > a:hover,
+/* line 205, ../sass/extra.scss */
 .dropdown-menu .active > a,
 .dropdown-menu .active > a:hover {
-  background-color: #d5d5d5;
+  background-color: #5a5959;
   color: #404040;
 }
 
-/* line 205, ../sass/extra.scss */
+/* line 211, ../sass/extra.scss */
+.dropdown-menu li > a:hover {
+  background-color: #d9d9d9;
+  color: #404040;
+}
+
+/* line 216, ../sass/extra.scss */
 .sub-nav {
   background: #5a5959;
   border: 0 none;
 }
-/* line 209, ../sass/extra.scss */
+/* line 220, ../sass/extra.scss */
 .sub-nav .nav > li > a {
   color: #eeeeee;
 }
-/* line 213, ../sass/extra.scss */
+/* line 224, ../sass/extra.scss */
 .sub-nav .nav > li:hover a {
   color: #404040;
 }
 
-/* line 221, ../sass/extra.scss */
+/* line 232, ../sass/extra.scss */
 .object-details-content {
   color: white;
 }
 
-/* line 225, ../sass/extra.scss */
+/* line 236, ../sass/extra.scss */
 .tab-content {
   background: #5a5959;
   padding: 20px;
 }
-/* line 228, ../sass/extra.scss */
+/* line 239, ../sass/extra.scss */
 .tab-content .well {
   border-color: #5a5959;
 }
 
-/* line 233, ../sass/extra.scss */
+/* line 244, ../sass/extra.scss */
 .info-block.main {
   margin-bottom: 5em;
 }
 
-/* line 237, ../sass/extra.scss */
+/* line 248, ../sass/extra.scss */
 .content-seperator {
   display: none;
 }
 
-/* line 243, ../sass/extra.scss */
+/* line 254, ../sass/extra.scss */
 .part-two > .object-details {
   border: 1px solid #8d8c8c;
 }
 
-/* line 249, ../sass/extra.scss */
+/* line 260, ../sass/extra.scss */
 .selection-indicator {
   margin-right: 6px;
   cursor: pointer;
