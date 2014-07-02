@@ -169,6 +169,14 @@ body .container .line-btn.disabled {
 		font-size: 26px;
 	}
 	.login-info {
+        .dropdown > a {
+            color: #fff;
+            display: inline-block;
+            padding: 0 10px;
+        }
+        .dropdown-menu {
+            top: 27px;
+        }
 		float: right;
 		position: relative;
 		line-height: 40px;
@@ -193,6 +201,7 @@ body .container .line-btn.disabled {
 }
 
 .login-info {
+    .drop
 	.dropdown a {
 		padding-left:12px;
 		padding-right:12px;
@@ -267,7 +276,7 @@ body .container .line-btn.disabled {
 
 .sidebar {
 	margin: 0 30px 0 0;
-	width: 150px;
+	width: $sidebar-width;
 	height: auto;
 	float: left;
 	.btn-group-vertical {
@@ -286,21 +295,6 @@ body .container .line-btn.disabled {
 	width: 170px;
 	float: left;
 }
-
-/* new *** */
-
-.sidebar {
-	a {
-		&:first-child {
-			margin-bottom: 48px;
-		}
-		&:last-child {
-			margin-top: 48px;
-		}
-		margin-bottom: 6px;
-	}
-}
-
 
 
 /*
@@ -335,11 +329,14 @@ Extra-button is used to show total selected rows
 */
 
 .extra-btn {
+    span {
+        display: inline-block;
+    }
 	.badge {
 		background: transparent;
 		line-height: 0.8;
 		display: inline;
-		padding: 0;
+		padding: 0 5px 0 0;
 		&::before {
 			content: "("
 		}
@@ -358,4 +355,3 @@ Extra-button is used to show total selected rows
 		margin: 10px 10px 10px 0;
 	}
 }
-
