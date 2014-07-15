@@ -166,10 +166,6 @@ body .container .line-btn.disabled {
                     background: $hover-nav-color;
                 }
             }
-
-		}
-		&.active a{
-			// background-color: #eeeeee;
 		}
 	}
 	padding-left: 0;
@@ -360,6 +356,8 @@ Extra-button is used to show total selected rows
 		line-height: 0.8;
 		display: inline;
 		padding: 0 5px 0 0;
+        font-weight: normal;
+        font-size: 1em;
 		&::before {
 			content: "("
 		}

@@ -146,118 +146,118 @@ body .container .line-btn.disabled:hover {
   background: #333333;
 }
 
-/* line 182, ../sass/_bars-btns.scss */
+/* line 178, ../sass/_bars-btns.scss */
 .nav-simple {
   padding: 20px;
   border-bottom: 1px solid white;
 }
-/* line 185, ../sass/_bars-btns.scss */
+/* line 181, ../sass/_bars-btns.scss */
 .nav-simple .header {
   float: left;
   line-height: 40px;
   font-size: 26px;
 }
-/* line 189, ../sass/_bars-btns.scss */
+/* line 185, ../sass/_bars-btns.scss */
 .nav-simple .header img {
   max-height: 50px;
 }
-/* line 193, ../sass/_bars-btns.scss */
+/* line 189, ../sass/_bars-btns.scss */
 .nav-simple .login-info {
   float: right;
   position: relative;
   line-height: 40px;
   font-size: 16px;
 }
-/* line 194, ../sass/_bars-btns.scss */
+/* line 190, ../sass/_bars-btns.scss */
 .nav-simple .login-info .dropdown > a {
   color: #fff;
   display: inline-block;
   padding: 0 10px;
 }
-/* line 199, ../sass/_bars-btns.scss */
+/* line 195, ../sass/_bars-btns.scss */
 .nav-simple .login-info .dropdown-menu {
   top: 27px;
 }
 
-/* line 212, ../sass/_bars-btns.scss */
+/* line 208, ../sass/_bars-btns.scss */
 .dropdown .dropdown-menu.align-left a {
   text-align: left;
   padding-left: 11px;
 }
-/* line 216, ../sass/_bars-btns.scss */
+/* line 212, ../sass/_bars-btns.scss */
 .dropdown .dropdown-menu.align-right a {
   text-align: right;
 }
-/* line 220, ../sass/_bars-btns.scss */
+/* line 216, ../sass/_bars-btns.scss */
 .dropdown a:hover {
   text-decoration: none;
 }
 
-/* line 227, ../sass/_bars-btns.scss */
+/* line 223, ../sass/_bars-btns.scss */
 .login-info .drop
 .dropdown a {
   padding-left: 12px;
   padding-right: 12px;
   padding-bottom: 8px;
 }
-/* line 233, ../sass/_bars-btns.scss */
+/* line 229, ../sass/_bars-btns.scss */
 .login-info .dropdown:hover > a {
   color: #303030;
   background: white;
 }
-/* line 240, ../sass/_bars-btns.scss */
+/* line 236, ../sass/_bars-btns.scss */
 .login-info .dropdown-menu {
   right: 0;
   left: auto;
   border-radius: 0;
 }
 
-/* line 256, ../sass/_bars-btns.scss */
+/* line 252, ../sass/_bars-btns.scss */
 .sign-out span {
   margin-right: 10px;
   vertical-align: middle;
   font-size: 18px;
 }
 
-/* line 263, ../sass/_bars-btns.scss */
+/* line 259, ../sass/_bars-btns.scss */
 .nav .dropdown:hover > ul.dropdown-menu, .nav-simple .dropdown:hover > ul.dropdown-menu {
   display: block;
 }
 
-/* line 267, ../sass/_bars-btns.scss */
+/* line 263, ../sass/_bars-btns.scss */
 .nav > li > a {
   padding-right: 12px;
   padding-left: 12px;
 }
 
 /* Submenu with bradcrumb */
-/* line 275, ../sass/_bars-btns.scss */
+/* line 271, ../sass/_bars-btns.scss */
 .sub-nav {
   top: 50px;
   padding-left: 20px;
   padding-right: 20px;
   min-height: initial;
 }
-/* line 282, ../sass/_bars-btns.scss */
+/* line 278, ../sass/_bars-btns.scss */
 .sub-nav .nav > li > a {
   padding-top: 8px;
   padding-bottom: 9px;
 }
 
 /* Sidebar */
-/* line 294, ../sass/_bars-btns.scss */
+/* line 290, ../sass/_bars-btns.scss */
 .sidebar {
   margin: 0 30px 0 0;
   width: 110px;
   height: auto;
   float: left;
 }
-/* line 299, ../sass/_bars-btns.scss */
+/* line 295, ../sass/_bars-btns.scss */
 .sidebar .btn-group-vertical {
   width: 100%;
 }
 
-/* line 304, ../sass/_bars-btns.scss */
+/* line 300, ../sass/_bars-btns.scss */
 .sidebar.sidebar-fixed {
   top: 80px;
   left: auto;
@@ -273,26 +273,26 @@ body .container .line-btn.disabled:hover {
 /*
 Positioning or customizing buttons
 */
-/* line 322, ../sass/_bars-btns.scss */
+/* line 318, ../sass/_bars-btns.scss */
 .sidebar .custom-btn {
   display: block;
   margin: 0 0 1em;
 }
-/* line 325, ../sass/_bars-btns.scss */
+/* line 321, ../sass/_bars-btns.scss */
 .sidebar .custom-btn span {
   padding: 8px;
 }
 
-/* line 331, ../sass/_bars-btns.scss */
+/* line 327, ../sass/_bars-btns.scss */
 body .custom-buttons {
   float: left;
   margin-right: 10px;
 }
-/* line 334, ../sass/_bars-btns.scss */
+/* line 330, ../sass/_bars-btns.scss */
 body .custom-buttons .line-btn {
   margin-right: 1em;
 }
-/* line 337, ../sass/_bars-btns.scss */
+/* line 333, ../sass/_bars-btns.scss */
 body .custom-buttons .disabled {
   display: none;
 }
@@ -300,61 +300,63 @@ body .custom-buttons .disabled {
 /*
 Extra-button is used to show total selected rows
 */
-/* line 355, ../sass/_bars-btns.scss */
+/* line 351, ../sass/_bars-btns.scss */
 .extra-btn span {
   display: inline-block;
 }
-/* line 358, ../sass/_bars-btns.scss */
+/* line 354, ../sass/_bars-btns.scss */
 .extra-btn .badge {
   background: transparent;
   line-height: 0.8;
   display: inline;
   padding: 0 5px 0 0;
+  font-weight: normal;
+  font-size: 1em;
 }
-/* line 363, ../sass/_bars-btns.scss */
+/* line 361, ../sass/_bars-btns.scss */
 .extra-btn .badge::before {
   content: "(";
 }
-/* line 366, ../sass/_bars-btns.scss */
+/* line 364, ../sass/_bars-btns.scss */
 .extra-btn .badge::after {
   content: ")";
 }
 
-/* line 372, ../sass/_bars-btns.scss */
+/* line 370, ../sass/_bars-btns.scss */
 .show-hide-all {
   float: right;
 }
-/* line 374, ../sass/_bars-btns.scss */
+/* line 372, ../sass/_bars-btns.scss */
 .show-hide-all em {
   font-style: normal;
 }
-/* line 377, ../sass/_bars-btns.scss */
+/* line 375, ../sass/_bars-btns.scss */
 .show-hide-all.line-btn {
   padding: 8px;
 }
-/* line 379, ../sass/_bars-btns.scss */
+/* line 377, ../sass/_bars-btns.scss */
 .show-hide-all.line-btn span {
   display: inline;
 }
 
-/* line 385, ../sass/_bars-btns.scss */
+/* line 383, ../sass/_bars-btns.scss */
 .actions-per-item {
   padding-left: 35px;
 }
-/* line 387, ../sass/_bars-btns.scss */
+/* line 385, ../sass/_bars-btns.scss */
 .actions-per-item .custom-btn {
   margin: 10px 10px 10px 0;
 }
 
-/* line 392, ../sass/_bars-btns.scss */
+/* line 390, ../sass/_bars-btns.scss */
 .charts .well {
   padding-left: 140px;
 }
-/* line 395, ../sass/_bars-btns.scss */
+/* line 393, ../sass/_bars-btns.scss */
 .charts .sidebar {
   position: fixed;
 }
-/* line 398, ../sass/_bars-btns.scss */
+/* line 396, ../sass/_bars-btns.scss */
 .charts .sidebar a {
   margin-bottom: 1em;
   display: inline-block;
@@ -389,7 +391,7 @@ Extra-button is used to show total selected rows
 .charts .sidebar a:hover span {
   border-color: white;
 }
-/* line 403, ../sass/_bars-btns.scss */
+/* line 401, ../sass/_bars-btns.scss */
 .charts .sidebar a.active {
   display: inline-block;
   text-align: center;
@@ -2399,62 +2401,63 @@ Extra-button is used to show total selected rows
 }
 /* line 25, ../sass/_details.scss */
 .object-details h4 .rt {
+  padding-top: 5px;
   display: block;
   overflow: hidden;
 }
-/* line 29, ../sass/_details.scss */
+/* line 30, ../sass/_details.scss */
 .object-details h4 .arrow {
   position: relative;
   padding: 0 8px;
 }
-/* line 32, ../sass/_details.scss */
+/* line 33, ../sass/_details.scss */
 .object-details h4 .arrow:hover {
   top: 2px;
   cursor: pointer;
 }
-/* line 37, ../sass/_details.scss */
+/* line 38, ../sass/_details.scss */
 .object-details h4 .label {
   float: right;
   margin-left: 15px;
   margin-bottom: 10px;
 }
-/* line 41, ../sass/_details.scss */
+/* line 42, ../sass/_details.scss */
 .object-details h4 .label.important {
   font-weight: bold;
 }
-/* line 45, ../sass/_details.scss */
+/* line 46, ../sass/_details.scss */
 .object-details h4 em {
   float: none;
 }
-/* line 47, ../sass/_details.scss */
+/* line 48, ../sass/_details.scss */
 .object-details h4 em.os-info {
   float: right;
   position: relative;
   bottom: 3px;
 }
-/* line 51, ../sass/_details.scss */
+/* line 52, ../sass/_details.scss */
 .object-details h4 em.os-info img {
   height: 26px;
 }
-/* line 57, ../sass/_details.scss */
+/* line 58, ../sass/_details.scss */
 .object-details h3 {
   font-size: 18px;
   margin: 0 0 1em;
   font-weight: 400;
   line-height: 35px;
 }
-/* line 62, ../sass/_details.scss */
+/* line 63, ../sass/_details.scss */
 .object-details h3 em {
   margin-left: 10px;
   font-size: 14px;
 }
-/* line 66, ../sass/_details.scss */
+/* line 67, ../sass/_details.scss */
 .object-details h3 span[class^="snf-details"] {
   float: left;
   margin-right: 8px;
   font-size: 35px;
 }
-/* line 71, ../sass/_details.scss */
+/* line 72, ../sass/_details.scss */
 .object-details h3 .popover-dismiss {
   display: inline-block;
   width: 24px;
@@ -2471,52 +2474,52 @@ Extra-button is used to show total selected rows
   margin-left: 10px;
   color: #eeeeee;
 }
-/* line 81, ../sass/_details.scss */
+/* line 82, ../sass/_details.scss */
 .object-details h3 .popover-dismiss:hover {
   background: #686868;
 }
-/* line 86, ../sass/_details.scss */
+/* line 87, ../sass/_details.scss */
 .object-details h3 .popover .popover-content {
   font-size: 12px;
   color: #303030;
   line-height: 130%;
 }
-/* line 93, ../sass/_details.scss */
+/* line 94, ../sass/_details.scss */
 .object-details .icon-link {
   margin-right: 10px;
 }
-/* line 96, ../sass/_details.scss */
+/* line 97, ../sass/_details.scss */
 .object-details p {
   margin: 10px 20px;
   font-style: italic;
 }
-/* line 101, ../sass/_details.scss */
+/* line 102, ../sass/_details.scss */
 .object-details .length {
   margin-left: 6px;
   border: 0 none;
   font-style: italic;
 }
-/* line 105, ../sass/_details.scss */
+/* line 106, ../sass/_details.scss */
 .object-details .length::before {
   content: '( ';
 }
-/* line 108, ../sass/_details.scss */
+/* line 109, ../sass/_details.scss */
 .object-details .length::after {
   content: ' )';
 }
-/* line 112, ../sass/_details.scss */
+/* line 113, ../sass/_details.scss */
 .object-details > .object-details {
   margin-left: -20px;
   margin-right: -20px;
   padding: 12px 20px;
 }
 
-/* line 120, ../sass/_details.scss */
+/* line 121, ../sass/_details.scss */
 .object-details-content .nav-tabs > li a {
   opacity: 0.7;
   color: white;
 }
-/* line 124, ../sass/_details.scss */
+/* line 125, ../sass/_details.scss */
 .object-details-content .nav-tabs > li.active > a {
   opacity: 1;
   border-color: transparent;
@@ -2524,7 +2527,7 @@ Extra-button is used to show total selected rows
   color: white;
   border-radius: 0;
 }
-/* line 131, ../sass/_details.scss */
+/* line 132, ../sass/_details.scss */
 .object-details-content .nav-tabs > li:not(.active) > a:hover {
   opacity: 1;
   color: white;
@@ -2532,56 +2535,56 @@ Extra-button is used to show total selected rows
   background: transparent;
 }
 
-/* line 139, ../sass/_details.scss */
+/* line 140, ../sass/_details.scss */
 .tab-pane {
   overflow: auto;
 }
 
-/* line 144, ../sass/_details.scss */
+/* line 145, ../sass/_details.scss */
 .part-two h2 {
   font-size: 24px;
   margin-bottom: 2em;
   padding-top: 1em;
   border-top: 2px solid #818181;
 }
-/* line 151, ../sass/_details.scss */
+/* line 152, ../sass/_details.scss */
 .part-two > .object-details {
   border-bottom: 2px solid #818181;
   background: #383838;
   padding: 14px 20px;
 }
-/* line 155, ../sass/_details.scss */
+/* line 156, ../sass/_details.scss */
 .part-two > .object-details .object-details {
   padding: 5px 20px;
 }
-/* line 157, ../sass/_details.scss */
+/* line 158, ../sass/_details.scss */
 .part-two > .object-details .object-details:hover {
   background: #3d3d3d;
 }
-/* line 162, ../sass/_details.scss */
+/* line 163, ../sass/_details.scss */
 .part-two > .object-details .custom-btn span {
   padding: 5px;
 }
-/* line 167, ../sass/_details.scss */
+/* line 168, ../sass/_details.scss */
 .part-two .object-details-content {
   padding: 0 35px;
 }
 
-/* line 199, ../sass/_details.scss */
+/* line 200, ../sass/_details.scss */
 .show-hide-all span.snf-font-arrow-up {
   display: none;
   padding: 0;
 }
-/* line 204, ../sass/_details.scss */
+/* line 205, ../sass/_details.scss */
 .show-hide-all span.snf-font-arrow-down {
   display: inline;
   padding: 0;
 }
-/* line 210, ../sass/_details.scss */
+/* line 211, ../sass/_details.scss */
 .show-hide-all.open .snf-font-arrow-up {
   display: inline;
 }
-/* line 213, ../sass/_details.scss */
+/* line 214, ../sass/_details.scss */
 .show-hide-all.open .snf-font-arrow-down {
   display: none;
 }
@@ -3494,7 +3497,7 @@ svg > text:last-child {
 }
 
 /* line 217, ../sass/extra.scss */
-.nav > li.active > a {
+.main-nav .nav > li.active > a {
   color: #303030;
   -webkit-transition: all 0 ease 0;
   transition: all 0 ease 0;
