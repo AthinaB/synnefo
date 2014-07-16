@@ -56,8 +56,6 @@ body {
 .tab-content .dl-horizontal dd {
     word-wrap: break-word;
 }
-.nav-tabs > .active > a, 
-.nav-tabs > .active > a:hover { background-color:#F5F5F5; color:#2956B2; font-weight:bold;}
 .nav-tabs > li          { margin-bottom:-2px; }
 
 .label-success, 
@@ -231,6 +229,7 @@ svg>text:last-child {
 	border: 0 none;
 	border-top: 1px solid $gray-light;
 	background-color: white;
+    overflow-y: auto;
 }
 
 .dropdown-menu .active > a, 
@@ -251,6 +250,12 @@ svg>text:last-child {
 	.nav {
 		& > li > a {
 			color: $almost-white;
+            i {
+                display: inline-block;
+                @include text-overflow();
+                max-width: 200px;
+                vertical-align: bottom;
+            }
 		}
 		& > li:hover {
 			a {
@@ -386,4 +391,13 @@ body>.popover {
 		margin-bottom: 8px;
 		overflow: visible;
 	}
+}
+.dl-horizontal {
+    dt, dd {
+        word-wrap: break-word;
+    }
+}
+
+.tooltip-inner {
+    word-wrap: break-word;
 }
