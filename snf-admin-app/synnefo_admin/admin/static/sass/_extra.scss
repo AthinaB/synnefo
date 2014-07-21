@@ -1,0 +1,277 @@
+
+/* Layout  & general stuff */
+
+html, body {
+	height: 100%;
+}
+
+body {
+	padding-top: 2*$navbar-height;
+}
+
+.container-solid{
+    min-width: 1050px!important;
+}
+
+.container:not(.container-solid){
+    max-width: 960px;
+}
+
+.info {
+	overflow: auto;
+}
+
+.dl-horizontal dd, dt,
+.tooltip-inner{
+    word-wrap: break-word;
+}
+.disabled {
+	cursor: default !important;
+}
+
+
+/* Home */
+
+.app-list {
+	position: relative;
+	text-align: center;
+	top: 30%;
+	a {
+		width: 210px;
+		font-size: 24px;
+		margin: 0 20px;
+		@include outline-btn($padding:12px 10px);
+		opacity: 1;
+        &.disabled {
+            border-color: lighten($btn-link-disabled-color,15%);
+            &:hover {
+                span {
+                    border-color: transparent;
+                }
+            }
+        }
+	}
+}
+
+.nav-simple {
+	padding: $nav-side-padding;
+	border-bottom: 1px solid white;
+	.header {
+		float: left;
+		line-height: 40px;
+		font-size: 26px;
+        img {
+            max-height: 50px;
+        }
+	}
+	.login-info {
+        float: right;
+        position: relative;
+        line-height: 40px;
+        font-size: 16px;
+        .dropdown { 
+            display: inline;
+            &:hover {
+                &>a {
+                    background: lighten($hover-nav-color, 10%); 
+                }
+            }
+            &> a {
+                color: #fff;
+                display: inline-block;
+                padding: 0 10px;
+            }
+        }
+        .dropdown-menu {
+            left: auto;
+            right: 0;
+            top: 27px;
+        }
+    }
+}
+
+/* Navigation */
+
+.navbar-default {
+    border: 0 none;
+    z-index: 1040;
+    .home-icon {
+        padding: 0;
+        height: $navbar-height;
+        width: $navbar-height;
+        text-align: center;
+        line-height: $navbar-height;
+        img {
+            max-height: $navbar-height;
+        }
+    }
+
+}
+
+.sub-nav {
+    top: $navbar-height;
+    min-height: inherit;
+    .nav {
+        >li>a {
+            padding-top: 8px;
+            padding-bottom: 8px;
+        }
+    }
+}
+.dropdown-menu {
+    overflow-y: auto;
+}
+
+.nav .dropdown:hover > ul.dropdown-menu, 
+.nav-simple .dropdown:hover > ul.dropdown-menu {
+	display: block;
+}
+
+
+
+
+
+/* More */
+
+svg>text:last-child {
+	display: none;
+}
+
+.dropdown .arrow {
+	margin-left: 6px;
+	vertical-align: middle;
+}
+
+.hidden-row {
+	display: none;
+}
+
+.with-shift *::selection {
+	background-color: transparent;
+}
+
+.with-shift *::-moz-selection {
+	background: transparent;
+}
+.tab-content {
+	background: $gray-light;
+	padding: 20px;
+	.well {
+		border-color: $gray-light;
+        margin-bottom: 0;
+	}
+}
+
+.selection-indicator {
+	cursor: pointer;
+    padding: 6px 12px 6px 6px;
+}
+
+/* Notification area */
+
+.notify {
+	// display: none;
+	padding: 30px 10px 15px;
+	width: 100%;
+	position: fixed;
+	bottom: 0;
+	background: $brand-primary;
+    color: $reverse-text-color;
+    .container>*:not(:last-child) {
+			margin-bottom: 16px;
+	}
+	.remove-icon {
+		color: transparent;
+		margin-left: 20px;
+		font-weight: bold;
+	}
+	.container>*:hover {
+		.remove-icon {
+			color: $brand-danger;
+		}
+	}
+	.state-icon {
+		margin-right: 10px;
+	}
+	.success {
+		color: darken($brand-success, 10%);
+	}
+	.error {
+		color: $brand-danger;
+	}
+	.pending {
+		color: $brand-warning;
+	}
+	.warning {
+		font-style: italic;
+		font-weight: bold;
+		color: $gray-light;
+	}
+	.close-notify {
+        position: absolute;
+        right: 20px;
+        top: 20px;
+        color: $gray-dark;
+        &:hover {
+            color: $total-black;
+        }
+    }
+	.dl-horizontal {
+        margin-left: 21px;
+		dt{
+			width: 80px;
+            vertical-align: top;
+			text-align: left;
+			span {
+				font-size: 20px;
+				vertical-align: text-bottom;
+				margin-right: 10px;
+			}
+		}
+		dd {
+			margin-left: 80px;
+		}
+	}
+}
+
+.lowercase {
+	text-transform:lowercase;
+}
+
+.shortcuts-btn {
+    span {
+        font-size: 20px;
+        vertical-align: sub;
+    }
+}
+
+.shortcuts {
+	.key {
+		padding: 2px 9px;
+		font-style: normal;
+		font-weight: bold;
+		border: 1px solid gray;
+		border-radius: 6px;
+	}
+}
+
+.popover {
+	max-width: none;
+    color: $reverse-text-color;
+	margin-bottom: 20px;
+	h2 {
+		text-align: center;
+		font-size: 1.2em;
+		font-weight: bold;
+	}
+	dt {
+		margin-bottom: 8px;
+		overflow: visible;
+	}
+}
+
+.sign-out span {
+    margin-right: 10px;
+    vertical-align: middle;
+    font-size: 18px;
+}

@@ -13,6 +13,8 @@
     }
 }
 
+.object-anchor {height:2px; }
+
 .object-details {
 	h4 {
         font-size: 14px;
@@ -92,7 +94,7 @@
         .popover {
             .popover-content {
                 font-size: 12px;
-                color: $snf_reverse-text-color;
+                color: $reverse-text-color;
                 line-height: 130%;
             }
         }
@@ -182,6 +184,7 @@
         }
     }
     .object-details-content {
+        display: none;
         padding: 0 $details-title-height;
     }
     

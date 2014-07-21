@@ -6,7 +6,7 @@
     <link href="{{ ADMIN_MEDIA_URL }}css/bootstrap.css" rel="stylesheet">
     <link href="{{ ADMIN_MEDIA_URL }}css/icon-fonts.css" rel="stylesheet">
     <link href="{{ ADMIN_MEDIA_URL }}css/jquery.dataTables.css" rel="stylesheet">
-    <link href="{{ ADMIN_MEDIA_URL }}css/extra.css" rel="stylesheet">
+    <link href="{{ ADMIN_MEDIA_URL }}css/global.css" rel="stylesheet">
     <!--
     <link href="{{ ADMIN_MEDIA_URL }}css/ie7.css" rel="stylesheet"> -->
     <link href='https://fonts.googleapis.com/css?family=Open+Sans:400italic,600italic,700italic,400,700,300,600' rel='stylesheet' type='text/css'>
@@ -14,7 +14,7 @@
 
   <body>
     {% block nav-bar %}
-    <div class="navbar main-nav navbar-fixed-top">
+    <div class="navbar navbar-default navbar-fixed-top">
       <ul class="nav navbar-nav navbar-left">
           <li><a href="{% url admin-home %}" title="Homepage" class="home-icon"><img src="{{ BRANDING_IMAGE_MEDIA_URL }}cloudbar_home.png" alt="S" /></a></li>
       {% for label, type in item_lists %}
