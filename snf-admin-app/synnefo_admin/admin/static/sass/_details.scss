@@ -33,9 +33,11 @@
         .arrow {
 		    position: relative;
             padding: 0 8px;
-		    &:hover {
+		    &:hover,
+            &:focus{
 			    top: 2px;
 			    cursor: pointer;
+                outline: 0 none;
 		    }
 	    }
        .label{
@@ -79,16 +81,20 @@
         }
         .popover-dismiss {
             display: inline-block;
-            @include circle(24px,$snf_gray-light);
+            @include circle(18px,$snf_gray-light);
             text-align: center;
             font-weight: bold;
             vertical-align: middle;
-            line-height: 24px;
+            line-height: 18px;
+            font-size: 16px;
+            vertical-align: super;
             cursor: pointer;
             margin-left:10px;
-            color: $almost-white;
-            &:hover {
+            color: lighten($snf_gray-light, 20%);
+            &:hover,
+            &:focus{
                 background: lighten($snf_gray-light, 10%);
+                color: $almost-white;
             }
         }
         .popover {
@@ -137,7 +143,9 @@
 		color: white;
 		border-radius: 0;
 	}
-	&:not(.active)>a:hover {
+	
+    &:not(.active)>a:hover,
+    &:not(.active)>a:focus{
 		opacity: 1;
 		color: white;
 		border-color: transparent;
@@ -173,7 +181,8 @@
 		padding:14px 20px;
 		.object-details {
 			padding: 5px 20px;
-            &:hover {
+            &:hover,
+            &:focus{
                 background: lighten($body-bg, 5%);
             }
 		}
