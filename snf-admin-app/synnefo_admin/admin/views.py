@@ -13,11 +13,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-import sys
-import re
 import logging
 import json
 from importlib import import_module
+import inspect
 
 from django.shortcuts import redirect
 from django.views.generic.simple import direct_to_template
@@ -43,18 +42,9 @@ from synnefo.admin import stats as cyclades_stats
 
 from synnefo_admin.admin_settings import (ADMIN_MEDIA_URL, AUTH_COOKIE_NAME,
                                           ADMIN_PERMITTED_GROUPS,
-                                          ADMIN_ENABLED)
+                                          ADMIN_ENABLED, ADMIN_VIEWS)
+from synnefo_admin import admin_settings
 
-# Import model-specific views
-import synnefo_admin.admin.users.views as user_views
-import synnefo_admin.admin.vms.views as vm_views
-import synnefo_admin.admin.volumes.views as volume_views
-import synnefo_admin.admin.networks.views as network_views
-import synnefo_admin.admin.ips.views as ip_views
-import synnefo_admin.admin.projects.views as project_views
-import synnefo_admin.admin.ip_logs.views as ip_log_views
-from synnefo_admin.admin import groups as group_views
-from synnefo_admin.admin import auth_providers as auth_provider_views
 from synnefo_admin.admin import actions
 from synnefo_admin.admin.utils import (conditionally_gzip_page,
                                        customize_details_context, admin_log)
@@ -68,14 +58,35 @@ logger = logging.getLogger(__name__)
 ### Helper functions
 
 def get_view_module(view_type):
-    try:
-        # This module will not be reloaded again as it's probably cached.
-        return import_module('synnefo_admin.admin.%ss.views' % view_type)
-    except ImportError:
-        return import_module('synnefo_admin.admin.%ss' % view_type)
-    except ImportError:
-        logging.error("Cannot get view for type: %s", view_type)
+    """Import module for model view.
+
+    We will import only modules for views that are specified in the ADMIN_VIEWS
+    setting.
+    """
+    if view_type in ADMIN_VIEWS:
+        try:
+            # This module will not be reloaded again as it's probably cached.
+            return import_module('synnefo_admin.admin.%ss.views' % view_type)
+        except ImportError:
+            return import_module('synnefo_admin.admin.%ss' % view_type)
+    return None
+
+
+def get_view_module_or_404(view_type):
+    """Try to import a view module or raise 404."""
+    mod = get_view_module(view_type)
+    if not mod:
         raise Http404
+    return mod
+
+
+def get_json_view_or_404(view_type):
+    """Try to import a josn view or raise 404."""
+    mod = get_view_module_or_404(view_type)
+    for key, cls in inspect.getmembers(mod, inspect.isclass):
+        if 'JSONView' in key and not key == 'AdminJSONView':
+            return cls.as_view()
+    logging.error("The %s view is probably broken.", view_type)
 
 
 def get_token_from_cookie(request, cookiename):
@@ -97,35 +108,13 @@ def get_token_from_cookie(request, cookiename):
 
 ### Security functions
 
-def token_check(func):
-    """
-    Mimic csrf security check using user auth token.
-    """
-    def wrapper(request, *args, **kwargs):
-        if not hasattr(request, 'user'):
-            raise PermissionDenied
-
-        token = request.POST.get('token', None)
-        if token:
-            try:
-                req_token = request.user["access"]["token"]["id"]
-                if token == req_token:
-                    return func(request, *args, **kwargs)
-            except KeyError:
-                pass
-
-        raise PermissionDenied
-
-    return wrapper
-
-
 def admin_user_required(func, permitted_groups=ADMIN_PERMITTED_GROUPS):
     """
     Django view wrapper that checks if identified request user has admin
     permissions (exists in admin group)
     """
     def wrapper(request, *args, **kwargs):
-        if not ADMIN_ENABLED:
+        if not admin_settings.ADMIN_ENABLED:
             raise Http404
 
         token = get_token_from_cookie(request, AUTH_COOKIE_NAME)
@@ -144,6 +133,7 @@ def admin_user_required(func, permitted_groups=ADMIN_PERMITTED_GROUPS):
             for g in groups:
                 if g in permitted_groups:
                     has_perm = True
+                    break
 
             if not has_perm:
                 logger.info("Failed to access admin view %r. No valid "
@@ -181,21 +171,13 @@ default_dict = {
             'Email': "{{ email }}",
         }
     },
-    'item_lists': (('Users', 'user'),
-                   ('VMs', 'vm'),
-                   ('Volumes', 'volume'),
-                   ('Networks', 'network'),
-                   ('IPs', 'ip'),
-                   ('IP History', 'ip_log'),
-                   ('Projects', 'project'),
-                   ('User Groups', 'group'),
-                   #('User Auth Providers', 'auth_provider'),
-                   )
+    'views': ADMIN_VIEWS,
 }
 
 
 @admin_user_required
 def logout(request):
+    """Logout view."""
     admin_log(request)
     auth_token = request.user['access']['token']['id']
     ac = astakosclient.AstakosClient(auth_token, settings.ASTAKOS_AUTH_URL,
@@ -215,7 +197,7 @@ def home(request):
 
 @admin_user_required
 def charts(request):
-    """Dummy view for charts."""
+    """Charts view."""
     admin_log(request)
     return direct_to_template(request, "admin/charts.html",
                               extra_context=default_dict)
@@ -223,6 +205,11 @@ def charts(request):
 
 @admin_user_required
 def stats_component(request, component):
+    """Mirror public stats view for cyclades/astakos.
+
+    This stats view will import the get_public_stats function of
+    cyclades/astakos and return its results to the caller.
+    """
     admin_log(request, component=component)
     data = {}
     status = 200
@@ -238,6 +225,11 @@ def stats_component(request, component):
 
 @admin_user_required
 def stats_component_details(request, component):
+    """Mirror detailed stats view for cyclades/astakos.
+
+    This stats view will import the get_astakos/cyclades_stats function and
+    return its results to the caller.
+    """
     admin_log(request, component=component)
     data = {}
     status = 200
@@ -257,27 +249,8 @@ def json_list(request, type):
     """Return a class-based view based on the given type."""
     admin_log(request, type=type)
 
-    if type == 'user':
-        return user_views.UserJSONView.as_view()(request)
-    elif type == 'project':
-        return project_views.ProjectJSONView.as_view()(request)
-    elif type == 'vm':
-        return vm_views.VMJSONView.as_view()(request)
-    elif type == 'volume':
-        return volume_views.VolumeJSONView.as_view()(request)
-    elif type == 'network':
-        return network_views.NetworkJSONView.as_view()(request)
-    elif type == 'ip':
-        return ip_views.IPJSONView.as_view()(request)
-    elif type == 'ip_log':
-        return ip_log_views.IPLogJSONView.as_view()(request)
-    elif type == 'group':
-        return group_views.GroupJSONView.as_view()(request)
-    elif type == 'auth_provider':
-        return auth_provider_views.AstakosUserAuthProviderJSONView.as_view()(request)
-    else:
-        logging.error("JSON view does not exist")
-        raise Http404
+    view = get_json_view_or_404(type)
+    return view(request)
 
 
 @admin_user_required
@@ -285,7 +258,7 @@ def details(request, type, id):
     """Admin-Interface generic details view."""
     admin_log(request, type=type, id=id)
 
-    mod = get_view_module(type)
+    mod = get_view_module_or_404(type)
     context = mod.details(request, id)
     customize_details_context(context)
     context.update(default_dict)
@@ -300,7 +273,7 @@ def catalog(request, type):
     """Admin-Interface generic list view."""
     admin_log(request, type=type)
 
-    mod = get_view_module(type)
+    mod = get_view_module_or_404(type)
     context = mod.catalog(request)
     context.update(default_dict)
     context.update({'view_type': 'list'})
@@ -339,7 +312,7 @@ def admin_actions(request):
         ids = ids.replace('[', '').replace(']', '').replace(' ', '').split(',')
 
     try:
-        mod = get_view_module(target)
+        mod = get_view_module_or_404(target)
     except Http404:
         status = 404
         response['result'] = "You have requested an unknown operation."
