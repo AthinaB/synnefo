@@ -112,7 +112,6 @@ $(document).ready(function() {
 						rowsArray[i][extraCol] = response.extra[i]
 					}
 				}
-				console.log('return response', new Date)
 				return response.aaData;
 			}
 		},
@@ -195,10 +194,7 @@ $(document).ready(function() {
 
 	var newTable = true;
 	$('.select-all-confirm').click(function(e) {
-		console.profile("test");
-		console.time("test");
 		$(this).closest('.modal').addClass('in-progress');
-		console.log('select all items', new Date);
 		if(newTable) {
 			newTable = false;
 			countme = true;
@@ -230,28 +226,18 @@ $(document).ready(function() {
 								rowsArray[i][extraCol] = response.extra[i] // ***
 							}
 						}
-						console.log('return response', new Date)
 						return response.aaData;
 					}
 				},
 				createdRow: function(row, data, dataIndex) {
 					if(countme) {
-						console.log('1st row', new Date);
 						countme = false;
 					}
-					console.time('info')
 					var info = data[data.length - 1];
-					console.timeEnd('info')
-					console.time('newItem')
 					var newItem = addItem(info);
-					console.timeEnd('newItem')
 					if(newItem !== null) {
-						console.time('enableActions')
 						enableActions(newItem.actions);
-						console.timeEnd('enableActions')
-						console.time('keepSelected')
 						keepSelected(data);
-						console.timeEnd('keepSelected')
 							if(dataIndex>=500 && dataIndex%500 === 0) {
 									setTimeout(function() {
 										return true;
@@ -260,28 +246,18 @@ $(document).ready(function() {
 					}
 				},
 				"drawCallback": function(settings) {
-					console.log('1-drawCallback', new Date)
 					isSelected();
 					updateCounter('.selected-num')
 					$('#massive-actions-warning').modal('hide')
 					$('#massive-actions-warning').removeClass('in-progress')
-					console.log('2-drawCallback', new Date)
 					tableSelected.rows().draw();
-					console.log('3-drawCallback', new Date)
 					updateToggleAllSelect();
-					console.profileEnd("test");
-					console.timeEnd("test");
 					updateClearAll();
-					console.log($(tableMassiveDomID).find('tr').length)
 				}
 			});
 		}
 		else {
-			console.log($(tableMassiveDomID).find('tr').length)
-			console.time('reload')
 			$(tableMassiveDomID).dataTable().api().ajax.reload();
-			console.timeEnd('reload')
-
 		}
 	});
 
@@ -753,32 +729,23 @@ $(document).ready(function() {
 	var countAction = 0;
 	$('.modal .apply-action').click(function(e) {
 		var $modal = $(this).closest('.modal');
-		var completeAction = true;
+		var noError = true;
+		var itemsNum = $modal.find('tbody tr').length;
 		if(selected.items.length === 0) {
 			e.stopPropagation();
 			snf.modals.showError($modal, 'no-selected');
-			completeAction = false;
+			noError = false;
 		}
 		if($modal.attr('data-type') === 'contact') {
-			var $emailSubj = $modal.find('.subject');
-			var $emailCont = $modal.find('.email-content');
-			if(!$.trim($emailSubj.val())) {
-				e.stopPropagation();
-				snf.modals.showError($modal, 'empty-subject');
-				snf.modals.checkInput($modal, $emailSubj, 'empty-subject');
-				completeAction = false;
-			}
-			if(!$.trim($emailCont.val())) {
-				// e.preventDefault();
-				e.stopPropagation();
-				snf.modals.showError($modal, 'empty-body')
-				snf.modals.checkInput($modal, $emailCont, 'empty-body');
-				completeAction = false;
-			}
+			noError = snf.modals.validateContactForm($modal);
 		}
-		if(completeAction) {
+		if(!noError) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		else {
 			$('[data-toggle="popover"]').popover('hide');
-			snf.modals.performAction($modal, $notificationArea, snf.modals.html.notifyReloadTable, selected.items.length, countAction);
+			snf.modals.performAction($modal, $notificationArea, snf.modals.html.notifyReloadTable, itemsNum, countAction);
 			snf.modals.resetErrors($modal);
 			snf.modals.resetInputs($modal);
 			removeWarningDupl($modal);
@@ -796,31 +763,24 @@ $(document).ready(function() {
 		var $num = $modal.find('.num');
 		var $tr = $(this).closest('tr');
 		var itemID = $tr.attr('data-itemid');
-		// uuidsArray has only the uuids of selected items, none of the other info
-		idsArray = [];
+		var idsArray = [];
 		deselectRow(itemID);
 		removeSelected(itemID);
 		removeItem(itemID);
-		var selectedNum = selected.items.length;
-		if($(this).closest('.modal').attr('data-type') === 'contact') {
-			for (var i=0; i< selectedNum; i++) {
-				idsArray.push(selected.items[i].contact_id);
-			}
-		}
-		else {
-			for (var i=0; i< selectedNum; i++){
-				idsArray.push(selected.items[i].id);
-			}
-		}
+		idsArray = $actionBtn.attr('data-ids').replace('[', '').replace(']', '').split(',');
+		var index = idsArray.indexOf(itemID);
+		idsArray.splice(index, 1);
+
 		$actionBtn.attr('data-ids','[' + idsArray + ']');
 		$tr.slideUp('slow', function() {
 			$(this).siblings('.hidden-row').first().css('display', 'table-row');
 			$(this).siblings('.hidden-row').first().removeClass('hidden-row');
 			if($(this).siblings('.hidden-row').length === 0) {
-				$modal.find('.toggle-more').hide(); // it would be better to be visible and disabled? ***
+				$modal.find('.toggle-more').hide();
 			}
+				$(this).remove();
 		});
-		$num.html(selectedNum); // should this use updateCounter?
+		$num.html(idsArray.length); // should this use updateCounter?
 		updateCounter('.selected-num');
 	});
 
@@ -861,10 +821,9 @@ $(document).ready(function() {
 				}
 			}
 			for(var i=0; i<rowsNum; i++) {
-				console.log(i)
 				if (!selected.items[i]['notFirst']) {
 					idsArray.push(selected.items[i][uniqueProp]);
-					currentRow = _.template(snf.modals.html.contactRow, {itemID: selected.items[i].id, showAssociations: (itemType !== 'user'), associations: associations[selected.items[i][uniqueProp]].toString().replace(/\,/gi, ', '), fullName: selected.items[i].contact_name, email: selected.items[i].contact_email, hidden: (i >=maxVisible)})
+					currentRow = _.template(snf.modals.html.contactRow, {itemID: selected.items[i].contact_id, showAssociations: (itemType !== 'user'), associations: associations[selected.items[i][uniqueProp]].toString().replace(/\,/gi, ', '), fullName: selected.items[i].contact_name, email: selected.items[i].contact_email, hidden: (i >maxVisible)})
 					htmlRows += currentRow;
 				}
 			}
@@ -1036,7 +995,6 @@ $(document).ready(function() {
 
 	function textFilter(extraSearch) {
 		snf.timer = 0;
-		console.log('snf.timer', snf.timer)
 		var $input = $(extraSearch).find('input');
 
 		$input.keyup(function(e) {

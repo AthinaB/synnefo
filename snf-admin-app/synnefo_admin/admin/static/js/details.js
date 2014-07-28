@@ -40,7 +40,6 @@ $(document).ready(function(){
 		});
 		var $toggleAllBtn = $expandBtn.closest('.info-block.object-details').find('.show-hide-all');
 		if(allSameClass){
-			console.log('toggle all');
 			if($expandBtn.closest('h4').hasClass('expanded')){
 				$toggleAllBtn.addClass('open');
 				$toggleAllBtn.find('.txt').text(txt_all[1]);
@@ -128,26 +127,15 @@ $('.main .object-details h4 .arrow').trigger('click')
 	var countAction = 0;
 	$('.modal .apply-action').click(function(e) {
 		var $modal = $(this).closest('.modal');
-		var completeAction = true;
+		var noError = true;
 		if($modal.attr('data-type') === 'contact') {
-			var $emailSubj = $modal.find('.subject');
-			var $emailCont = $modal.find('.email-content');
-			if(!$.trim($emailSubj.val())) {
-				// e.preventDefault();
-				e.stopPropagation();
-				snf.modals.showError($modal, 'empty-subject');
-				snf.modals.checkInput($modal, $emailSubj, 'empty-subject');
-				completeAction = false;
-			}
-			if(!$.trim($emailCont.val())) {
-				// e.preventDefault();
-				e.stopPropagation();
-				snf.modals.showError($modal, 'empty-body')
-				snf.modals.checkInput($modal, $emailCont, 'empty-body');
-				completeAction = false;
-			}
+			noError = snf.modals.validateContactForm($modal);
 		}
-		if(completeAction) {
+		if(!noError) {
+			e.preventDefault();
+			e.stopPropagation();
+		}
+		else {
 			snf.modals.performAction($modal, $notificationArea, snf.modals.html.notifyRefreshPage, 0, countAction);
 			snf.modals.resetInputs($modal);
 			snf.modals.resetErrors($modal);
