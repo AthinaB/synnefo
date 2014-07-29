@@ -355,12 +355,15 @@ def admin_actions(request):
             response['result'] = "You have requested an unimplemented action."
             break
         except actions.AdminActionCannotApply:
-            status = 403
+            status = 400
             response['result'] = """
                 You have requested an action that cannot apply to a target.
                 """
             response['error_ids'].append(id)
-            break
+        except Exception as e:
+            logging.exception("Uncaught exception")
+            status = 500
+            response['result'] = e.message
 
     if hasattr(mod, 'wait_action'):
         wait_ids = set(ids) - set(response['error_ids'])
