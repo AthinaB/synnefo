@@ -64,7 +64,7 @@ h1,h2,h3,h4 {
 
 .nav-simple {
 	padding: $nav-side-padding;
-	border-bottom: 1px solid white;
+	border-bottom: 1px solid $text-color;
 	.header {
 		float: left;
 		line-height: 40px;
@@ -88,7 +88,7 @@ h1,h2,h3,h4 {
                 }
             }
             &> a {
-                color: #fff;
+                color: $text-color;
                 display: inline-block;
                 padding: 0 10px;
             }
@@ -104,7 +104,8 @@ h1,h2,h3,h4 {
 /* Navigation */
 
 .navbar-default {
-    border: 0 none;
+    border:0 none;
+    border-bottom: 1px solid $navbar-default-border;
     z-index: 1040;
     margin: 0 auto;
     .container-fluid {
@@ -116,11 +117,10 @@ h1,h2,h3,h4 {
         width: $navbar-height;
         text-align: center;
         line-height: $navbar-height;
+        font-size: 2px;
+        background: $navbar-default-brand-bg;
         img {
             max-height: $navbar-height;
-        }
-        &:hover {
-            background-color: $navbar-default-link-hover-bg;
         }
     }
 
@@ -172,10 +172,11 @@ svg>text:last-child {
 	background: transparent;
 }
 .tab-content {
-	background: $gray-light;
+	background: $tab-content-bg;
+    color: $tab-content-color;
 	padding: 20px;
+    border: 0 none;
 	.well {
-		border-color: $gray-light;
         margin-bottom: 0;
 	}
 }
@@ -193,8 +194,8 @@ svg>text:last-child {
 	width: 100%;
 	position: fixed;
 	bottom: 0;
-	background: $brand-primary;
-    color: $reverse-text-color;
+	background: $notify-bg;
+    color: $notify-color;
     .container>*:not(:last-child) {
 			margin-bottom: 16px;
 	}
@@ -223,16 +224,15 @@ svg>text:last-child {
 	.warning {
 		font-style: italic;
 		font-weight: bold;
-		color: $gray-light;
 	}
 	.close-notify {
         position: absolute;
         right: 20px;
         top: 20px;
-        color: $gray-dark;
+        color: $notify-close-color;
         &:hover,
         &:focus{
-            color: $total-black;
+            color: inherit;
         }
     }
 	.dl-horizontal {
@@ -275,7 +275,7 @@ svg>text:last-child {
 
 .popover {
 	max-width: none;
-    color: $reverse-text-color;
+    color: $popover-color;
 	margin-bottom: 20px;
 	h2 {
 		text-align: center;
