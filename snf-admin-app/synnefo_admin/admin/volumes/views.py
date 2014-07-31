@@ -23,12 +23,9 @@ from django.utils.html import escape
 from synnefo.db.models import Volume, VirtualMachine
 from astakos.im.models import AstakosUser, Project
 
-import django_filters
-
 from synnefo_admin.admin.actions import (has_permission_or_403,
                                          get_allowed_actions,
                                          get_permitted_actions,)
-from synnefo_admin.admin.utils import get_actions, render_email
 from synnefo_admin.admin.users.utils import get_user_or_404
 from synnefo_admin.admin.tables import AdminJSONView
 from synnefo_admin.admin.associations import (
@@ -37,7 +34,7 @@ from synnefo_admin.admin.associations import (
     ProjectAssociation)
 
 from .utils import (get_volume_or_404, get_user_details_href,
-                    get_vm_details_href)
+                    get_vm_details_href, get_project_details_href)
 from .actions import cached_actions
 from .filters import VolumeFilterSet
 
@@ -49,14 +46,16 @@ templates = {
 
 class VolumeJSONView(AdminJSONView):
     model = Volume
-    fields = ('id', 'name', 'status', 'created', 'machine__pk',)
+    fields = ('id', 'name', 'status', 'size', 'volume_type__disk_template',
+              'machine__pk', 'created', 'updated')
     filters = VolumeFilterSet
 
     def format_data_row(self, row):
         row = list(row)
         if not row[1]:
             row[1] = "(not set)"
-        row[3] = row[3].strftime("%Y-%m-%d %H:%M")
+        row[6] = row[6].strftime("%Y-%m-%d %H:%M")
+        row[7] = row[7].strftime("%Y-%m-%d %H:%M")
         return row
 
     def get_extra_data(self, qs):
@@ -121,9 +120,36 @@ class VolumeJSONView(AdminJSONView):
 
     def add_verbose_data(self, inst):
         extra_dict = OrderedDict()
+        extra_dict['description'] = {
+            'display_name': "Description",
+            'value': escape(inst.description) or "(not set)",
+            'visible': True,
+        }
+        sv = inst.source_version
+        source_version = " (v{})".format(sv) if sv else ""
+        extra_dict['source'] = {
+            'display_name': "Source Image",
+            'value': inst.source + source_version,
+            'visible': True,
+        }
+        extra_dict['origin'] = {
+            'display_name': "Origin",
+            'value': inst.origin,
+            'visible': True,
+        }
+        extra_dict['index'] = {
+            'display_name': "Index",
+            'value': inst.index,
+            'visible': True,
+        }
         extra_dict['user_info'] = {
             'display_name': "User",
             'value': get_user_details_href(inst),
+            'visible': True,
+        }
+        extra_dict['project_info'] = {
+            'display_name': "Project",
+            'value': get_project_details_href(inst),
             'visible': True,
         }
         if inst.machine:
@@ -132,17 +158,6 @@ class VolumeJSONView(AdminJSONView):
                 'value': get_vm_details_href(inst),
                 'visible': True,
             }
-        extra_dict['description'] = {
-            'display_name': "Description",
-            'value': escape(inst.description) or "(not set)",
-            'visible': True,
-        }
-        extra_dict['updated'] = {
-            'display_name': "Update time",
-            'value': inst.updated.strftime("%Y-%m-%d %H:%M"),
-            'visible': True,
-        }
-
         return extra_dict
 
 
@@ -166,8 +181,8 @@ def catalog(request):
     context = {}
     context['action_dict'] = get_permitted_actions(cached_actions, request.user)
     context['filter_dict'] = VolumeFilterSet().filters.itervalues()
-    context['columns'] = ["ID", "Name", "Status", "Creation date",
-                          "VM ID", ""]
+    context['columns'] = ["ID", "Name", "Status", "Size (GB)", "Disk template",
+                          "VM ID", "Created at", "Updated at", ""]
     context['item_type'] = 'volume'
 
     return context
