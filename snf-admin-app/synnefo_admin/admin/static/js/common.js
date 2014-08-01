@@ -26,10 +26,10 @@ snf = {
 				contentType: 'application/json',
 				timeout: 100000,
 				beforeSend: function(jqXHR, settings) {
+					$('.no-notifications:not(.hidden)').addClass('hidden');
 					var pendingMsg = _.template(snf.modals.html.notifyPending, ({logID: logID, actionName: actionName, removeBtn: snf.modals.html.removeLogLine, itemsCount: itemsCount}));
 					if($notificationArea.find('.warning').length === 0) {
 						$notificationArea.find('.container').append(pendingMsg);
-						$notificationArea.find('.container').append(warningMsg);
 					}
 					else {
 						$notificationArea.find('.warning').before(pendingMsg);
@@ -39,6 +39,9 @@ snf = {
 				},
 				success: function(response, statusText, jqXHR) {
 					var successMsg = _.template(snf.modals.html.notifySuccess, ({actionName: actionName, removeBtn: snf.modals.html.removeLogLine, itemsCount: itemsCount}));
+					if($notificationArea.find('.warning').length === 0) {
+						$notificationArea.find('.container').append(warningMsg);
+					}
                     $notificationArea.find('#'+logID).replaceWith(successMsg);
                     snf.modals.showBottomModal($notificationArea);
                 },
@@ -50,15 +53,16 @@ snf = {
                         htmlErrorIDs = '';
                     }
                     else {
-                        htmlErrorReason = _.template(snf.modals.html.notifyErrorReason, {descrition: jqXHR.responseJSON.result});
+
+                        htmlErrorReason = _.template(snf.modals.html.notifyErrorReason, {description: jqXHR.responseJSON.result});
                         htmlErrorIDs = _.template(snf.modals.html.notifyErrorIDs, {ids: jqXHR.responseJSON.error_ids.toString().replace(/\,/gi, ', ')});
                     }
                     var logs = htmlErrorSum + _.template(snf.modals.html.notifyErrorDetails, {list: htmlErrorReason+htmlErrorIDs});
                     htmlError = _.template(snf.modals.html.notifyError, {logInfo: logs});
-                    $notificationArea.find('#'+logID).replaceWith(htmlError);
                     if($notificationArea.find('.warning').length === 0) {
                         $notificationArea.find('.container').append(warningMsg);
                     }
+                    $notificationArea.find('#'+logID).replaceWith(htmlError);
 
                     snf.modals.showBottomModal($notificationArea);
                 }
@@ -74,6 +78,7 @@ snf = {
 			$modal.animate({'bottom': height}, 'slow', function() {
 				if($modal.find('.log').length === 0) {
 					$modal.find('.warning').remove();
+					$('.no-notifications').removeClass('hidden');
 				}
 			});
 		},
@@ -177,7 +182,7 @@ snf = {
 			notifyErrorReason: '<dt>Reason:</dt><dd><%= description %></dd>',
 			notifyErrorIDs: '<dt>IDs:</dt><dd><%= ids %></dd>',
 			notifyRefreshPage: '<p class="warning">The data of the page maybe out of date. Refresh it, to update them.</p>',
-			notifyReloadTable: '<p class="warning">The data of the table maybe out of date.<a class="snf-refresh-outline reload-table reload-btn" title="reload table"></a></p>',
+			notifyReloadTable: '<p class="warning">You may need to reload the table before you make any new selections.<span class="wrap"><a class="clear-reload warning-btn">Clear selected and reload</a></span></p>',
 			warningDuplicates: '<p class="warning-duplicate">Duplicate accounts have been detected</p>',
 			commonRow:  '<tr data-itemid=<%= itemID %> <% if(hidden) { %> class="hidden-row" <% } %> ><td class="item-name"><%= itemName %></td><td class="item-id"><%= itemID %></td><td class="owner-name"><%= ownerName %></td><td class="owner-email"><div class="wrap"><a class="remove" title="Remove item from selection">X</a><%= ownerEmail %></div></td></tr>',
 			contactRow: '<tr <% if(showAssociations) { %> title="related with: <%= associations %>" <% } %> data-itemid=<%= itemID %> <% if(hidden) { %> class="hidden-row" <% } %> ><td class="full-name"><%= fullName %></td><td class="email"><div class="wrap"><a class="remove" title="Remove item from selection">X</a><%= email %></div></td></tr>',
@@ -286,7 +291,7 @@ $(document).ready(function(){
     
     // toggle themes
     $('#toggle-theme').click(function(e) {
-        var newC = ( $.cookie('theme') == 'light' )? 'dark': 'light';
+        var newC = ( $.cookie('theme') == 'dark' )? 'light': 'dark';
         $.cookie('theme', newC , {expires: 365, path: '/'});
     });
 
