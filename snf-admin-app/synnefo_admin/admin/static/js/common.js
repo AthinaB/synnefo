@@ -220,6 +220,24 @@ function setThemeIcon() {
     }
 }
 
+function sticker() {
+    if ($("#sticker").length>0) {
+        var s = $("#sticker");
+    } else {
+        return;
+    }
+    var pos = s.position();
+
+    $(window).scroll(function() {
+        var windowpos = $(window).scrollTop();
+        // 80 the navbar fixed height
+        if (windowpos >= pos.top - 80) {
+            s.addClass("stick");
+        } else {
+            s.removeClass("stick");
+        }
+    });
+}
 
 
 $(document).ready(function(){
@@ -293,6 +311,12 @@ $(document).ready(function(){
     $('#toggle-theme').click(function(e) {
         var newC = ( $.cookie('theme') == 'dark' )? 'light': 'dark';
         $.cookie('theme', newC , {expires: 365, path: '/'});
+    });
+    
+    $('a').click(function(e){
+        if ($(this).data('noclick')) {
+            e.preventDefault();
+        }
     });
 
 });
