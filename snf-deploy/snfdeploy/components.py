@@ -1538,6 +1538,7 @@ class VNC(base.Component):
 
 class Admin(base.Component):
     REQUIRED_PACKAGES = [
+        "python-django-eztables",
         "snf-admin-app"
         ]
 
