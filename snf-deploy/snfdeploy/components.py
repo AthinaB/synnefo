@@ -1565,6 +1565,7 @@ class Admin(base.Component):
         f = "/etc/synnefo/cyclades.conf"
         self.CYCLADES.get(f, "/tmp/cyclades.conf")
         self.put("/tmp/cyclades.conf", f)
+        return []
 
     def _configure(self):
         return [
