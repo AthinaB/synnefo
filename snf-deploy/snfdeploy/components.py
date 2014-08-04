@@ -1561,10 +1561,10 @@ class Admin(base.Component):
     def prepare(self):
         f = "/etc/synnefo/astakos.conf"
         self.ASTAKOS.get(f, "/tmp/astakos.conf")
-        self.put("tmp/astakos.conf", f)
+        self.put("/tmp/astakos.conf", f)
         f = "/etc/synnefo/cyclades.conf"
         self.CYCLADES.get(f, "/tmp/cyclades.conf")
-        self.put("tmp/astakos.conf", f)
+        self.put("/tmp/cyclades.conf", f)
 
     def _configure(self):
         return [
