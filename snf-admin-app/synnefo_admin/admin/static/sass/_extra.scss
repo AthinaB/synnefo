@@ -230,8 +230,9 @@ svg>text:last-child {
         display: inline-block;
         text-align: right;
         &>.wrap {
-            display: block;
-            padding-right: 4px;
+            padding-left: 2em;
+            font-style: normal;
+            font-weight: normal;
         }
         a:hover {
             cursor: pointer;
@@ -263,6 +264,12 @@ svg>text:last-child {
 			margin-left: 80px;
 		}
 	}
+    a {
+        color: $notify-link-color;
+        &:hover {
+            color: $notify-link-color-hover;
+        }
+    }
 }
 
 .lowercase {
