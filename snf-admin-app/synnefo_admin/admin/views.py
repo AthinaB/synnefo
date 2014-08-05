@@ -18,12 +18,10 @@ import json
 from importlib import import_module
 import inspect
 
-from django.shortcuts import redirect
 from django.views.generic.simple import direct_to_template
 from django.conf import settings
-from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
+from django.core.exceptions import PermissionDenied
 from django.http import Http404, HttpResponseRedirect, HttpResponse
-from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.core.serializers.json import DjangoJSONEncoder
 
@@ -42,8 +40,7 @@ from synnefo.admin import stats as cyclades_stats
 
 from synnefo_admin.admin.exceptions import AdminHttp404
 from synnefo_admin.admin_settings import (ADMIN_MEDIA_URL, AUTH_COOKIE_NAME,
-                                          ADMIN_PERMITTED_GROUPS,
-                                          ADMIN_ENABLED, ADMIN_VIEWS)
+                                          ADMIN_PERMITTED_GROUPS, ADMIN_VIEWS)
 from synnefo_admin import admin_settings
 
 from synnefo_admin.admin import actions
@@ -57,7 +54,7 @@ JSON_MIMETYPE = "application/json"
 logger = logging.getLogger(__name__)
 
 
-### Helper functions
+# Helper functions ###
 
 
 def get_view_module(view_type):
@@ -109,7 +106,7 @@ def get_token_from_cookie(request, cookiename):
     return None
 
 
-### Security functions
+# Security functions ###
 
 
 def admin_user_required(func, permitted_groups=ADMIN_PERMITTED_GROUPS):
@@ -158,7 +155,7 @@ def admin_user_required(func, permitted_groups=ADMIN_PERMITTED_GROUPS):
     return wrapper
 
 
-### View functions
+# View functions ###
 
 default_dict = {
     'ADMIN_MEDIA_URL': ADMIN_MEDIA_URL,
@@ -314,10 +311,8 @@ def admin_actions(request):
         status = 405
         response['result'] = "Only POST is allowed."
 
-    #logging.info("This is the request %s", request.body)
     objs = json.loads(request.body)
     request.POST = objs
-    #logging.info("This is the decoded dictionary %s", request.POST)
 
     target = objs['target']
     op = objs['op']
