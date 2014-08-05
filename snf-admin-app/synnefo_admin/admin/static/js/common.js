@@ -278,6 +278,9 @@ $(document).ready(function(){
 			if(e.keyCode === 73) {
 				$('#toggle-notifications').trigger('click');
 			}
+            if(e.keyCode === 84) {
+				alert('t pressed');
+			}
 		}
 	});
 

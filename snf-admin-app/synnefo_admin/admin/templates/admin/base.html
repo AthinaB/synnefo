@@ -1,3 +1,4 @@
+{% load admin_tags %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -8,9 +9,9 @@
     <link href="{{ ADMIN_MEDIA_URL }}css/jquery.dataTables.css" rel="stylesheet">
 
     {% if request.COOKIES.theme == 'dark' %}
-    <link href="{{ ADMIN_MEDIA_URL }}css/main.css" rel="stylesheet">
+    <link href="{{ ADMIN_MEDIA_URL }}css/{% min_dir %}main.css" rel="stylesheet">
     {% else  %}
-    <link href="{{ ADMIN_MEDIA_URL }}css/main-light.css" rel="stylesheet">
+    <link href="{{ ADMIN_MEDIA_URL }}css/{% min_dir %}main-light.css" rel="stylesheet">
     {% endif %}
     <!--
     <link href="{{ ADMIN_MEDIA_URL }}css/ie7.css" rel="stylesheet"> -->

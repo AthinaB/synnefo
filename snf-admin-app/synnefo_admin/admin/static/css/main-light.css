@@ -7952,46 +7952,53 @@ svg > text:last-child {
     text-align: right; }
     /* line 232, ../sass/_extra.scss */
     .notify .warning > .wrap, .notify .no-notifications > .wrap {
-      display: block;
-      padding-right: 4px; }
-    /* line 236, ../sass/_extra.scss */
+      padding-left: 2em;
+      font-style: normal;
+      font-weight: normal; }
+    /* line 237, ../sass/_extra.scss */
     .notify .warning a:hover, .notify .no-notifications a:hover {
       cursor: pointer; }
-  /* line 240, ../sass/_extra.scss */
+  /* line 241, ../sass/_extra.scss */
   .notify .close-notify {
     position: absolute;
     right: 20px;
     top: 20px;
     color: white; }
-    /* line 246, ../sass/_extra.scss */
+    /* line 247, ../sass/_extra.scss */
     .notify .close-notify:hover, .notify .close-notify:focus {
       color: inherit; }
-  /* line 250, ../sass/_extra.scss */
+  /* line 251, ../sass/_extra.scss */
   .notify .dl-horizontal {
     margin-left: 21px; }
-    /* line 252, ../sass/_extra.scss */
+    /* line 253, ../sass/_extra.scss */
     .notify .dl-horizontal dt {
       width: 80px;
       vertical-align: top;
       text-align: left; }
-      /* line 256, ../sass/_extra.scss */
+      /* line 257, ../sass/_extra.scss */
       .notify .dl-horizontal dt span {
         font-size: 20px;
         vertical-align: text-bottom;
         margin-right: 10px; }
-    /* line 262, ../sass/_extra.scss */
+    /* line 263, ../sass/_extra.scss */
     .notify .dl-horizontal dd {
       margin-left: 80px; }
+  /* line 267, ../sass/_extra.scss */
+  .notify a {
+    color: #ffa914; }
+    /* line 269, ../sass/_extra.scss */
+    .notify a:hover {
+      color: #ee5161; }
 
-/* line 268, ../sass/_extra.scss */
+/* line 275, ../sass/_extra.scss */
 .lowercase {
   text-transform: lowercase; }
 
-/* line 273, ../sass/_extra.scss */
+/* line 280, ../sass/_extra.scss */
 .shortcuts-btn .book-icon {
   padding-right: 8px; }
 
-/* line 279, ../sass/_extra.scss */
+/* line 286, ../sass/_extra.scss */
 .shortcuts .key {
   padding: 2px 9px;
   font-style: normal;
@@ -7999,68 +8006,68 @@ svg > text:last-child {
   border: 1px solid gray;
   border-radius: 6px; }
 
-/* line 288, ../sass/_extra.scss */
+/* line 295, ../sass/_extra.scss */
 .popover {
   max-width: none;
   color: #222222;
   margin-bottom: 20px; }
-  /* line 292, ../sass/_extra.scss */
+  /* line 299, ../sass/_extra.scss */
   .popover h2 {
     text-align: center;
     font-size: 1.2em;
     font-weight: bold; }
-  /* line 297, ../sass/_extra.scss */
+  /* line 304, ../sass/_extra.scss */
   .popover dt {
     margin-bottom: 8px;
     overflow: visible; }
 
-/* line 303, ../sass/_extra.scss */
+/* line 310, ../sass/_extra.scss */
 .sign-out {
   text-align: right; }
-  /* line 305, ../sass/_extra.scss */
+  /* line 312, ../sass/_extra.scss */
   .sign-out span {
     margin-right: 10px;
     vertical-align: middle;
     font-size: 18px; }
 
-/* line 313, ../sass/_extra.scss */
+/* line 320, ../sass/_extra.scss */
 .stats section {
   margin-bottom: 3em; }
-  /* line 315, ../sass/_extra.scss */
+  /* line 322, ../sass/_extra.scss */
   .stats section h3 {
     margin-bottom: 1em; }
-    /* line 317, ../sass/_extra.scss */
+    /* line 324, ../sass/_extra.scss */
     .stats section h3 span {
       margin-right: 0.5em; }
-  /* line 321, ../sass/_extra.scss */
+  /* line 328, ../sass/_extra.scss */
   .stats section .custom-btn {
     float: left;
     margin-right: 32px; }
-    /* line 323, ../sass/_extra.scss */
+    /* line 330, ../sass/_extra.scss */
     .stats section .custom-btn span {
       padding-left: 0; }
-    /* line 326, ../sass/_extra.scss */
+    /* line 333, ../sass/_extra.scss */
     .stats section .custom-btn .snf-download-full {
       padding-right: 0;
       padding-left: 8px; }
-  /* line 332, ../sass/_extra.scss */
+  /* line 339, ../sass/_extra.scss */
   .stats section .spinner {
     display: none;
     float: left;
     padding: 8px; }
 
-/* line 341, ../sass/_extra.scss */
+/* line 348, ../sass/_extra.scss */
 .navbar-right .dropdown-menu, .login-info .dropdown-menu {
   min-width: 0; }
 
 @media (min-width: 1200px) {
-  /* line 346, ../sass/_extra.scss */
+  /* line 353, ../sass/_extra.scss */
   .stick {
     position: fixed;
     top: 100px;
     width: inherit; } }
 
-/* line 355, ../sass/_extra.scss */
+/* line 362, ../sass/_extra.scss */
 .themes {
   position: fixed;
   left: 10px;
