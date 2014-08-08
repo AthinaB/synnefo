@@ -1038,5 +1038,13 @@ $(document).ready(function() {
 
 	textFilter('.filter-text');
 	dropdownSelect('.filters .filter-dropdown .dropdown');
+
+	$('.adv-search').click(function(e) {
+		e.preventDefault();
+		$(this).siblings('.advanced-search').toggleClass('hidden');
+	});
+
+
+
 });
 
