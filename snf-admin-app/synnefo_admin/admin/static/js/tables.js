@@ -36,7 +36,7 @@ $(document).ready(function() {
 			}
 		}
 
-        sticker(); 
+        sticker();
 		//processScroll();
 		//$win.on('scroll', processScroll);
 	}
@@ -1042,9 +1042,72 @@ $(document).ready(function() {
 		});
 	};
 
-	function parseAdvSearch(text) {
+/*	function parseAdvSearch(text) {
 		filters = {};
+		var defaultFilter = $(tableDomID).attr('data-content');
+		console.log('defaultSearch', defaultFilter);
 		var text = text.replace(': ', ':');
+		var strL = text.length;
+		var currentChar, term="",
+		    quotesStart, quotesEnd,
+		    keyStart, keyEnd,
+		    valStart, valEnd;
+		for(var i=0; i<strL; i){
+			currentChar = text.charAt(i);
+			if(!quotesStart && currentChar === '"') {
+				quotesStart = true;
+				term = "";
+			}
+			else if(quotesStart && !quotesEnd) {
+				if(currentChar !== '"') {
+					term = term+currentChar;
+				}
+				else {
+					quotesEnd = true;
+					saved = false;
+				}
+			}
+			else if(quotesEnd) {
+				if(currentChar === ' '){
+					if(!valStart) {
+						key = defaultFilter;
+					}
+					value = term;
+					saved = true;
+					quotesEnd = quotesStart = false;
+				}
+				else if(currentChar === ':') {
+					key = term;
+					saved = true;
+					quotesEnd = quotesStart = false;
+					valStart = true;
+				}
+				else if(currentChar === '|') {
+					// ****
+				}
+			}
+			else {
+				// no quotes dear!
+				if(termStart && !termEnd) {
+					if(currentChar === ':') {
+						key = term;
+						termEnd = true;
+						setKey = true;
+					}
+					else {
+						term = term + currentChar;
+					}
+				}
+				else if(termEnd) {
+
+				}
+			}
+		}
+		if(quotesEnd && saved === false) {
+			key = defaultFilter;
+			value = term;
+			saved = true;
+		}
 		arrayFilters = text.split(" ");
 		var numFilters = arrayFilters.length;
 		var seperator, key, value, subseperator;
@@ -1066,7 +1129,61 @@ $(document).ready(function() {
 		}
 		console.log('filters', filters)
 	};
+*/
+	function parseAdvSearch(text) {
+		console.log('text: ', text);
+		// for the keys of the applied filters
+		var keyInSingleQuotes = /('[^']*')(?=:)/, keyInDoubleQuotes =  /("[^"]*")(?=:)/, // with captured quotes
+		    keySimple = /(^|\s)([^'":\s]+(?=:(?!'|")))/;
+		var keyRegex = new RegExp('(' + keyInSingleQuotes.source + ')|(' + keyInDoubleQuotes.source + ')|(' + keySimple.source + ')', 'g');
 
+		// for the values of the applied filters
+		var strInSingleQuotes = /('[^']*')\s*/, strInDoubleQuotes = /("[^"]*")\s*/, // with captured quotes
+		    strSimple = /\s([^'":\s]+)\s*/,
+		    strAnyForm = new RegExp(strInSingleQuotes.source + '|' + strInDoubleQuotes.source  + '|' + strSimple.source),
+		    strOr = new RegExp('(' + strAnyForm.source + '\|)*' + strAnyForm.source, 'g'),
+		    strWithEquals = new RegExp(strAnyForm.source + '\=' + strOr.source)
+
+		keys = text.match(keyRegex),
+		    keysIndex = [], lastKeyIndex = 0;
+		values = []
+		if(keys) {
+			var keysNum = keys.length;
+		       	for(var i = 0; i<keysNum; i++) {
+				keys[i] = keys[i].trim();
+				keysIndex[i] = text.indexOf(keys[i], lastKeyIndex) + keys[i].length;
+				lastKeyIndex = keysIndex[i];
+				console.log('lastKeyIndex: ', lastKeyIndex);
+			 }
+			console.log('indexes: ', keysIndex);
+			valRegex = undefined;
+			for(var i = 0; i<keysNum; i++) {
+				if(i+1<keysNum) {
+					valRegex = new RegExp('(' + strInSingleQuotes.source + '|' + strInDoubleQuotes.source  + '|' + strSimple.source + ')' + '(?=' + keys[i+1] + ')');
+				}
+				else {
+					valRegex = new RegExp(strInSingleQuotes.source + '|' + strInDoubleQuotes.source  + '|' + strSimple.source);
+				}
+
+				console.log(valRegex.toString());
+				var sub = text.substring(keysIndex[i]);
+				temp = sub.match(valRegex);
+				if(temp) {
+					values[i] = temp[0]
+				}
+				console.log('substr: ', sub);
+			}
+		}
+
+		// to check if there is a value without key
+		if(keys.length>0 && values.length>0) {
+			console.log('keys: ', keys);
+			console.log('values: ', values);
+			for(var i=0; i<values.length; i++) {
+				// var valueWithNokey =  new RegExp(value[i]+(/\s/))
+			}
+		}
+	}
 	function inQuotes(str) {
 		//if(str.charAt(0) === str.charAt(str.length - 1) === '"')
 	}
