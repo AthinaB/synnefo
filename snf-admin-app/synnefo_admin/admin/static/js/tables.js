@@ -1023,6 +1023,7 @@ $(document).ready(function() {
 					value = $.trim($(this).val());
 
 					filters[key] = value;
+					tt = [value];
 					if (filters[key] === '') {
 						delete filters[key];
 					}
@@ -1042,151 +1043,157 @@ $(document).ready(function() {
 		});
 	};
 
-/*	function parseAdvSearch(text) {
-		filters = {};
-		var defaultFilter = $(tableDomID).attr('data-content');
-		console.log('defaultSearch', defaultFilter);
-		var text = text.replace(': ', ':');
-		var strL = text.length;
-		var currentChar, term="",
-		    quotesStart, quotesEnd,
-		    keyStart, keyEnd,
-		    valStart, valEnd;
-		for(var i=0; i<strL; i){
-			currentChar = text.charAt(i);
-			if(!quotesStart && currentChar === '"') {
-				quotesStart = true;
-				term = "";
+	tempFilters = {};
+
+	// for the keys of the applied filters
+	var keyInSingleQuotes = /('[^']*')(?=:)/, keyInDoubleQuotes =  /("[^"]*")(?=:)/, // with captured quotes
+	    keySimple = /((\s|^)[^'":\s]+(?=(?!\'\|\"):))/;
+	var keyRegex = new RegExp('(' + keyInSingleQuotes.source + ')|(' + keyInDoubleQuotes.source + ')|(' + keySimple.source + ')', 'g');
+	// for the values of the applied filters
+	var  wordSimple = /([^'":\s]+)/g,
+	     wordInSimpleQuotes = /('[^']*')/g,
+	     wordInDoubleQuotes = /("[^"]*")/g;
+	wordAnyForm = new RegExp('(' + wordSimple.source + '|' + wordInSimpleQuotes.source + '|' + wordInDoubleQuotes.source + ')', 'g'),
+	    term = new RegExp('(((\\s*)|((^|[\\:\\=])\\s*))' + wordAnyForm.source + '((\\s+)|(\\s*$)|(\\s*\\=((\\s*)|((^|[\\:\\=\\(?])\\s*))' + wordAnyForm.source + '((\\)?\\s+)|(\\)?\\s*$)))))', 'g'),
+	    valueRegex = new RegExp('(' + term.source  + '\\|\\s*)*(' + term.source + ')', 'g');
+	    termwithOr = new RegExp('(' + term.source  + '\\|)+(' + term.source + ')', 'g');
+	 termWithEquals = new RegExp('(' + wordAnyForm.source  + '\\=)(' + valueRegex.source + ')+', 'g');
+
+	function parseAdvSearch(text) {
+		var values = text.match(valueRegex);
+		console.log('** termsOr: ' + values +' **')
+
+		var keys = text.match(keyRegex);
+		console.log('** keys: ' + keys +' **')
+		if(values) {
+			tempFilters = {};
+			defaultFilter(values);
+			if(keys) {
+				setFilters(keys, values);
 			}
-			else if(quotesStart && !quotesEnd) {
-				if(currentChar !== '"') {
-					term = term+currentChar;
+		}
+	};
+
+	function defaultFilter(values) {
+		var key = $('#table-items-total').attr('data-content');
+		var terms = '';
+		console.log('%% values:', values);
+		console.log('%% terms: ', values[0].match(term));
+		for(var i = 0; i<values.length; i++) {
+			if(values[i].charAt(0) !== ':') {
+				console.log('default filter: ',values[i]);
+				values[i] = values[i].trim();
+				terms = terms + ' '+values[i];
+				values.splice(i, 1);
+				i = i - 1;
+			}
+		}
+		// terms now include all tha values seperated by space
+		// should detect the "or" and "=" ***
+		terms = terms.trim();
+		tempFilters[key] = [terms];
+	};
+
+	// values has to be an array
+	function addValue(key, values) {
+		if(tempFilters[key] instanceof Array) {
+			for(var i=0; i<values.length; i++) {
+				console.log('@@@-1', values[i]);
+				if(tempFilters[key].indexOf(values[i]) !== -1 && values[i]!== '')
+					tempFilters[key].push(values[i])
+				console.log('@@@-2', typeof values[i], key, tempFilters[key]);
+				}
+		}
+		else {
+			tempFilters[key] = _.without(_.uniq(values), '');
+		}
+	}
+
+	function setFilters(keys, values) {
+		if(keys.length !== values.length) {
+			$('.advanced-search').after('<div>Error!!!!</div>');
+		}
+		else {
+			vvv = values;
+			kkk = keys;
+			var filtersNum = keys.length;
+			var key, value;
+			for(var i=0; i<filtersNum; i++) {
+				keys[i] = stripQuotesTrim(keys[i]);
+				key = keys[i];
+				if(values[i].charAt(0) === ':') {
+					value = stripQuotesTrim(values[i].substring(1));
 				}
 				else {
-					quotesEnd = true;
-					saved = false;
+					value = stripQuotesTrim(values[i]);
 				}
-			}
-			else if(quotesEnd) {
-				if(currentChar === ' '){
-					if(!valStart) {
-						key = defaultFilter;
+				var hasEquals = termWithEquals.test(value),
+				    hasOr = termwithOr.test(value);
+				var subvalues;
+				if((hasEquals && !hasOr) || (!hasEquals && hasOr)) {
+					subvalues = value.match(term);
+					for(var j=0; j<subvalues.length; j++) {
+						subvalues[j] = subvalues[j].trim();
+						if(subvalues[j] === '|') {
+							subvalues.splice(j, 1);
+							j--;
+						}
+						/* if(subvalues.length > 0) {
+							addValue(key, subvalues)
+						} */
 					}
-					value = term;
-					saved = true;
-					quotesEnd = quotesStart = false;
+					if(subvalues.length > 0) {
+						addValue(key, subvalues);
+					}
 				}
-				else if(currentChar === ':') {
-					key = term;
-					saved = true;
-					quotesEnd = quotesStart = false;
-					valStart = true;
+				else if(hasEquals && hasOr) {
 				}
-				else if(currentChar === '|') {
-					// ****
+				else {
+					// we assume is just a phraze/word
+					console.log('just a phraze', value);
+					addValue(key, [value]);
 				}
-			}
-			else {
-				// no quotes dear!
-				if(termStart && !termEnd) {
-					if(currentChar === ':') {
-						key = term;
-						termEnd = true;
-						setKey = true;
+			/*	if(filterType(key)=== 'text') {
+					if(tempFilters[key] === undefined) {
+						tempFilters[key] = [value];
 					}
 					else {
-						term = term + currentChar;
+						if(termWithEquals.test(value))
+						tempFilters[key][0] = tempFilters[key][0] + ' ' + value
 					}
 				}
-				else if(termEnd) {
-
-				}
-			}
-		}
-		if(quotesEnd && saved === false) {
-			key = defaultFilter;
-			value = term;
-			saved = true;
-		}
-		arrayFilters = text.split(" ");
-		var numFilters = arrayFilters.length;
-		var seperator, key, value, subseperator;
-		for(var i=0; i<numFilters; i++) {
-			seperator = arrayFilters[i].indexOf(':');
-			key = arrayFilters[i].substring(0, seperator);
-			value = arrayFilters[i].substring(++seperator)
-			subseperator = value.indexOf('=');
-			console.log(subseperator)
-				value = value.replace('=', '')
-				if(subseperator > -1) {
-					var temp = value;
-					value = {}
-					value[temp.substring(0,subseperator)] = temp.substring(subseperator);
-				}
-			if(key!== "") {
-				filters[key] = value;
-			}
-		}
-		console.log('filters', filters)
-	};
-*/
-	function parseAdvSearch(text) {
-		console.log('text: ', text);
-		// for the keys of the applied filters
-		var keyInSingleQuotes = /('[^']*')(?=:)/, keyInDoubleQuotes =  /("[^"]*")(?=:)/, // with captured quotes
-		    keySimple = /(^|\s)([^'":\s]+(?=:(?!'|")))/;
-		var keyRegex = new RegExp('(' + keyInSingleQuotes.source + ')|(' + keyInDoubleQuotes.source + ')|(' + keySimple.source + ')', 'g');
-
-		// for the values of the applied filters
-		var strInSingleQuotes = /('[^']*')\s*/, strInDoubleQuotes = /("[^"]*")\s*/, // with captured quotes
-		    strSimple = /\s([^'":\s]+)\s*/,
-		    strAnyForm = new RegExp(strInSingleQuotes.source + '|' + strInDoubleQuotes.source  + '|' + strSimple.source),
-		    strOr = new RegExp('(' + strAnyForm.source + '\|)*' + strAnyForm.source, 'g'),
-		    strWithEquals = new RegExp(strAnyForm.source + '\=' + strOr.source)
-
-		keys = text.match(keyRegex),
-		    keysIndex = [], lastKeyIndex = 0;
-		values = []
-		if(keys) {
-			var keysNum = keys.length;
-		       	for(var i = 0; i<keysNum; i++) {
-				keys[i] = keys[i].trim();
-				keysIndex[i] = text.indexOf(keys[i], lastKeyIndex) + keys[i].length;
-				lastKeyIndex = keysIndex[i];
-				console.log('lastKeyIndex: ', lastKeyIndex);
-			 }
-			console.log('indexes: ', keysIndex);
-			valRegex = undefined;
-			for(var i = 0; i<keysNum; i++) {
-				if(i+1<keysNum) {
-					valRegex = new RegExp('(' + strInSingleQuotes.source + '|' + strInDoubleQuotes.source  + '|' + strSimple.source + ')' + '(?=' + keys[i+1] + ')');
-				}
 				else {
-					valRegex = new RegExp(strInSingleQuotes.source + '|' + strInDoubleQuotes.source  + '|' + strSimple.source);
-				}
-
-				console.log(valRegex.toString());
-				var sub = text.substring(keysIndex[i]);
-				temp = sub.match(valRegex);
-				if(temp) {
-					values[i] = temp[0]
-				}
-				console.log('substr: ', sub);
+				// the filterType returned 'array'
+					if(tempFilters[key] === undefined) {
+						tempFilters[key] = [value]
+					}
+					else {
+						tempFilters[key].push(value);
+					}
+				} */
 			}
 		}
+	};
 
-		// to check if there is a value without key
-		if(keys.length>0 && values.length>0) {
-			console.log('keys: ', keys);
-			console.log('values: ', values);
-			for(var i=0; i<values.length; i++) {
-				// var valueWithNokey =  new RegExp(value[i]+(/\s/))
-			}
+	function filterType(key) {
+		var $simpleFilter = $('.filters').find('*[data-filter="' + key + '"]');
+		var type = 'text'
+		if($simpleFilter.length > 0 && !$simpleFilter.closest('.filter').hasClass('filter-text')) {
+				type = 'array';
 		}
-	}
-	function inQuotes(str) {
-		//if(str.charAt(0) === str.charAt(str.length - 1) === '"')
-	}
+		return type;
+	};
+
+	function stripQuotesTrim(str) {
+		var str = str.trim();
+		if(str.charAt(0) === str.charAt(str.length-1) && (str.charAt(0) === '"' || str.charAt(0) === "'")) {
+			return str.substring(1, str.length - 1).trim();
+		}
+		else {
+			return str;
+		}
+		console.log('*** '+ str + ' ****')
+	};
 
 	function BasicToAdvSearch(filters) {
 		// tba
