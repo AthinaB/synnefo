@@ -100,3 +100,27 @@ $filter-height: 30px;
 .filters.subnav-fixed {
 	top: $navbar-height;
 }
+
+
+.search-mode-btn {
+	float: right;
+	line-height: 30px;
+}
+
+.input-with-btn {
+	border-width: 0px;
+	background-color: transparent;
+	margin-left: $sidebar-width + 30px;
+	input {
+		width: 300px; // shouldn't use this for responsive design
+	}
+	.form-group {
+		display: inline-block;
+		background: $filter-bg;
+		border: 1px solid $filter-border-color;
+	}
+	@media (max-width: $screen-lg-min) {
+		margin: 0 $filter-margin $filter-margin 0;
+	}
+}
+

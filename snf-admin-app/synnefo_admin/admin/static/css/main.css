@@ -5037,23 +5037,68 @@ and light gray font colors
     background-color: #e42a48;
     border-color: #e42a48; }
 
+/* line 151, ../sass/_bars-btns.scss */
+.search-btn {
+  display: inline-block;
+  text-align: center;
+  opacity: 1;
+  background-color: #222222;
+  border-bottom: 2px solid #222222;
+  color: white;
+  margin-left: 10px;
+  position: relative;
+  top: -2px; }
+  /* line 29, ../sass/_bars-btns.scss */
+  .search-btn span {
+    display: inline-block;
+    height: 100%;
+    line-height: 100%;
+    padding: 8px; }
+  /* line 36, ../sass/_bars-btns.scss */
+  .search-btn:hover, .search-btn:focus {
+    text-decoration: none;
+    opacity: 0.85; }
+  /* line 45, ../sass/_bars-btns.scss */
+  .search-btn .snf-font-remove {
+    display: inline; }
+  /* line 48, ../sass/_bars-btns.scss */
+  .search-btn.disabled {
+    background: transparent !important;
+    border-color: #818181 !important;
+    color: #818181 !important; }
+    /* line 15, ../sass/_bars-btns.scss */
+    .search-btn.disabled:hover, .search-btn.disabled:focus {
+      cursor: default;
+      opacity: 1; }
+      /* line 18, ../sass/_bars-btns.scss */
+      .search-btn.disabled:hover span, .search-btn.disabled:focus span {
+        color: #818181 !important; }
+  /* line 109, ../sass/_bars-btns.scss */
+  .search-btn:hover, .search-btn:focus {
+    opacity: 1;
+    border-bottom-color: white;
+    color: white; }
+  /* line 156, ../sass/_bars-btns.scss */
+  .search-btn span {
+    padding: 7px; }
+
 /* Sidebar */
-/* line 157, ../sass/_bars-btns.scss */
+/* line 166, ../sass/_bars-btns.scss */
 .sidebar {
   margin: 0 30px 0 0;
   width: 110px;
   height: auto;
   float: left; }
-  /* line 162, ../sass/_bars-btns.scss */
+  /* line 171, ../sass/_bars-btns.scss */
   .sidebar .btn-group-vertical {
     width: 100%; }
   @media (max-width: 1200px) {
-    /* line 157, ../sass/_bars-btns.scss */
+    /* line 166, ../sass/_bars-btns.scss */
     .sidebar {
       width: auto;
       margin: 20px auto;
       float: none; }
-      /* line 170, ../sass/_bars-btns.scss */
+      /* line 179, ../sass/_bars-btns.scss */
       .sidebar .btn-group-vertical a {
         margin-right: 10px;
         display: inline-block; } }
@@ -5061,32 +5106,32 @@ and light gray font colors
 /*
 Positioning or customizing buttons
 */
-/* line 183, ../sass/_bars-btns.scss */
+/* line 192, ../sass/_bars-btns.scss */
 .sidebar .custom-btn {
   display: block;
   margin: 0 0 1em; }
-  /* line 186, ../sass/_bars-btns.scss */
+  /* line 195, ../sass/_bars-btns.scss */
   .sidebar .custom-btn span {
     padding: 8px; }
 
-/* line 192, ../sass/_bars-btns.scss */
+/* line 201, ../sass/_bars-btns.scss */
 body .custom-buttons {
   float: left;
   margin-right: 10px; }
-  /* line 195, ../sass/_bars-btns.scss */
+  /* line 204, ../sass/_bars-btns.scss */
   body .custom-buttons .line-btn {
     margin-right: 1em; }
-  /* line 198, ../sass/_bars-btns.scss */
+  /* line 207, ../sass/_bars-btns.scss */
   body .custom-buttons .disabled {
     display: none; }
 
 /*
 Extra-button is used to show total selected rows
 */
-/* line 216, ../sass/_bars-btns.scss */
+/* line 225, ../sass/_bars-btns.scss */
 .extra-btn span {
   display: inline-block; }
-/* line 219, ../sass/_bars-btns.scss */
+/* line 228, ../sass/_bars-btns.scss */
 .extra-btn .badge {
   background: transparent;
   line-height: 0.8;
@@ -5094,34 +5139,34 @@ Extra-button is used to show total selected rows
   padding: 0 5px 0 0;
   font-weight: normal;
   font-size: 1em; }
-  /* line 226, ../sass/_bars-btns.scss */
+  /* line 235, ../sass/_bars-btns.scss */
   .extra-btn .badge::before {
     content: "("; }
-  /* line 229, ../sass/_bars-btns.scss */
+  /* line 238, ../sass/_bars-btns.scss */
   .extra-btn .badge::after {
     content: ")"; }
 
-/* line 235, ../sass/_bars-btns.scss */
+/* line 244, ../sass/_bars-btns.scss */
 .show-hide-all {
   float: right; }
-  /* line 237, ../sass/_bars-btns.scss */
+  /* line 246, ../sass/_bars-btns.scss */
   .show-hide-all em {
     font-style: normal; }
-  /* line 240, ../sass/_bars-btns.scss */
+  /* line 249, ../sass/_bars-btns.scss */
   .show-hide-all.line-btn {
     padding: 8px; }
-    /* line 242, ../sass/_bars-btns.scss */
+    /* line 251, ../sass/_bars-btns.scss */
     .show-hide-all.line-btn span {
       display: inline; }
 
-/* line 249, ../sass/_bars-btns.scss */
+/* line 258, ../sass/_bars-btns.scss */
 .actions-per-item .custom-btn {
   margin: 10px 10px 10px 0; }
 
-/* line 254, ../sass/_bars-btns.scss */
+/* line 263, ../sass/_bars-btns.scss */
 .charts .chart {
   display: none; }
-/* line 258, ../sass/_bars-btns.scss */
+/* line 267, ../sass/_bars-btns.scss */
 .charts .sidebar a {
   display: inline-block;
   text-align: center;
@@ -5169,7 +5214,7 @@ Extra-button is used to show total selected rows
     /* line 74, ../sass/_bars-btns.scss */
     .charts .sidebar a.disabled:hover span, .charts .sidebar a.disabled:focus span {
       border-color: transparent; }
-/* line 263, ../sass/_bars-btns.scss */
+/* line 272, ../sass/_bars-btns.scss */
 .charts .sidebar a.active {
   display: inline-block;
   text-align: center;
@@ -5223,12 +5268,12 @@ Extra-button is used to show total selected rows
       .charts .sidebar a.active.disabled:hover span, .charts .sidebar a.active.disabled:focus span {
         color: #818181 !important; }
 @media (max-width: 1200px) {
-  /* line 268, ../sass/_bars-btns.scss */
+  /* line 277, ../sass/_bars-btns.scss */
   .charts .sidebar a, .charts .sidebar a.active {
     margin-right: 10px;
     display: inline-block; } }
 
-/* line 276, ../sass/_bars-btns.scss */
+/* line 285, ../sass/_bars-btns.scss */
 .notify .reload-btn {
   padding: 0 4px;
   font-size: 18px;
@@ -7290,6 +7335,29 @@ Extra-button is used to show total selected rows
 /* line 100, ../sass/_filters.scss */
 .filters.subnav-fixed {
   top: 50px; }
+
+/* line 105, ../sass/_filters.scss */
+.search-mode-btn {
+  float: right;
+  line-height: 30px; }
+
+/* line 110, ../sass/_filters.scss */
+.input-with-btn {
+  border-width: 0px;
+  background-color: transparent;
+  margin-left: 140px; }
+  /* line 114, ../sass/_filters.scss */
+  .input-with-btn input {
+    width: 300px; }
+  /* line 117, ../sass/_filters.scss */
+  .input-with-btn .form-group {
+    display: inline-block;
+    background: #eeeeee;
+    border: 1px solid transparent; }
+  @media (max-width: 1200px) {
+    /* line 110, ../sass/_filters.scss */
+    .input-with-btn {
+      margin: 0 10px 10px 0; } }
 
 /* line 1, ../sass/_modals.scss */
 p.progress-area {

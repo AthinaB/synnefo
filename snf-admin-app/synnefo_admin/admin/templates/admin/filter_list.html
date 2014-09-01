@@ -1,7 +1,18 @@
 {% load admin_tags %}
 <div class="filters filters-area">
- <!-- use it to center it (sort of) -->
-    {% for filter in filter_dict %}
-        {% include filter|get_filter_template %}
-    {% endfor %}
+	<!-- use it to center it (sort of) -->
+	{% for filter in filter_dict %}
+		{% include filter|get_filter_template %}
+	{% endfor %}
+	 <div class="filter advanced-search input-with-btn hidden">
+		<div class="form-group">
+			<label title="Advanced Search">
+				Advanced Search:
+				<input type="search" data-filter="advanced-search">
+			</label>
+		</div>
+		<a class="exec-search search-btn"><span>Search</span></a>
+	</div>
+	<a class="search-mode search-mode-btn">Advanced Search</a>
 </div>
+

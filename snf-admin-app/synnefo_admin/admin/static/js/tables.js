@@ -36,7 +36,7 @@ $(document).ready(function() {
 			}
 		}
 
-        sticker(); 
+        sticker();
 		//processScroll();
 		//$win.on('scroll', processScroll);
 	}
@@ -99,7 +99,7 @@ $(document).ready(function() {
 
 				var prefix = 'sSearch_';
 
-				if(!$.isEmptyObject(filters)) {
+				if(!_.isEmpty(filters)) {
 					for (var prop in filters) {
 						data[prefix+prop] = filters[prop];
 					}
@@ -856,7 +856,7 @@ $(document).ready(function() {
 		$tableBody.append(htmlRows); // should change
 		$actionBtn.attr('data-ids','['+idsArray+']');
 		updateCounter($counter, idsArray.length); // ***
-		
+
 		if(idsArray.length >= maxVisible) {
 			$btn.css('display', 'block');
 		}
@@ -999,7 +999,7 @@ $(document).ready(function() {
 			}
 		}
 		else {
-			if(filters[key].lenght === 1) {
+			if(filters[key].lenght === 1) { // why?
 				delete filters[key];
 			}
 			else {
@@ -1024,7 +1024,7 @@ $(document).ready(function() {
 				if (filters[key] === '') {
 					delete filters[key];
 				}
-
+			//	basicToAdvanced(key, value);
 				if(snf.timer === 0) {
 					snf.timer = 1;
 					setTimeout(function() {
@@ -1038,5 +1038,188 @@ $(document).ready(function() {
 
 	textFilter('.filter-text');
 	dropdownSelect('.filters .filter-dropdown .dropdown');
-});
 
+	$('.search-mode').click(function(e) {
+		e.preventDefault();
+		$(this).siblings('div').toggleClass('hidden');
+		if($(this).siblings('.advanced-search').hasClass('hidden')) {
+			$(this).text('Advanced Search');
+		}
+		else {
+			$(this).text('Basic Search');
+			simpleInAdvanced();
+		}
+	});
+
+
+	var filtersInfo = {};
+	var tempFilters = {};
+	var errorMsgs = {
+		unknownKey: 'Not valid key in: <b>{search_term}</b>.<\br> Clouldn\'t apply it in search query.',
+		onlySingleValue: 'The filter <b>{filter_key}</b> accepts only one value.<\br> Clouldn\'t apply it in search query.',
+		wrongValue: 'The filter <b>{filter_key}</b> cannot accept <b>"{filter_val}"</b> as a value.<\br> Clouldn\'t apply it in search query.'
+	}
+	$('.filters').find('.filter:not(.advanced-search)').each(function(index) {
+		var key = $(this).find('*[data-filter]').attr('data-filter');
+		var type; // possible values: 'singe-choice', 'multi-choice', 'text'
+		if($(this).find('*[data-filter]').hasClass('dropdown')) {
+			type = ($(this).closest('.filter-dropdown').hasClass('filter-boolean')? 'single-choice' : 'multi-choice')
+		}
+		else {
+			type = 'text'
+		}
+		filtersInfo[key] = type
+	});
+	console.log(filtersInfo);
+	function simpleInAdvanced() {
+		var $advFilt = $('.filters').find('input[data-filter=advanced-search]');
+		var updated = true;
+		if(!_.isEqual(filters, tempFilters)) {
+			console.log('not the same');
+			$advFilt.val(filtersToString());
+		}
+	};
+
+	function filtersToString() {
+		var text = '';
+		var newTerm;
+		for(var prop in filters) {
+			if(filtersInfo[prop] === 'text') {
+				newTerm = prop + ': ' + filters[prop];
+				if(text.length == 0) {
+					text = newTerm;
+				}
+				else {
+					text = text + ' ' + newTerm;
+				}
+			}
+			else {
+				newTerm = prop + ': ' + filters[prop].toString();
+				if(text.length === 0) {
+					text = newTerm;
+				}
+				else {
+					text = text + ' ' + newTerm;
+				}
+			}
+		}
+		console.log('filtersToString:', text);
+		return text;
+	};
+
+	$('.exec-search').click(function(e) {
+		e.preventDefault();
+		console.log('search execution')
+		tempFilters = {};
+		var text = $(this).siblings('label').find('input').val().trim();
+		if(text.length > 0) {
+			var terms = text.split(' ');
+			var key = 'unknown', value;
+			var termsL = terms.length;
+			var keyIndex;
+			var lastkey;
+			var filterType;
+			var isKey = false;
+			for(var i=0; i<termsL; i++) {
+				terms[i] = terms[i].trim();
+				for(var prop in filtersInfo) {
+					if(terms[i].substring(0, prop.length+1) === prop + ':') {
+						filterType = filtersInfo[prop];
+						console.log('found', prop, filtersInfo[prop]);
+						key = prop;
+						value = terms[i].substring(prop.length + 1).trim();
+						isKey = true;
+						break;
+					}
+				}
+				if(!isKey) {
+					value = terms[i];
+				}
+
+				if(!tempFilters[key]) {
+					tempFilters[key] = value;
+				}
+				else if(value.length > 0) {
+					if(filtersInfo[key] === 'text') {
+						tempFilters[key] = tempFilters[key] + ' ' + value;
+					}
+					else {
+						tempFilters[key] = tempFilters[key] + value;
+					}
+				}
+				isKey = false;
+			}
+			//show error msg if the below has value ***
+			delete tempFilters['unknown'];
+		}
+
+		if(!_.isEmpty(tempFilters)) {
+			for(var filter in tempFilters) {
+				for(var prop in filtersInfo) {
+					if(prop === filter && (filtersInfo[prop] === 'single-choice' || filtersInfo[prop] === 'multi-choice')) {
+						tempFilters[filter] = tempFilters[filter].replace(', ', ',').replace(' ,', ',').split(',');
+						break;
+					}
+				}
+			}
+		}
+		else {
+			tempFilters = {};
+		}
+
+	advancedToBasic();
+	console.log(tempFilters);
+	});
+	function advancedToBasic() {
+		var filters = tempFilters;
+		var $filters = $('.filters');
+		var $choicesLi;
+		var valuesL;
+		var validValues = [];
+		var valid = true;
+		if(_.isEmpty(filters)) {
+			console.log('ooooo');
+			console.log(filters);
+			$(tableDomID).dataTable().api().ajax.reload();
+		}else {
+		for(var prop in filters) {
+			if(prop !== 'unknown') {
+				if(filtersInfo[prop] === 'text'){
+					console.log('text filter', filters[prop]);
+					$filters.find('input[data-filter="' + prop + '"]').val(filters[prop]);
+					$filters.find('input[data-filter="' + prop + '"]').trigger('keyup');
+				}
+				else { // choice-filters
+					// validation
+					$choicesLi = $filters.find('*[data-filter="' + prop + '"] .choices').find('li')
+					valuesL = filters[prop].length;
+					$choicesLi.each(function() {
+						validValues.push($(this).text().toUpperCase());
+					});
+					for(var i=0; i<valuesL; i++) {
+						if(validValues.indexOf(filters[prop][i].toUpperCase()) === -1) {
+							valid = false;
+							//show message ***
+							break;
+						}
+						else {
+							valid = true;
+						}
+					}
+					// execution
+					if(valid) {
+						for(var i=0; i<valuesL; i++) {
+							$choicesLi.each(function() {
+								if($(this).text().toUpperCase() === filters[prop][i].toUpperCase()) {
+									$(this).find('a').trigger('click');
+								}
+							});
+						}
+					}
+				}
+			}
+		}
+	}
+	}
+
+});
