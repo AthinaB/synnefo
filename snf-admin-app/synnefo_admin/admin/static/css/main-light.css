@@ -7742,9 +7742,14 @@ table.dataTable.no-footer {
 
 /* line 190, ../sass/_tables.scss */
 .dataTables_wrapper > .custom-buttons {
-  margin-bottom: 1em; }
+  margin-bottom: 1em;
+  width: 100%; }
+  /* line 193, ../sass/_tables.scss */
+  .dataTables_wrapper > .custom-buttons .line-btn:last-child {
+    float: right;
+    margin-right: 0; }
 
-/* line 194, ../sass/_tables.scss */
+/* line 199, ../sass/_tables.scss */
 .dataTables_wrapper .dataTables_processing {
   background: #ffa914;
   color: white;
@@ -7753,7 +7758,7 @@ table.dataTable.no-footer {
   box-shadow: inset 0 0 5px #888888;
   z-index: 1; }
 
-/* line 202, ../sass/_tables.scss */
+/* line 207, ../sass/_tables.scss */
 .fixed {
   position: fixed; }
 

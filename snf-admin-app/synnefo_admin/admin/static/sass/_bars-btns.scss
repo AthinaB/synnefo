@@ -103,7 +103,7 @@ and light gray font colors
 @mixin line-btn($color:$btn-line-bg, $padding:$default-btn-padding, $border:$btn-line-border ) {
 	@include default-btn($padding);
 	background-color: $color;
-	border-bottom: 2px solid $color; 
+	border-bottom: 2px solid $color;
 	color: $border;
 	&:hover,
     &:focus{
@@ -211,12 +211,12 @@ body .custom-buttons {
 	.disabled {
 		display: none;
 	}
-    .snf-font-reload {
-        @extend .snf-refresh-outline;
-    }
-    .snf-font-remove {
-        @extend .snf-remove;
-    }
+	.snf-font-reload {
+		@extend .snf-refresh-outline;
+	}
+	.snf-font-remove {
+		@extend .snf-remove;
+	}
 }
 
 

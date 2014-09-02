@@ -189,6 +189,11 @@ table.dataTable.no-footer {
 
 .dataTables_wrapper > .custom-buttons {
     margin-bottom: 1em;
+    width: 100%;
+    .line-btn:last-child {
+	float: right;
+	margin-right: 0;
+    }
 }
 
 .dataTables_wrapper .dataTables_processing {

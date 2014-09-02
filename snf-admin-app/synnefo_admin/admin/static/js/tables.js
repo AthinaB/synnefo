@@ -88,8 +88,9 @@ $(document).ready(function() {
 	var tableSelectedDomID = '#table-items-selected'
 	var tableMassiveDomID = '#total-list'
 	table = $(tableDomID).DataTable({
-        "autoWidth": false,
+		"autoWidth": false,
 		"paging": true,
+		"searching": false,
 		// "stateSave": true,
 		"processing": true,
 		"serverSide": serverside,
