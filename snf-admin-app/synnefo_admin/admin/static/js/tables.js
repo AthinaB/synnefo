@@ -905,6 +905,7 @@ $(document).ready(function() {
 	 /* Filters */
 
 	var filters = {};
+	$('.filter:not(.hidden)').first().find('input').focus();
 
 	function dropdownSelect(filterEl) {
 		var $dropdownList = $(filterEl).find('.choices');
@@ -999,7 +1000,7 @@ $(document).ready(function() {
 			}
 		}
 		else {
-			if(filters[key].lenght === 1) { // why?
+			if(filters[key].lenght === 1) { // to be checked
 				delete filters[key];
 			}
 			else {
@@ -1015,7 +1016,7 @@ $(document).ready(function() {
 
 		$input.keyup(function(e) {
 			// if enter or space is pressed do nothing
-			if(e.which !== '32' && e.which !== '13') {
+			if(e.which !== 32 && e.which !== 13) {
 				var key, value;
 				key = $(this).data('filter');
 				value = $.trim($(this).val());
@@ -1047,18 +1048,20 @@ $(document).ready(function() {
 		}
 		else {
 			$(this).text('Basic Search');
-			simpleInAdvanced();
+			basicToAdvanced();
+		}
+		$(this).siblings('.filter:not(.hidden)').first().find('input').focus();
+	});
+
+	$('.filters .advanced-search').keyup(function(e) {
+		if(e.which === 13) {
+			$('.exec-search').trigger('click');
 		}
 	});
 
-
 	var filtersInfo = {};
 	var tempFilters = {};
-	var errorMsgs = {
-		unknownKey: 'Not valid key in: <b>{search_term}</b>.<\br> Clouldn\'t apply it in search query.',
-		onlySingleValue: 'The filter <b>{filter_key}</b> accepts only one value.<\br> Clouldn\'t apply it in search query.',
-		wrongValue: 'The filter <b>{filter_key}</b> cannot accept <b>"{filter_val}"</b> as a value.<\br> Clouldn\'t apply it in search query.'
-	}
+
 	$('.filters').find('.filter:not(.advanced-search)').each(function(index) {
 		var key = $(this).find('*[data-filter]').attr('data-filter');
 		var type; // possible values: 'singe-choice', 'multi-choice', 'text'
@@ -1070,14 +1073,10 @@ $(document).ready(function() {
 		}
 		filtersInfo[key] = type
 	});
-	console.log(filtersInfo);
-	function simpleInAdvanced() {
+	function basicToAdvanced() {
 		var $advFilt = $('.filters').find('input[data-filter=advanced-search]');
 		var updated = true;
-		if(!_.isEqual(filters, tempFilters)) {
-			console.log('not the same');
-			$advFilt.val(filtersToString());
-		}
+		$advFilt.val(filtersToString());
 	};
 
 	function filtersToString() {
@@ -1103,15 +1102,15 @@ $(document).ready(function() {
 				}
 			}
 		}
-		console.log('filtersToString:', text);
+
 		return text;
 	};
 
 	$('.exec-search').click(function(e) {
 		e.preventDefault();
-		console.log('search execution')
 		tempFilters = {};
-		var text = $(this).siblings('label').find('input').val().trim();
+		var text = $(this).siblings('.form-group').find('input').val().trim();
+		hideFilterError();
 		if(text.length > 0) {
 			var terms = text.split(' ');
 			var key = 'unknown', value;
@@ -1125,7 +1124,6 @@ $(document).ready(function() {
 				for(var prop in filtersInfo) {
 					if(terms[i].substring(0, prop.length+1) === prop + ':') {
 						filterType = filtersInfo[prop];
-						console.log('found', prop, filtersInfo[prop]);
 						key = prop;
 						value = terms[i].substring(prop.length + 1).trim();
 						isKey = true;
@@ -1140,24 +1138,28 @@ $(document).ready(function() {
 					tempFilters[key] = value;
 				}
 				else if(value.length > 0) {
-					if(filtersInfo[key] === 'text') {
-						tempFilters[key] = tempFilters[key] + ' ' + value;
-					}
-					else {
-						tempFilters[key] = tempFilters[key] + value;
-					}
+					tempFilters[key] = tempFilters[key] + ' ' + value;
 				}
 				isKey = false;
 			}
-			//show error msg if the below has value ***
-			delete tempFilters['unknown'];
+			if(tempFilters['unknown']) {
+				showFilterError(tempFilters['unknown'])
+				delete tempFilters['unknown'];
+			}
+			for(var prop in tempFilters) {
+				if(tempFilters[prop].trim().length === 0) {
+					console.log('empty value');
+					showFilterError(prop + ':' + tempFilters[prop])
+					delete tempFilters[prop];
+				}
+			}
 		}
 
 		if(!_.isEmpty(tempFilters)) {
 			for(var filter in tempFilters) {
 				for(var prop in filtersInfo) {
 					if(prop === filter && (filtersInfo[prop] === 'single-choice' || filtersInfo[prop] === 'multi-choice')) {
-						tempFilters[filter] = tempFilters[filter].replace(', ', ',').replace(' ,', ',').split(',');
+						tempFilters[filter] = tempFilters[filter].replace(/\s*,\s*/g ,',').split(',');
 						break;
 					}
 				}
@@ -1168,9 +1170,33 @@ $(document).ready(function() {
 		}
 
 	advancedToBasic();
-	console.log(tempFilters);
 	});
+
+	function showFilterError(wrongTerm) {
+		var msg;
+		$sign = $('.advanced-search').find('.filter-error');
+		if($sign.attr('title') === '') {
+			msg = 'The term: "' + wrongTerm + '" is not valid.'
+		}
+		else {
+			var prevMsg = $sign.attr('title');
+			var addition =  ', "' + wrongTerm + '" are not valid.';
+			msg = prevMsg.replace('term:', 'terms:');
+			msg = msg.replace(' are not valid.', addition);
+			msg = msg.replace(' is not valid.', addition);
+		}
+		$sign.attr('title', msg);
+		$sign.css('opacity', 1)
+	}
+	function hideFilterError() {
+		$sign = $('.advanced-search').find('.filter-error');
+		$sign.attr('title', '');
+		$sign.css('opacity', 0)
+	}
+
 	function advancedToBasic() {
+		console.log('advancedToBasic tempFilters:')
+		console.log(tempFilters);
 		var filters = tempFilters;
 		var $filters = $('.filters');
 		var $choicesLi;
@@ -1178,48 +1204,54 @@ $(document).ready(function() {
 		var validValues = [];
 		var valid = true;
 		if(_.isEmpty(filters)) {
-			console.log('ooooo');
-			console.log(filters);
 			$(tableDomID).dataTable().api().ajax.reload();
-		}else {
-		for(var prop in filters) {
-			if(prop !== 'unknown') {
-				if(filtersInfo[prop] === 'text'){
-					console.log('text filter', filters[prop]);
-					$filters.find('input[data-filter="' + prop + '"]').val(filters[prop]);
-					$filters.find('input[data-filter="' + prop + '"]').trigger('keyup');
-				}
-				else { // choice-filters
-					// validation
-					$choicesLi = $filters.find('*[data-filter="' + prop + '"] .choices').find('li')
-					valuesL = filters[prop].length;
-					$choicesLi.each(function() {
-						validValues.push($(this).text().toUpperCase());
-					});
-					for(var i=0; i<valuesL; i++) {
-						if(validValues.indexOf(filters[prop][i].toUpperCase()) === -1) {
-							valid = false;
-							//show message ***
-							break;
-						}
-						else {
-							valid = true;
-						}
+		}
+		else {
+			for(var prop in filters) {
+				if(prop !== 'unknown') {
+					if(filtersInfo[prop] === 'text'){
+						$filters.find('input[data-filter="' + prop + '"]').val(filters[prop]);
+						$filters.find('input[data-filter="' + prop + '"]').trigger('keyup');
 					}
-					// execution
-					if(valid) {
+					else { // choice-filters
+						// validation
+						$choicesLi = $filters.find('*[data-filter="' + prop + '"] .choices').find('li')
+						valuesL = filters[prop].length;
+						$choicesLi.each(function() {
+							validValues.push($(this).text().toUpperCase());
+						});
 						for(var i=0; i<valuesL; i++) {
+							if(validValues.indexOf(filters[prop][i].toUpperCase()) === -1) {
+								valid = false;
+								//show message ***
+								showFilterError(prop + ': ' + filters[prop].toString());
+								console.log("Didn't use correct values for: " + prop + 'values: '+filters[prop].toString())
+								break;
+							}
+							else {
+								valid = true;
+							}
+						}
+						// execution
+						if(valid) {
 							$choicesLi.each(function() {
-								if($(this).text().toUpperCase() === filters[prop][i].toUpperCase()) {
+								if($(this).hasClass('active')) {
 									$(this).find('a').trigger('click');
 								}
-							});
+							})
+							for(var i=0; i<valuesL; i++) { // for each filter
+								$choicesLi.each(function() {
+									if(filters[prop][i].toUpperCase() === $(this).text().toUpperCase()) {
+										if(!$(this).hasClass('active'))	{
+											$(this).find('a').trigger('click');
+										}
+									}
+								});
+							}
 						}
 					}
 				}
 			}
 		}
 	}
-	}
-
 });

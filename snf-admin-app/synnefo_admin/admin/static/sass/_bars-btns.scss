@@ -150,12 +150,16 @@ and light gray font colors
 
 .search-btn {
 	@include line-btn();
-	margin-left: 10px;
 	position: relative;
 	top: -2px;
 	span {
 		padding: 7px;
 	}
+}
+
+.search-mode-btn {
+	float: right;
+	line-height: 30px;
 }
 
 // ====== STUFF ====== //
