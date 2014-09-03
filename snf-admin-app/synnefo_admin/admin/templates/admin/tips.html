@@ -1,0 +1,45 @@
+{% load admin_tags %}
+<h2>Shortcuts</h2>
+<dl class='dl-horizontal shortcuts'>
+    <dt><span class='key'>i</span></dt><dd>Open/close the window that contains information regarding the state of the actions.</dd>
+    <dt><span class='key'>esc</span></dt><dd>Close confirmation window.</dd>
+    <dt><span class='key'>shift</span> + <span class='key'>click</span></dt><dd>Order the contents of the table by selecting multiple columns.</dd>
+</dl>
+
+{% comment %}
+Show filter tips only in pages that actually have filters
+{% endcomment %}
+{% if filter_dict %}
+    <h2>Filters</h2>
+    Each filter has an identifier that can be used in Advanced Search. The
+    identifiers for the filters at the top of this page are presented in
+    order:
+    {% for filter in filter_dict %}
+        <b>{{ filter.name }}</b>{% if forloop.last %}.{% else %}, {% endif %}
+    {% endfor %}
+    <h3>Examples</h3>
+    <h6>user:John</h6>
+    Search for the keyword "John" in the most prominent text fiels of the
+    <b>User</b> model.
+    <h6>user:John user:Doe</h6>
+    <h6>user:John Doe</h6>
+    <h6>user: John Doe</h6>
+    Search for the keywords "John" and "Doe" in the most prominent text fiels
+    of the <b>User</b> model and return the conjuction (logical AND) of
+    their results.
+    <h6>user:first_name=John last_name=Doe</h6>
+    Search for the keyword "John" in the <b>first_name</b> field of
+    <b>User</b> and "Doe" in the <b>last_name</b> field, and return the
+    conjuction of their results.
+    <h6>user:John Doe status:pending moderation,active vm:state=active ip:.27</h6>
+    Same as the second set of examples, but also limit the results by filtering
+    the users that:</br>
+    * have status "Pending Moderation" OR "Active"</br>
+    * have VMs whose status is Active</br>
+    * have IPs that contain the number ".27"</br>
+    </br>
+    Note 1: You can also experiment with Advanced Search by switching to and from Basic
+    Search.</br>
+    Note 2: For the time being, you can find more model field names by reading
+    the <b>models.py</b> files of Cyclades/Astakos.</br>
+{% endif %}
