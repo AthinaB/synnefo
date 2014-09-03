@@ -1045,10 +1045,10 @@ $(document).ready(function() {
 		e.preventDefault();
 		$(this).siblings('div').toggleClass('hidden');
 		if($(this).siblings('.advanced-search').hasClass('hidden')) {
-			$(this).text('Advanced Search');
+			$(this).text('Switch to Advanced Search');
 		}
 		else {
-			$(this).text('Basic Search');
+			$(this).text('Switch to Basic Search');
 			basicToAdvanced();
 		}
 		$(this).siblings('.filter:not(.hidden)').first().find('input').focus();
