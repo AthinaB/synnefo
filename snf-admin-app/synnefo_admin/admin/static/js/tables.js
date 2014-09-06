@@ -1045,10 +1045,10 @@ $(document).ready(function() {
 		e.preventDefault();
 		$(this).siblings('div').toggleClass('hidden');
 		if($(this).siblings('.advanced-search').hasClass('hidden')) {
-			$(this).text('Switch to Advanced Search');
+			$(this).text('Switch to Text View');
 		}
 		else {
-			$(this).text('Switch to Basic Search');
+			$(this).text('Switch to Category View');
 			basicToAdvanced();
 		}
 		$(this).siblings('.filter:not(.hidden)').first().find('input').focus();
@@ -1174,25 +1174,25 @@ $(document).ready(function() {
 	});
 
 	function showFilterError(wrongTerm) {
-		var msg;
-		$sign = $('.advanced-search').find('.filter-error');
-		if($sign.attr('title') === '') {
+		var msg, addition, prevMsg;
+		$errorDescr = $('.advanced-search').find('.error-description');
+		$errorSign = $('.advanced-search').find('.error-sign');
+		if($errorDescr.text() === '') {
 			msg = 'The term: "' + wrongTerm + '" is not valid.'
 		}
 		else {
-			var prevMsg = $sign.attr('title');
-			var addition =  ', "' + wrongTerm + '" are not valid.';
+			prevMsg = $errorDescr.text();
+			addition =  ', "' + wrongTerm + '" are not valid.';
 			msg = prevMsg.replace('term:', 'terms:');
 			msg = msg.replace(' are not valid.', addition);
 			msg = msg.replace(' is not valid.', addition);
 		}
-		$sign.attr('title', msg);
-		$sign.css('opacity', 1)
+		$errorDescr.text(msg);
+		$errorSign.css('opacity', 1)
 	}
 	function hideFilterError() {
-		$sign = $('.advanced-search').find('.filter-error');
-		$sign.attr('title', '');
-		$sign.css('opacity', 0)
+		$('.advanced-search').find('.error-sign').css('opacity', 0);
+		$('.advanced-search').find('.error-description').text('');
 	}
 
 	function advancedToBasic() {

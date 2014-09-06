@@ -115,14 +115,19 @@ $filter-height: 30px;
 		display: inline-block;
 		background: $filter-bg;
 		border: 1px solid $filter-border-color;
+		margin-bottom: 0.6em;
 	}
 	.error-sign {
 		display: block;
 		opacity: 0;
 		position: static;
 		display: inline-block;
-		margin-right: 18px;
-		margin-left: 6px;
+		margin-right: 6px;
+		margin-left: 6;
+		vertical-align: bottom;
+	}
+	.search-btn {
+		margin-right: 10px;
 	}
 	@media (max-width: $screen-lg-min) {
 		margin: 0 $filter-margin $filter-margin 0;
