@@ -1,5 +1,6 @@
 {% load admin_tags %}
 <div class="filters filters-area">
+	<a class="search-mode search-mode-btn">Compact View</a>
 	<!-- use it to center it (sort of) -->
 	{% for filter in filter_dict %}
 		{% include filter|get_filter_template %}

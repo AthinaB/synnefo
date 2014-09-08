@@ -1045,10 +1045,10 @@ $(document).ready(function() {
 		e.preventDefault();
 		$(this).siblings('div').toggleClass('hidden');
 		if($(this).siblings('.advanced-search').hasClass('hidden')) {
-			$(this).text('Switch to Text View');
+			$(this).text('Compact View');
 		}
 		else {
-			$(this).text('Switch to Category View');
+			$(this).text('Standard View');
 			basicToAdvanced();
 		}
 		$(this).siblings('.filter:not(.hidden)').first().find('input').focus();
@@ -1149,7 +1149,6 @@ $(document).ready(function() {
 			}
 			for(var prop in tempFilters) {
 				if(tempFilters[prop].trim().length === 0) {
-					console.log('empty value');
 					showFilterError(prop + ':' + tempFilters[prop])
 					delete tempFilters[prop];
 				}

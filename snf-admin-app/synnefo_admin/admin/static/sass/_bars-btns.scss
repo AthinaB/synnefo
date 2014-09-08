@@ -152,6 +152,7 @@ and light gray font colors
 	@include line-btn();
 	position: relative;
 	top: -2px;
+	margin-right: 10px;
 	span {
 		padding: 7px;
 	}
@@ -160,6 +161,9 @@ and light gray font colors
 .search-mode-btn {
 	float: right;
 	line-height: 30px;
+	&:hover {
+		cursor: pointer;
+	}
 }
 
 // ====== STUFF ====== //

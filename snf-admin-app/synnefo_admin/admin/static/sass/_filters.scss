@@ -126,9 +126,7 @@ $filter-height: 30px;
 		margin-left: 6;
 		vertical-align: bottom;
 	}
-	.search-btn {
-		margin-right: 10px;
-	}
+
 	@media (max-width: $screen-lg-min) {
 		margin: 0 $filter-margin $filter-margin 0;
 	}
