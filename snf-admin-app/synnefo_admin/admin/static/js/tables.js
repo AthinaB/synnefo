@@ -1189,44 +1189,65 @@ $(document).ready(function() {
 		}
 		$errorDescr.text(msg);
 		$errorSign.css('opacity', 1)
-	}
+	};
+
 	function hideFilterError() {
 		$('.advanced-search').find('.error-sign').css('opacity', 0);
 		$('.advanced-search').find('.error-description').text('');
-	}
+	};
+
+	function resetBasicFilters() {
+		$('.filters .filter-dropdown li:not(.reset)').each(function() {
+			if($(this).hasClass('active')) {
+				$(this).find('a').trigger('click');
+			}
+		});
+		$('.filters .filter-dropdown li.reset').each(function() {
+			if(!$(this).hasClass('active')) {
+				$(this).find('a').trigger('click');
+			}
+		});
+		$('.filters .filter-text').find('input').each(function() {
+			if($(this).val().length !== 0) {
+				$(this).val('');
+				$(this).trigger('keyup')
+			}
+		});
+	};
 
 	function advancedToBasic() {
 		console.log('advancedToBasic tempFilters:')
 		console.log(tempFilters);
-		var filters = tempFilters;
 		var $filters = $('.filters');
 		var $choicesLi;
 		var valuesL;
 		var validValues = [];
 		var valid = true;
-		if(_.isEmpty(filters)) {
+		if(_.isEmpty(tempFilters)) {
+			filters = {};
 			$(tableDomID).dataTable().api().ajax.reload();
 		}
 		else {
-			for(var prop in filters) {
+			resetBasicFilters();
+			for(var prop in tempFilters) {
 				if(prop !== 'unknown') {
 					if(filtersInfo[prop] === 'text'){
-						$filters.find('input[data-filter="' + prop + '"]').val(filters[prop]);
+						$filters.find('input[data-filter="' + prop + '"]').val(tempFilters[prop]);
 						$filters.find('input[data-filter="' + prop + '"]').trigger('keyup');
 					}
 					else { // choice-filters
 						// validation
 						$choicesLi = $filters.find('*[data-filter="' + prop + '"] .choices').find('li')
-						valuesL = filters[prop].length;
+						valuesL = tempFilters[prop].length;
 						$choicesLi.each(function() {
 							validValues.push($(this).text().toUpperCase());
 						});
 						for(var i=0; i<valuesL; i++) {
-							if(validValues.indexOf(filters[prop][i].toUpperCase()) === -1) {
+							if(validValues.indexOf(tempFilters[prop][i].toUpperCase()) === -1) {
 								valid = false;
 								//show message ***
-								showFilterError(prop + ': ' + filters[prop].toString());
-								console.log("Didn't use correct values for: " + prop + 'values: '+filters[prop].toString())
+								showFilterError(prop + ': ' + tempFilters[prop].toString());
+								console.log("Didn't use correct values for: " + prop + 'values: '+tempFilters[prop].toString())
 								break;
 							}
 							else {
@@ -1235,14 +1256,14 @@ $(document).ready(function() {
 						}
 						// execution
 						if(valid) {
-							$choicesLi.each(function() {
+						/*	$choicesLi.each(function() {
 								if($(this).hasClass('active')) {
 									$(this).find('a').trigger('click');
 								}
-							})
+							}) */
 							for(var i=0; i<valuesL; i++) { // for each filter
 								$choicesLi.each(function() {
-									if(filters[prop][i].toUpperCase() === $(this).text().toUpperCase()) {
+									if(tempFilters[prop][i].toUpperCase() === $(this).text().toUpperCase()) {
 										if(!$(this).hasClass('active'))	{
 											$(this).find('a').trigger('click');
 										}
