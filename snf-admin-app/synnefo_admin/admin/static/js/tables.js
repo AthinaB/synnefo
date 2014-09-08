@@ -180,7 +180,6 @@ $(document).ready(function() {
 	});
 	$('.notify').on('click', '.clear-reload', function(e) {
 		e.preventDefault();
-		console.log('hi')
 		resetAll(tableDomID);
 		$(tableDomID).dataTable().api().ajax.reload();
 
@@ -190,7 +189,7 @@ $(document).ready(function() {
 	function isSelected() {
 		var tableLength = table.rows()[0].length;
 		var selectedL = selected.items.length;
-		if(selectedL !== 0 && tableLength !== 0) { // ***
+		if(selectedL !== 0 && tableLength !== 0) {
 			var dataLength = table.row(0).data().length
 			var extraIndex = dataLength - 1;
 			for(var j = 0; j<tableLength; j++) { // index of rows start from zero
@@ -236,7 +235,7 @@ $(document).ready(function() {
 							var rowL = rowsArray.length;
 							var extraCol = rowsArray[0].length; //last column
 							for (var i=0; i<rowL; i++) {
-								rowsArray[i][extraCol] = response.extra[i] // ***
+								rowsArray[i][extraCol] = response.extra[i];
 							}
 						}
 						return response.aaData;
@@ -749,12 +748,12 @@ $(document).ready(function() {
 		var noError = true;
 		var itemsNum = $modal.find('tbody tr').length;
 		if(selected.items.length === 0) {
-			e.stopPropagation();
 			snf.modals.showError($modal, 'no-selected');
 			noError = false;
 		}
 		if($modal.attr('data-type') === 'contact') {
-			noError = snf.modals.validateContactForm($modal);
+			var validForm = snf.modals.validateContactForm($modal);
+			noError = noError && validForm;
 		}
 		if(!noError) {
 			e.preventDefault();
@@ -856,7 +855,7 @@ $(document).ready(function() {
 		}
 		$tableBody.append(htmlRows); // should change
 		$actionBtn.attr('data-ids','['+idsArray+']');
-		updateCounter($counter, idsArray.length); // ***
+		updateCounter($counter, idsArray.length);
 
 		if(idsArray.length >= maxVisible) {
 			$btn.css('display', 'block');
@@ -1215,8 +1214,6 @@ $(document).ready(function() {
 	};
 
 	function advancedToBasic() {
-		console.log('advancedToBasic tempFilters:')
-		console.log(tempFilters);
 		var $filters = $('.filters');
 		var $choicesLi;
 		var valuesL;
@@ -1244,9 +1241,7 @@ $(document).ready(function() {
 						for(var i=0; i<valuesL; i++) {
 							if(validValues.indexOf(tempFilters[prop][i].toUpperCase()) === -1) {
 								valid = false;
-								//show message ***
 								showFilterError(prop + ': ' + tempFilters[prop].toString());
-								console.log("Didn't use correct values for: " + prop + 'values: '+tempFilters[prop].toString())
 								break;
 							}
 							else {
@@ -1255,11 +1250,6 @@ $(document).ready(function() {
 						}
 						// execution
 						if(valid) {
-						/*	$choicesLi.each(function() {
-								if($(this).hasClass('active')) {
-									$(this).find('a').trigger('click');
-								}
-							}) */
 							for(var i=0; i<valuesL; i++) { // for each filter
 								$choicesLi.each(function() {
 									if(tempFilters[prop][i].toUpperCase() === $(this).text().toUpperCase()) {
