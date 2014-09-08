@@ -20,10 +20,10 @@
 			</tr>
 		</thead>
 	</table>
+	{% block table-footer %}
+		{% include "admin/table_footer.html" %}
+	{% endblock %}
 </div>
-{% block table-footer %}
-    {% include "admin/table_footer.html" %}
-{% endblock %}
 <div class="hidden massive-pull">
 	<table class="table total-list" id="total-list">
 		<thead>

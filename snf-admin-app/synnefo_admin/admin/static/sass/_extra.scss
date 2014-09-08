@@ -284,19 +284,56 @@ svg>text:last-child {
 		border-radius: 6px;
 	}
 }
+.filters-examples {
+	dt {
+		font-weight: normal;
+		margin-bottom: 0;
+	}
+	dd {
+		margin: 6px 0;
+		&.last {
+			margin-bottom: 10px;
+			padding-bottom: 10px;
+			border-bottom: 1px solid #dddddd;
+		}
+	}
+}
+
+.notes {
+	dt {
+		width: 50px;
+	}
+	dd {
+		margin-left: 60px;
+	}
+}
 
 .popover {
+	z-index: 1999;
 	max-width: none;
-    color: $popover-color;
+	color: $popover-color;
 	margin-bottom: 20px;
 	h2 {
 		text-align: center;
+		font-size: 1.3em;
+		font-weight: bold;
+		margin-top: 0;
+	}
+	h3 {
 		font-size: 1.2em;
+		font-weight: bold;
+	}
+	h4 {
+		font-size: 1.1em;
 		font-weight: bold;
 	}
 	dt {
 		margin-bottom: 8px;
 		overflow: visible;
+	}
+	.panel-default {
+		border-color: transparent;
+		box-shadow: none;
 	}
 }
 
@@ -356,4 +393,8 @@ svg>text:last-child {
     position: fixed;
     left: 10px;
     bottom: 10px;
+}
+
+.popover-content {
+	max-width: 800px;
 }
