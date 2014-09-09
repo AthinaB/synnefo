@@ -1039,18 +1039,19 @@ $(document).ready(function() {
 
 	textFilter('.filter-text');
 	dropdownSelect('.filters .filter-dropdown .dropdown');
+	var filtersHeightTotal = $('.filters').css('height');
+	$('.filters').css('min-height', filtersHeightTotal);
+	$('.search-mode input').click(function(e) {
+		e.stopPropagation();
+		var $visFilters = $(this).closest('.search-mode').siblings('.filter:not(invisible)');
+		var $invisFilters = $(this).closest('.search-mode').siblings('.filter.invisible');
 
-	$('.search-mode').click(function(e) {
-		e.preventDefault();
-		$(this).siblings('div').toggleClass('hidden');
-		if($(this).siblings('.advanced-search').hasClass('hidden')) {
-			$(this).text('Compact View');
-		}
-		else {
-			$(this).text('Standard View');
-			basicToAdvanced();
-		}
-		$(this).siblings('.filter:not(.hidden)').first().find('input').focus();
+		$visFilters.addClass('invisible').hide();
+		$invisFilters.fadeIn(650).css('display', 'inline-block');
+		$invisFilters.each(function() {
+			$(this).removeClass('invisible');
+		});
+		$(this).siblings('.filter:not(.invisible)').first().find('input').focus();
 	});
 
 	$('.filters .advanced-search').keyup(function(e) {

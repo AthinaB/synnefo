@@ -5047,7 +5047,7 @@ and light gray font colors
   color: #222222;
   position: relative;
   top: -2px;
-  margin-right: 10px; }
+  margin-left: 20px; }
   /* line 29, ../sass/_bars-btns.scss */
   .search-btn span {
     display: inline-block;
@@ -5287,6 +5287,95 @@ Extra-button is used to show total selected rows
   font-size: 18px;
   vertical-align: middle;
   cursor: pointer; }
+
+/* Switch in filters */
+/* line 302, ../sass/_bars-btns.scss */
+.onoffswitch {
+  display: inline-block;
+  float: right;
+  position: relative;
+  width: 134px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none; }
+
+/* line 311, ../sass/_bars-btns.scss */
+.onoffswitch-checkbox {
+  display: none; }
+
+/* line 314, ../sass/_bars-btns.scss */
+.onoffswitch-label {
+  display: block;
+  overflow: hidden;
+  cursor: pointer;
+  /*border: 2px solid #F7EFEF;*/
+  border-radius: 20px; }
+
+/* line 321, ../sass/_bars-btns.scss */
+.onoffswitch-inner {
+  display: block;
+  width: 200%;
+  margin-left: -100%;
+  -moz-transition: margin 0.3s ease-in 0s;
+  -webkit-transition: margin 0.3s ease-in 0s;
+  -o-transition: margin 0.3s ease-in 0s;
+  transition: margin 0.3s ease-in 0s; }
+
+/* line 328, ../sass/_bars-btns.scss */
+.onoffswitch-inner:before, .onoffswitch-inner:after {
+  display: block;
+  float: left;
+  width: 50%;
+  height: 30px;
+  padding: 0;
+  line-height: 30px;
+  font-size: 12px;
+  color: white;
+  font-family: Trebuchet, Arial, sans-serif;
+  font-weight: normal;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box; }
+
+/* line 341, ../sass/_bars-btns.scss */
+.onoffswitch-inner:before {
+  content: "Standard View";
+  padding-left: 10px;
+  background-color: #e0e0e0;
+  color: #222222; }
+
+/* line 347, ../sass/_bars-btns.scss */
+.onoffswitch-inner:after {
+  content: "Compact View";
+  padding-right: 10px;
+  background-color: #e0e0e0;
+  color: #222222;
+  text-align: right; }
+
+/* line 354, ../sass/_bars-btns.scss */
+.onoffswitch-switch {
+  display: block;
+  width: 19px;
+  margin: 6px;
+  background: #222222;
+  border: 2px solid #F7EFEF;
+  border-radius: 20px;
+  position: absolute;
+  top: 0;
+  bottom: 4px;
+  right: 103px;
+  -moz-transition: all 0.3s ease-in 0s;
+  -webkit-transition: all 0.3s ease-in 0s;
+  -o-transition: all 0.3s ease-in 0s;
+  transition: all 0.3s ease-in 0s; }
+
+/* line 370, ../sass/_bars-btns.scss */
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+  margin-left: 0; }
+
+/* line 373, ../sass/_bars-btns.scss */
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+  right: 0px; }
 
 @font-face {
   font-family: 'font-icons';
@@ -7375,6 +7464,10 @@ Extra-button is used to show total selected rows
     /* line 104, ../sass/_filters.scss */
     .input-with-btn {
       margin: 0 10px 10px 0; } }
+
+/* line 135, ../sass/_filters.scss */
+.filter.invisible {
+  display: none; }
 
 /* line 1, ../sass/_modals.scss */
 p.progress-area {
