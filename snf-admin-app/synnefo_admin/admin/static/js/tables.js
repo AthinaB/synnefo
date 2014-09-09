@@ -907,6 +907,10 @@ $(document).ready(function() {
 	var filters = {};
 	$('.filter:not(.hidden)').first().find('input').focus();
 
+	var filtersHeightTotal = $('.filters').css('height');
+	$('.filters').css('min-height', filtersHeightTotal);
+
+
 	function dropdownSelect(filterEl) {
 		var $dropdownList = $(filterEl).find('.choices');
 
@@ -1025,7 +1029,6 @@ $(document).ready(function() {
 				if (filters[key] === '') {
 					delete filters[key];
 				}
-			//	basicToAdvanced(key, value);
 				if(snf.timer === 0) {
 					snf.timer = 1;
 					setTimeout(function() {
@@ -1039,19 +1042,18 @@ $(document).ready(function() {
 
 	textFilter('.filter-text');
 	dropdownSelect('.filters .filter-dropdown .dropdown');
-	var filtersHeightTotal = $('.filters').css('height');
-	$('.filters').css('min-height', filtersHeightTotal);
+
 	$('.search-mode input').click(function(e) {
 		e.stopPropagation();
 		var $visFilters = $(this).closest('.search-mode').siblings('.filter:not(invisible)');
 		var $invisFilters = $(this).closest('.search-mode').siblings('.filter.invisible');
 
 		$visFilters.addClass('invisible').hide();
-		$invisFilters.fadeIn(650).css('display', 'inline-block');
+		$invisFilters.fadeIn(300).css('display', 'inline-block');
 		$invisFilters.each(function() {
 			$(this).removeClass('invisible');
 		});
-		$(this).siblings('.filter:not(.invisible)').first().find('input').focus();
+		$(this).closest('.search-mode').siblings('.filter:not(.invisible)').first().find('input').focus();
 	});
 
 	$('.filters .advanced-search').keyup(function(e) {
@@ -1062,17 +1064,21 @@ $(document).ready(function() {
 
 	var filtersInfo = {};
 	var tempFilters = {};
+	var filtersResetValue = {};
 
 	$('.filters').find('.filter:not(.advanced-search)').each(function(index) {
 		var key = $(this).find('*[data-filter]').attr('data-filter');
 		var type; // possible values: 'singe-choice', 'multi-choice', 'text'
+		var resetValue;
 		if($(this).find('*[data-filter]').hasClass('dropdown')) {
-			type = ($(this).closest('.filter-dropdown').hasClass('filter-boolean')? 'single-choice' : 'multi-choice')
+			type = ($(this).closest('.filter-dropdown').hasClass('filter-boolean')? 'single-choice' : 'multi-choice');
+			resetValue = $(this).find('li.reset').text().toUpperCase();
+			filtersResetValue[key] = resetValue;
 		}
 		else {
-			type = 'text'
+			type = 'text';
 		}
-		filtersInfo[key] = type
+		filtersInfo[key] = type;
 	});
 	function basicToAdvanced() {
 		var $advFilt = $('.filters').find('input[data-filter=advanced-search]');
@@ -1124,7 +1130,6 @@ $(document).ready(function() {
 				terms[i] = terms[i].trim();
 				for(var prop in filtersInfo) {
 					if(terms[i].substring(0, prop.length+1) === prop + ':') {
-						filterType = filtersInfo[prop];
 						key = prop;
 						value = terms[i].substring(prop.length + 1).trim();
 						isKey = true;
@@ -1160,6 +1165,7 @@ $(document).ready(function() {
 				for(var prop in filtersInfo) {
 					if(prop === filter && (filtersInfo[prop] === 'single-choice' || filtersInfo[prop] === 'multi-choice')) {
 						tempFilters[filter] = tempFilters[filter].replace(/\s*,\s*/g ,',').split(',');
+						checkValues(prop);
 						break;
 					}
 				}
@@ -1172,12 +1178,31 @@ $(document).ready(function() {
 	advancedToBasic();
 	});
 
+	function checkValues(key) {
+		var wrongTerm;
+		var isWrong = false;
+		var valuesUpperCased = $.map(tempFilters[key], function(item, index) {
+			return item.toUpperCase();
+		});
+		if(valuesUpperCased.indexOf(filtersResetValue[key])!==-1 && tempFilters[key].length>1) {
+			isWrong = true;
+		}
+		else if(filtersInfo[key] === 'single-choice' && tempFilters[key].length > 1) {
+			isWrong = true;
+		}
+		if(isWrong) {
+			wrongTerm = key + ': ' + tempFilters[key].toString();
+			showFilterError(wrongTerm);
+			delete tempFilters[key];
+		}
+	}
+
 	function showFilterError(wrongTerm) {
 		var msg, addition, prevMsg;
 		$errorDescr = $('.advanced-search').find('.error-description');
 		$errorSign = $('.advanced-search').find('.error-sign');
 		if($errorDescr.text() === '') {
-			msg = 'The term: "' + wrongTerm + '" is not valid.'
+			msg = 'Invalid input: "' + wrongTerm + '" is not valid.';
 		}
 		else {
 			prevMsg = $errorDescr.text();
