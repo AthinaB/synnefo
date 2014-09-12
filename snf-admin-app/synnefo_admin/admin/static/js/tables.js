@@ -907,9 +907,10 @@ $(document).ready(function() {
 	var filters = {};
 	$('.filter:not(.hidden)').first().find('input').focus();
 
-	var filtersHeightTotal = $('.filters').css('height');
-	$('.filters').css('min-height', filtersHeightTotal);
+	//var filtersHeightTotal = $('.filters').css('height');
+	$('.filters').css('min-height', '60px');
 
+	/* Standard View Functionality */
 
 	function dropdownSelect(filterEl) {
 		var $dropdownList = $(filterEl).find('.choices');
@@ -1043,6 +1044,9 @@ $(document).ready(function() {
 	textFilter('.filter-text');
 	dropdownSelect('.filters .filter-dropdown .dropdown');
 
+
+	/* Change Filters' View */
+
 	$('.search-mode input').click(function(e) {
 		e.stopPropagation();
 		var $visFilters = $(this).closest('.search-mode').siblings('.filter:not(invisible)');
@@ -1054,35 +1058,16 @@ $(document).ready(function() {
 			$(this).removeClass('invisible');
 		});
 		$(this).closest('.search-mode').siblings('.filter:not(.invisible)').first().find('input').focus();
-	});
-
-	$('.filters .advanced-search').keyup(function(e) {
-		if(e.which === 13) {
-			$('.exec-search').trigger('click');
+		if(!$('.compact-view').hasClass('invisible')) {
+			standardToCompact();
 		}
 	});
 
-	var filtersInfo = {};
-	var tempFilters = {};
-	var filtersResetValue = {};
-
-	$('.filters').find('.filter:not(.advanced-search)').each(function(index) {
-		var key = $(this).find('*[data-filter]').attr('data-filter');
-		var type; // possible values: 'singe-choice', 'multi-choice', 'text'
-		var resetValue;
-		if($(this).find('*[data-filter]').hasClass('dropdown')) {
-			type = ($(this).closest('.filter-dropdown').hasClass('filter-boolean')? 'single-choice' : 'multi-choice');
-			resetValue = $(this).find('li.reset').text().toUpperCase();
-			filtersResetValue[key] = resetValue;
-		}
-		else {
-			type = 'text';
-		}
-		filtersInfo[key] = type;
-	});
-	function basicToAdvanced() {
-		var $advFilt = $('.filters').find('input[data-filter=advanced-search]');
+	/* Tranfer the search terms of standard view to compact view */
+	function standardToCompact() {
+		var $advFilt = $('.filters').find('input[data-filter=compact-view]');
 		var updated = true;
+		hideFilterError();
 		$advFilt.val(filtersToString());
 	};
 
@@ -1112,6 +1097,38 @@ $(document).ready(function() {
 
 		return text;
 	};
+	/* Compact View Functionality */
+
+	$('.filters .compact-view').keyup(function(e) {
+		if(e.which === 13) {
+			$('.exec-search').trigger('click');
+		}
+	});
+
+	var filtersInfo = {};
+	var tempFilters = {};
+	var filtersResetValue = {};
+	var filtersValidValues = {};
+
+	/* Extract keys and values for filtersInfo, filtersResetValue, filtersValidValues the standard view */
+	$('.filters').find('.filter:not(.compact-view)').each(function(index) {
+		var key = $(this).find('*[data-filter]').attr('data-filter');
+		var type; // possible values: 'singe-choice', 'multi-choice', 'text'
+		var resetValue;
+		if($(this).find('*[data-filter]').hasClass('dropdown')) {
+			type = ($(this).closest('.filter-dropdown').hasClass('filter-boolean')? 'single-choice' : 'multi-choice');
+			resetValue = $(this).find('li.reset').text().toUpperCase();
+			filtersResetValue[key] = resetValue;
+			filtersValidValues[key] = [];
+			$(this).find('li:not(.divider)').each(function() {
+				filtersValidValues[key].push($(this).text().toUpperCase());
+			});
+		}
+		else {
+			type = 'text';
+		}
+		filtersInfo[key] = type;
+	});
 
 	$('.exec-search').click(function(e) {
 		e.preventDefault();
@@ -1129,7 +1146,7 @@ $(document).ready(function() {
 			for(var i=0; i<termsL; i++) {
 				terms[i] = terms[i].trim();
 				for(var prop in filtersInfo) {
-					if(terms[i].substring(0, prop.length+1) === prop + ':') {
+					if(terms[i].substring(0, prop.length+1).toUpperCase() === prop.toUpperCase() + ':') {
 						key = prop;
 						value = terms[i].substring(prop.length + 1).trim();
 						isKey = true;
@@ -1152,12 +1169,6 @@ $(document).ready(function() {
 				showFilterError(tempFilters['unknown'])
 				delete tempFilters['unknown'];
 			}
-			for(var prop in tempFilters) {
-				if(tempFilters[prop].trim().length === 0) {
-					showFilterError(prop + ':' + tempFilters[prop])
-					delete tempFilters[prop];
-				}
-			}
 		}
 
 		if(!_.isEmpty(tempFilters)) {
@@ -1165,44 +1176,108 @@ $(document).ready(function() {
 				for(var prop in filtersInfo) {
 					if(prop === filter && (filtersInfo[prop] === 'single-choice' || filtersInfo[prop] === 'multi-choice')) {
 						tempFilters[filter] = tempFilters[filter].replace(/\s*,\s*/g ,',').split(',');
-						checkValues(prop);
 						break;
 					}
 				}
 			}
 		}
-		else {
-			tempFilters = {};
-		}
-
-	advancedToBasic();
+		compactToStandard();
 	});
 
+	function compactToStandard() {
+		var $filters = $('.filters');
+		var $choicesLi;
+		var valuesL;
+		var validValues = [];
+		var valid = true;
+		if(_.isEmpty(tempFilters) && !_.isEmpty(filters)) {
+			filters = {};
+			$(tableDomID).dataTable().api().ajax.reload();
+		}
+		else {
+			for(var prop in tempFilters) {
+				//if(filtersInfo[prop] !== 'text') {
+				valid = checkValues(prop);
+				if(!valid) {
+					break;
+				}
+				// }
+			}
+		}
+		// execution
+		if(valid) {
+			resetBasicFilters();
+			execFiltering();
+		}
+	};
 	function checkValues(key) {
 		var wrongTerm;
 		var isWrong = false;
-		var valuesUpperCased = $.map(tempFilters[key], function(item, index) {
-			return item.toUpperCase();
-		});
-		if(valuesUpperCased.indexOf(filtersResetValue[key])!==-1 && tempFilters[key].length>1) {
-			isWrong = true;
+		if(filtersInfo[key] === 'text') {
+			if(tempFilters[key] === '') {
+				isWrong = true;
+			}
 		}
-		else if(filtersInfo[key] === 'single-choice' && tempFilters[key].length > 1) {
-			isWrong = true;
+		else if(!isWrong) {
+			var valuesUpperCased = $.map(tempFilters[key], function(item, index) {
+				return item.toUpperCase();
+			});
+			var valuesL = valuesUpperCased.length;
+			for(var i=0; i<valuesL; i++) {
+				if(filtersValidValues[key].indexOf(valuesUpperCased[i]) === -1) {
+					isWrong = true;
+					break;
+				}
+			}
+			if(!isWrong) {
+				if(valuesUpperCased.indexOf(filtersResetValue[key])!==-1 && tempFilters[key].length>1) {
+					isWrong = true;
+				}
+				else if(filtersInfo[key] === 'single-choice' && tempFilters[key].length > 1) {
+					isWrong = true;
+				}
+			}
 		}
 		if(isWrong) {
 			wrongTerm = key + ': ' + tempFilters[key].toString();
 			showFilterError(wrongTerm);
 			delete tempFilters[key];
 		}
-	}
+		return !isWrong;
+	};
+
+	function execFiltering() {
+		var $choicesLi, valuesL;
+		var $filters = $('.filters')
+		for(var prop in tempFilters) {
+			if(prop !== 'unknown') {
+				if(filtersInfo[prop] === 'text'){
+					$filters.find('input[data-filter="' + prop + '"]').val(tempFilters[prop]);
+					$filters.find('input[data-filter="' + prop + '"]').trigger('keyup');
+				}
+				else {
+					$choicesLi = $filters.find('*[data-filter="' + prop + '"] .choices').find('li');
+					valuesL = tempFilters[prop].length;
+					for(var i=0; i<valuesL; i++) { // for each filter
+						$choicesLi.each(function() {
+							if(tempFilters[prop][i].toUpperCase() === $(this).text().toUpperCase()) {
+								if(!$(this).hasClass('active'))	{
+									$(this).find('a').trigger('click');
+								}
+							}
+						});
+					}
+				}
+			}
+		}
+	};
 
 	function showFilterError(wrongTerm) {
 		var msg, addition, prevMsg;
-		$errorDescr = $('.advanced-search').find('.error-description');
-		$errorSign = $('.advanced-search').find('.error-sign');
+		$errorDescr = $('.compact-view').find('.error-description');
+		$errorSign = $('.compact-view').find('.error-sign');
 		if($errorDescr.text() === '') {
-			msg = 'Invalid input: "' + wrongTerm + '" is not valid.';
+			msg = 'Invalid search: "' + wrongTerm + '" is not valid.';
 		}
 		else {
 			prevMsg = $errorDescr.text();
@@ -1216,8 +1291,8 @@ $(document).ready(function() {
 	};
 
 	function hideFilterError() {
-		$('.advanced-search').find('.error-sign').css('opacity', 0);
-		$('.advanced-search').find('.error-description').text('');
+		$('.compact-view').find('.error-sign').css('opacity', 0);
+		$('.compact-view').find('.error-description').text('');
 	};
 
 	function resetBasicFilters() {
@@ -1239,56 +1314,6 @@ $(document).ready(function() {
 		});
 	};
 
-	function advancedToBasic() {
-		var $filters = $('.filters');
-		var $choicesLi;
-		var valuesL;
-		var validValues = [];
-		var valid = true;
-		if(_.isEmpty(tempFilters)) {
-			filters = {};
-			$(tableDomID).dataTable().api().ajax.reload();
-		}
-		else {
-			resetBasicFilters();
-			for(var prop in tempFilters) {
-				if(prop !== 'unknown') {
-					if(filtersInfo[prop] === 'text'){
-						$filters.find('input[data-filter="' + prop + '"]').val(tempFilters[prop]);
-						$filters.find('input[data-filter="' + prop + '"]').trigger('keyup');
-					}
-					else { // choice-filters
-						// validation
-						$choicesLi = $filters.find('*[data-filter="' + prop + '"] .choices').find('li')
-						valuesL = tempFilters[prop].length;
-						$choicesLi.each(function() {
-							validValues.push($(this).text().toUpperCase());
-						});
-						for(var i=0; i<valuesL; i++) {
-							if(validValues.indexOf(tempFilters[prop][i].toUpperCase()) === -1) {
-								valid = false;
-								showFilterError(prop + ': ' + tempFilters[prop].toString());
-								break;
-							}
-							else {
-								valid = true;
-							}
-						}
-						// execution
-						if(valid) {
-							for(var i=0; i<valuesL; i++) { // for each filter
-								$choicesLi.each(function() {
-									if(tempFilters[prop][i].toUpperCase() === $(this).text().toUpperCase()) {
-										if(!$(this).hasClass('active'))	{
-											$(this).find('a').trigger('click');
-										}
-									}
-								});
-							}
-						}
-					}
-				}
-			}
-		}
-	}
+
+
 });
