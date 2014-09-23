@@ -101,7 +101,7 @@ $filter-height: 30px;
 	top: $navbar-height;
 }
 
-.input-with-btn {
+.input-with-btn, {
 	border-width: 0px;
 	background-color: transparent;
 	input {
@@ -166,6 +166,33 @@ $filter-height: 30px;
 
 }
 
+body .filters .filter-mult-inputs {
+	.form-group {
+		& > * {
+			vertical-align: bottom;
+		}
+		padding: 3px 6px;
+	}
+	.date-type {
+		color: #303030;
+		margin-right: 5px;
+	}
+	input {
+		width: 75px;
+		padding: 0px;
+		height: 22px;
+		line-height: 22px;
+	}
+	label {
+		padding: 0px 8px;
+		border: 1px solid $filter-inner-border-color;
+		height: 22px;
+		line-height: 22px;
+		&:first-of-type {
+			margin-right: 10px;
+		}
+	}
+}
 .filter.invisible {
 	display: none;
 }

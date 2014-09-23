@@ -7520,7 +7520,33 @@ body .custom-buttons .extra-btn {
     .input-with-btn .instructions .clarifications {
       font-style: italic; }
 
-/* line 169, ../sass/_filters.scss */
+/* line 170, ../sass/_filters.scss */
+body .filters .filter-mult-inputs .form-group {
+  padding: 3px 6px; }
+  /* line 171, ../sass/_filters.scss */
+  body .filters .filter-mult-inputs .form-group > * {
+    vertical-align: bottom; }
+/* line 176, ../sass/_filters.scss */
+body .filters .filter-mult-inputs .date-type {
+  color: #303030;
+  margin-right: 5px; }
+/* line 180, ../sass/_filters.scss */
+body .filters .filter-mult-inputs input {
+  width: 75px;
+  padding: 0px;
+  height: 22px;
+  line-height: 22px; }
+/* line 186, ../sass/_filters.scss */
+body .filters .filter-mult-inputs label {
+  padding: 0px 8px;
+  border: 1px solid white;
+  height: 22px;
+  line-height: 22px; }
+  /* line 191, ../sass/_filters.scss */
+  body .filters .filter-mult-inputs label:first-of-type {
+    margin-right: 10px; }
+
+/* line 196, ../sass/_filters.scss */
 .filter.invisible {
   display: none; }
 

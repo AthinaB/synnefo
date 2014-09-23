@@ -1312,6 +1312,27 @@ $(document).ready(function() {
 		});
 	};
 
-
+	$('.filters .filter-date').each(function() {
+		var $from = $(this).find('.from');
+		var $to = $(this).find('.to');
+		var filterType = $from.attr('data-filter');
+		var selectedDates = [];
+		$from.datepicker({
+			dateFormat: "yy-mm-dd",
+			constrainInput: true,
+			onClose: function(selectedDate) {
+				console.log(selectedDate);
+			}
+		});
+		$to.datepicker({
+			dateFormat: "yy-mm-dd",
+			constrainInput: true,
+			onClose: function(selectedDate) {
+				console.log(selectedDate);
+			}
+		});
+		// function(input, date, onSelect, settings, pos)
+		//tt = $from.datepicker('dialog', undefined, this, undefined, [200, 200])
+	});
 
 });
