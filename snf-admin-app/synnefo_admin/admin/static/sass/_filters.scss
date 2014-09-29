@@ -4,22 +4,24 @@ $filter-height: 30px;
 
 .filters-area {
 	margin-bottom: $navbar-height - $filter-margin;
-}
-
-.filters {
+	margin-left: $sidebar-width + 30px;
+		@media (max-width: $screen-lg-min) {
+			margin: 0 $filter-margin $filter-margin 0;
+		}
+	&.no-margin-left {
+		margin-left: 0;
+	}
 	a:focus, input:focus {
 		outline: none;
 	}
-}
-
-.filters .badge {
-	margin-left: 6px;
-	opacity: 0.9;
-	padding: 2px 9px;
-}
-
-.filters ul.nav a {
-	padding-bottom: 10px;
+	.badge {
+		margin-left: 6px;
+		opacity: 0.9;
+		padding: 2px 9px;
+	}
+	ul.nav a {
+		padding-bottom: 10px;
+	}
 }
 
 .filter {
@@ -90,10 +92,6 @@ $filter-height: 30px;
     }
 }
 
-.filters.subnav-fixed {
-	top: $navbar-height;
-}
-
 .input-with-btn {
 	border-width: 0px;
 	background-color: transparent;
@@ -126,15 +124,6 @@ $filter-height: 30px;
 		margin-right: 6px;
 		margin-left: 6;
 		vertical-align: bottom;
-	}
-	.form-group, .filter-error, .instructions {
-		margin-left: $sidebar-width + 30px;
-		@media (max-width: $screen-lg-min) {
-			margin: 0 $filter-margin $filter-margin 0;
-		}
-	}
-	&.no-margin-left .form-group, &.no-margin-left .filter-error, &.no-margin-left .instructions {
-		margin-left: 0;
 	}
 
 	.instructions {

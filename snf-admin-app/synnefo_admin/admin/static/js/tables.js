@@ -8,7 +8,7 @@ $(document).ready(function() {
         sticker();
 	}
 	else {
-		$('.compact-view').addClass('no-margin-left');
+		$('.filters').addClass('no-margin-left');
 	}
 
 	var $lastClicked = null;
@@ -1028,16 +1028,19 @@ $(document).ready(function() {
 	var defaultFilters = [];
 	$('.filters .filter:not(.filters-list)').each(function() {
 		var show = false;
+		var filter;
 		if($(this).index('.filter-text') === 0 || $(this).index('.filter-text') === 1) {
 			show = true;
-			defaultFilters.push($(this).find('input').attr('data-filter'));
+			filter = $(this).find('input').attr('data-filter');
+			defaultFilters.push(filter);
 		}
 		else if($(this).index('.filter-dropdown') === 0 || $(this).index('.filter-dropdown') === 1) {
 			show = true;
-			defaultFilters.push($(this).find('.dropdown').attr('data-filter'));
+			filter = $(this).find('.dropdown').attr('data-filter');
+			defaultFilters.push(filter);
 		}
 		if(show) {
-			$(this).addClass('visible-filter');
+			showFilter(filter);
 		}
 	});
 
@@ -1088,59 +1091,44 @@ $(document).ready(function() {
 	$('.filters-list .dropdown').trigger('hide.bs.dropdown');
 
 	function showAllFilters() {
-		$('.filters .filter:not(.compact-view)').addClass('visible-filter');
+		$('.filters .filter:not(.compact-filter)').addClass('visible-filter selected');
 	};
 
 	function hideAllFilters() {
-		$('.filters .filter:not(.filters-list)').removeClass('visible-filter');
+		$('.filters .filter:not(.filters-list)').removeClass('visible-filter selected');
 	};
 
 	/* there is data-filter attribute in html */
 	function showFilter(attrFilter) {
-		$('.filters').find('[data-filter='+attrFilter+']').closest('.filter:not(.filters-list)').addClass('visible-filter');
+		$('.filters').find('[data-filter='+attrFilter+']').closest('.filter:not(.filters-list)').addClass('visible-filter selected');
 	};
 
 	function hideFilter(attrFilter) {
-		$('.filters').find('[data-filter='+attrFilter+']').closest('.filter:not(.filters-list)').removeClass('visible-filter');
+		$('.filters').find('[data-filter='+attrFilter+']').closest('.filter:not(.filters-list)').removeClass('visible-filter selected');
 	};
 
 	/* Change Filters' View */
 
 	$('.search-mode input').click(function(e) {
 		e.stopPropagation();
-		// $compactFilter = $('.compact-view');
-
-		// if($compactFilter.is(':visible')) {
-		// 	$('.filters .visible-filter').fadeIn(300);
-		// 	$compact
-		// }
-		// else {
-		// 	$compactFilter.addClass('visible-filter');
-		// 	$('.filters .visible-filter').fadeIn(300);
-		// }
-		// var $visFilters = $(this).closest('.search-mode').siblings('.filter:not(invisible)');
-		// var $invisFilters = $(this).closest('.search-mode').siblings('.filter.invisible');
-
-		// $visFilters.addClass('invisible').hide();
-		// if($invisFilters.hasClass('compact-view')) {
-		// 	$invisFilters.fadeIn(300).css('display', 'inline');
-		// }
-		// else {
-		// 	$invisFilters.fadeIn(300).css('display', 'inline-block');
-		// }
-		// $invisFilters.each(function() {
-		// 	$(this).removeClass('invisible');
-		// });
-		// $(this).closest('.search-mode').siblings('.filter:not(.invisible)').first().find('input').focus();
-		// if(!$('.compact-view').hasClass('invisible')) {
-		// 	standardToCompact();
-		// }
+		var $compact = $('.compact-filter');
+		var $standard = $('.filter.selected, .filters-list');
+		if($compact.is(':visible')) {
+			$compact.hide();
+			$standard.fadeIn(300).css('display','inline-block');
+			standardToCompact();
+		}
+		else {
+			$standard.hide();
+			$compact.fadeIn(300).css('display', 'inline');
+		}
 	});
 
+	// http://getbootstrap.com/javascript/#dropdowns on close function
 
 	/* Tranfer the search terms of standard view to compact view */
 	function standardToCompact() {
-		var $advFilt = $('.filters').find('input[data-filter=compact-view]');
+		var $advFilt = $('.filters').find('input[data-filter=compact]');
 		var updated = true;
 		hideFilterError();
 		$advFilt.val(filtersToString());
@@ -1174,7 +1162,7 @@ $(document).ready(function() {
 	};
 	/* Compact View Functionality */
 
-	$('.filters .compact-view').keyup(function(e) {
+	$('.filters .compact-filter input').keyup(function(e) {
 		if(e.which === 13) {
 			$('.exec-search').trigger('click');
 		}
@@ -1200,7 +1188,7 @@ $(document).ready(function() {
 	var filtersValidValues = {};
 
 	/* Extract keys and values for filtersInfo, filtersResetValue, filtersValidValues the standard view */
-	$('.filters').find('.filter:not(.compact-view)').each(function(index) {
+	$('.filters').find('.filter:not(.compact-filter)').each(function(index) {
 		var key = $(this).find('*[data-filter]').attr('data-filter');
 		var type; // possible values: 'singe-choice', 'multi-choice', 'text'
 		var resetValue;
@@ -1365,8 +1353,8 @@ $(document).ready(function() {
 
 	function showFilterError(wrongTerm) {
 		var msg, addition, prevMsg;
-		$errorDescr = $('.compact-view').find('.error-description');
-		$errorSign = $('.compact-view').find('.error-sign');
+		$errorDescr = $('.compact-filter').find('.error-description');
+		$errorSign = $('.compact-filter').find('.error-sign');
 		if($errorDescr.text() === '') {
 			msg = 'Invalid search: "' + wrongTerm + '" is not valid.';
 		}
@@ -1382,8 +1370,8 @@ $(document).ready(function() {
 	};
 
 	function hideFilterError() {
-		$('.compact-view').find('.error-sign').css('opacity', 0);
-		$('.compact-view').find('.error-description').text('');
+		$('.compact-filter').find('.error-sign').css('opacity', 0);
+		$('.compact-filter').find('.error-description').text('');
 	};
 
 	function resetBasicFilters() {
