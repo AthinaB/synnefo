@@ -42,31 +42,6 @@ $filter-height: 30px;
         background: transparent;
         font-weight: normal;
         margin: 0;
-    }
-    .dropdown-menu {
-        background: $filter-bg;
-        margin: 0;
-        > .active > a{
-            background: $filter-active-bg;
-        }
-        > li:hover >a {
-            background: $filter-hover-bg;
-            color: $filter-hover-color;
-        }
-    }
-    input {
-        border: 0 none;
-        background: transparent;
-        height: $filter-height;
-        line-height: $filter-height;
-        padding: 0 5px;
-        font-weight: normal;
-        color: $filter-font-color;
-    }
-}
-
-.filter-dropdown {
-	.dropdown {
 		&>a {
 			.selected-value {
 				margin-left: 4px;
@@ -84,17 +59,35 @@ $filter-height: 30px;
 		a {
 			color: $filter-font-color;
 		}
-		.dropdown-menu {
-			width: auto;
-			a {
-				span {
-					margin-right: 6px;
-				}
-				padding-left: 12px;
-				padding-right: 12px;
+    }
+    .dropdown-menu {
+        background: $filter-bg;
+        margin: 0;
+		width: auto;
+        > .active > a{
+            background: $filter-active-bg;
+        }
+        > li:hover >a {
+            background: $filter-hover-bg;
+            color: $filter-hover-color;
+        }
+		a {
+			span {
+				margin-right: 6px;
 			}
+			padding-left: 12px;
+			padding-right: 12px;
 		}
-	}
+    }
+    input {
+        border: 0 none;
+        background: transparent;
+        height: $filter-height;
+        line-height: $filter-height;
+        padding: 0 5px;
+        font-weight: normal;
+        color: $filter-font-color;
+    }
 }
 
 .filters.subnav-fixed {
@@ -104,6 +97,7 @@ $filter-height: 30px;
 .input-with-btn {
 	border-width: 0px;
 	background-color: transparent;
+	display: inline;
 	input {
 		@media screen and (min-width: 400px) {
 			width: 200px;
@@ -166,6 +160,6 @@ $filter-height: 30px;
 
 }
 
-.filter.invisible {
+.filter:not(.visible-filter) {
 	display: none;
 }

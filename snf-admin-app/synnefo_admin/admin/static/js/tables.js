@@ -1015,29 +1015,128 @@ $(document).ready(function() {
 	textFilter('.filter-text');
 	dropdownSelect('.filters .filter-dropdown .dropdown');
 
+	/* Choose which filters will be visible */
+	/* By default the 2 first input filters and the 2 first choice */
+	/* The default should be determined by server and to put the checked
+	 class[future ToDo] */
+
+	// 1. all invisible
+	// 2. find the 2 first inputs' labels, and the first choice
+	// 3. trigger click in the corresponding lis in .visible-filters
+	// 4. each click should display the filter, add checkbox-checked,
+	//    write their values in .visible-filters
+	var defaultFilters = [];
+	$('.filters .filter:not(.filters-list)').each(function() {
+		var show = false;
+		if($(this).index('.filter-text') === 0 || $(this).index('.filter-text') === 1) {
+			show = true;
+			defaultFilters.push($(this).find('input').attr('data-filter'));
+		}
+		else if($(this).index('.filter-dropdown') === 0 || $(this).index('.filter-dropdown') === 1) {
+			show = true;
+			defaultFilters.push($(this).find('.dropdown').attr('data-filter'));
+		}
+		if(show) {
+			$(this).addClass('visible-filter');
+		}
+	});
+
+	$('.filters-list .choices li').click(function(e) {
+		/* With this the dropdown won't close on click of a choice*/
+		e.stopPropagation();
+
+		if($(this).hasClass('reset') && $(this).find('span').hasClass('snf-checkbox-unchecked')) {
+			$(this).addClass('active');
+			$(this).find('span').toggleClass('snf-checkbox-unchecked snf-checkbox-checked');
+			$(this).siblings('li:not(.reset), li:not(.divider)').removeClass('active');
+			$(this).siblings('li:not(.reset), li:not(.divider)').find('.snf-checkbox-checked').removeClass('snf-checkbox-checked').addClass('snf-checkbox-unchecked');
+			showAllFilters();
+		}
+		else if(!$(this).hasClass('reset')) {
+			$(this).toggleClass('active');
+			$(this).find('span').toggleClass('snf-checkbox-unchecked snf-checkbox-checked');
+			if($(this).hasClass('active')) {
+				if($(this).siblings('.reset').hasClass('active')) {
+				$(this).siblings('.reset').removeClass('active');
+				$(this).siblings('.reset').find('span').removeClass('snf-checkbox-checked').addClass('snf-checkbox-unchecked');
+					hideAllFilters();
+				}
+				showFilter($(this).attr('data-filter'));
+			}
+			else {
+				hideFilter($(this).attr('data-filter'));
+			}
+		}
+	});
+
+	$('.filters-list .dropdown').on('hide.bs.dropdown', function() {
+		var selectedFilters = [];
+		$(this).find('.active').each(function() {
+			selectedFilters.push($(this).text());
+		});
+		$(this).closest('.filter').find('.selected-value').text(selectedFilters.toString().replace(/,/g, ', '));
+	});
+
+
+	(function checkDefaultFilters() {
+		var filtersNum = defaultFilters.length;
+		for(var i=0; i<filtersNum; i++) {
+			$('.filters-list').find('[data-filter='+defaultFilters[i]+']').trigger('click');
+		}
+	})();
+
+	$('.filters-list .dropdown').trigger('hide.bs.dropdown');
+
+	function showAllFilters() {
+		$('.filters .filter:not(.compact-view)').addClass('visible-filter');
+	};
+
+	function hideAllFilters() {
+		$('.filters .filter:not(.filters-list)').removeClass('visible-filter');
+	};
+
+	/* there is data-filter attribute in html */
+	function showFilter(attrFilter) {
+		$('.filters').find('[data-filter='+attrFilter+']').closest('.filter:not(.filters-list)').addClass('visible-filter');
+	};
+
+	function hideFilter(attrFilter) {
+		$('.filters').find('[data-filter='+attrFilter+']').closest('.filter:not(.filters-list)').removeClass('visible-filter');
+	};
 
 	/* Change Filters' View */
 
 	$('.search-mode input').click(function(e) {
 		e.stopPropagation();
-		var $visFilters = $(this).closest('.search-mode').siblings('.filter:not(invisible)');
-		var $invisFilters = $(this).closest('.search-mode').siblings('.filter.invisible');
+		// $compactFilter = $('.compact-view');
 
-		$visFilters.addClass('invisible').hide();
-		if($invisFilters.hasClass('compact-view')) {
-			$invisFilters.fadeIn(300).css('display', 'inline');
-		}
-		else {
-			$invisFilters.fadeIn(300).css('display', 'inline-block');
-		}
-		$invisFilters.each(function() {
-			$(this).removeClass('invisible');
-		});
-		$(this).closest('.search-mode').siblings('.filter:not(.invisible)').first().find('input').focus();
-		if(!$('.compact-view').hasClass('invisible')) {
-			standardToCompact();
-		}
+		// if($compactFilter.is(':visible')) {
+		// 	$('.filters .visible-filter').fadeIn(300);
+		// 	$compact
+		// }
+		// else {
+		// 	$compactFilter.addClass('visible-filter');
+		// 	$('.filters .visible-filter').fadeIn(300);
+		// }
+		// var $visFilters = $(this).closest('.search-mode').siblings('.filter:not(invisible)');
+		// var $invisFilters = $(this).closest('.search-mode').siblings('.filter.invisible');
+
+		// $visFilters.addClass('invisible').hide();
+		// if($invisFilters.hasClass('compact-view')) {
+		// 	$invisFilters.fadeIn(300).css('display', 'inline');
+		// }
+		// else {
+		// 	$invisFilters.fadeIn(300).css('display', 'inline-block');
+		// }
+		// $invisFilters.each(function() {
+		// 	$(this).removeClass('invisible');
+		// });
+		// $(this).closest('.search-mode').siblings('.filter:not(.invisible)').first().find('input').focus();
+		// if(!$('.compact-view').hasClass('invisible')) {
+		// 	standardToCompact();
+		// }
 	});
+
 
 	/* Tranfer the search terms of standard view to compact view */
 	function standardToCompact() {
