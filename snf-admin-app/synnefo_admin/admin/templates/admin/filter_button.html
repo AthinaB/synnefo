@@ -1,13 +1,13 @@
 {% load admin_tags %}
 <div class="filter filters-list visible-filter">
-	<div class="dropdown" data-filter="{{ filter.name }}">
+	<div class="dropdown">
 		<a class="" href="#" data-toggle="dropdown">
 			<span class="category">Filters:</span>
 			<span class="selected-value">All</span>
 			<span class="snf-angle-down arrow"></span>
 		</a>
 		<ul class="dropdown-menu choices">
-			<li class="active reset"><a href="#"><span class="selection-indicator snf-checkbox-checked"></span>All</a></li>
+			<li class="active reset" data-filter="all-filters"><a href="#"><span class="selection-indicator snf-checkbox-unchecked"></span>All</a></li>
 			<li class="divider"></li>
 			{% for filter in filter_dict %}
 			<li data-filter="{{ filter.name }}"><a href="#"><span class="selection-indicator snf-checkbox-unchecked"></span>{{ filter.label }}</a></li>

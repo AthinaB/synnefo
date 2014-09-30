@@ -1025,29 +1025,11 @@ $(document).ready(function() {
 	// 3. trigger click in the corresponding lis in .visible-filters
 	// 4. each click should display the filter, add checkbox-checked,
 	//    write their values in .visible-filters
-	var defaultFilters = [];
-	$('.filters .filter:not(.filters-list)').each(function() {
-		var show = false;
-		var filter;
-		if($(this).index('.filter-text') === 0 || $(this).index('.filter-text') === 1) {
-			show = true;
-			filter = $(this).find('input').attr('data-filter');
-			defaultFilters.push(filter);
-		}
-		else if($(this).index('.filter-dropdown') === 0 || $(this).index('.filter-dropdown') === 1) {
-			show = true;
-			filter = $(this).find('.dropdown').attr('data-filter');
-			defaultFilters.push(filter);
-		}
-		if(show) {
-			showFilter(filter);
-		}
-	});
 
+	var cookie_name = 'filters_'+ $('.table-items').attr('data-content');
 	$('.filters-list .choices li').click(function(e) {
 		/* With this the dropdown won't close on click of a choice*/
 		e.stopPropagation();
-
 		if($(this).hasClass('reset') && $(this).find('span').hasClass('snf-checkbox-unchecked')) {
 			$(this).addClass('active');
 			$(this).find('span').toggleClass('snf-checkbox-unchecked snf-checkbox-checked');
@@ -1073,12 +1055,52 @@ $(document).ready(function() {
 	});
 
 	$('.filters-list .dropdown').on('hide.bs.dropdown', function() {
-		var selectedFilters = [];
+		var selectedFiltersLabels = [];
+		var selectedFiltersNames = [];
 		$(this).find('.active').each(function() {
-			selectedFilters.push($(this).text());
+			selectedFiltersLabels.push($(this).text());
+			selectedFiltersNames.push($(this).attr('data-filter'));
 		});
-		$(this).closest('.filter').find('.selected-value').text(selectedFilters.toString().replace(/,/g, ', '));
+		$(this).closest('.filter').find('.selected-value').text(selectedFiltersLabels.toString().replace(/,/g, ', '));
+		$.cookie(cookie_name, selectedFiltersNames.toString());
+
 	});
+
+
+	var defaultFilters = [];
+	if($.cookie(cookie_name)) {
+		console.log('there is a cookie!');
+		var filters = $.cookie(cookie_name).split(',');
+		console.log(filters);
+		var filtersNum = filters.length;
+		for(var i=0; i<filtersNum; i++) {
+			$('.filters-list li[data-filter='+filters[i]+']').trigger('click');
+			if(i === filtersNum - 1) {
+				console.log('last!');
+				$('.filters-list .dropdown').trigger('hide.bs.dropdown');
+			}
+		}
+	}
+	else {
+		$('.filters .filter:not(.filters-list)').each(function() {
+			var show = false;
+			var filter;
+			if($(this).index('.filter-text') === 0 || $(this).index('.filter-text') === 1) {
+				show = true;
+				filter = $(this).find('input').attr('data-filter');
+				defaultFilters.push(filter);
+			}
+			else if($(this).index('.filter-dropdown') === 0 || $(this).index('.filter-dropdown') === 1) {
+				show = true;
+				filter = $(this).find('.dropdown').attr('data-filter');
+				defaultFilters.push(filter);
+			}
+			if(show) {
+				showFilter(filter);
+			}
+		});
+	}
+
 
 
 	(function checkDefaultFilters() {
@@ -1087,8 +1109,9 @@ $(document).ready(function() {
 			$('.filters-list').find('[data-filter='+defaultFilters[i]+']').trigger('click');
 		}
 	})();
-
-	$('.filters-list .dropdown').trigger('hide.bs.dropdown');
+	if(!$.cookie(cookie_name)) {
+		$('.filters-list .dropdown').trigger('hide.bs.dropdown');
+	}
 
 	function showAllFilters() {
 		$('.filters .filter:not(.compact-filter)').addClass('visible-filter selected');
