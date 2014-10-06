@@ -7,10 +7,10 @@
 			<span class="snf-angle-down arrow"></span>
 		</a>
 		<ul class="dropdown-menu choices">
-			<li class="active reset" data-filter="all-filters"><a href="#"><span class="selection-indicator snf-checkbox-unchecked"></span>All</a></li>
+			<li class="active reset" data-filter-name="all-filters"><a href="#"><span class="snf-checkbox-unchecked"></span><span class="snf-checkbox-checked"></span>All</a></li>
 			<li class="divider"></li>
 			{% for filter in filter_dict %}
-			<li data-filter="{{ filter.name }}"><a href="#"><span class="selection-indicator snf-checkbox-unchecked"></span>{{ filter.label }}</a></li>
+			<li data-filter-name="{{ filter.name }}"><a href="#"><span class="snf-checkbox-unchecked"></span><span class="snf-checkbox-checked"></span>{{ filter.label }}</a></li>
 			{% endfor %}
 		</ul>
 	</div>

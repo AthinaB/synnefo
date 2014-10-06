@@ -198,7 +198,7 @@ snf = {
 			toggleNotifications: '',
 			showTips: '',
 			trimedCell: '<span title="click to see"><span data-container="body" data-toggle="popover" data-placement="bottom" data-content="<%= data %>"><%= trimmedData %>...</span></span>',
-			checkboxCell: '<span class="snf-font-admin snf-checkbox-<%= state %> selection-indicator"></span><%= content %>',
+			checkboxCell: '<span class="snf-checkbox-unchecked selection-indicator select"></span><span class="snf-checkbox-checked selection-indicator select"></span><%= content %>',
 			summary: '<a title="Show summary" href="#" class="summary-expand expand-area"><span class="snf-font-admin snf-angle-down"></span></a><dl class="info-summary dl-horizontal"><%= list %></dl>',
 			summaryLine: '<dt><%= key %></dt><dd><%= value %></dd>',
 			detailsBtn: '<a title="Details" href="<%= url %>" class="details-link"><span class="snf-font-admin snf-search"></span></a>'
