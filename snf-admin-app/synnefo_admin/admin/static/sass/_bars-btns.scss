@@ -421,3 +421,11 @@ table.dataTable tbody tr:not(.selected) .snf-checkbox-checked {
 .show-hide-all:not(.open) .snf-font-arrow-up {
     display: none;
 }
+
+.instructions .line-btn.open .snf-angle-down {
+    display: none;
+}
+
+.instructions .line-btn:not(.open) .snf-angle-up {
+    display: none;
+}

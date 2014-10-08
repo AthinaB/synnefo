@@ -1,4 +1,5 @@
 snf = {
+	filters: {},
 	modals: {
 		performAction: function(modal, notificationArea, warningMsg, itemsCount, countAction) {
 			var $modal = $(modal);
