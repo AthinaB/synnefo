@@ -156,6 +156,11 @@ $filter-height: 30px;
 	display: none;
 }
 
+.visible-filter-fade, .visible-filter {
+	position: relative;
+	z-index: 1;
+}
+
 .visible-filter-fade {
 	-webkit-animation: fadein 0.5s; /* Safari, Chrome and Opera > 12.1 */
 	-moz-animation: fadein 0.5s; /* Firefox < 16 */
