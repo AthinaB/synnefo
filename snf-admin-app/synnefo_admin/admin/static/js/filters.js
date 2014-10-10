@@ -171,26 +171,22 @@ $(document).ready(function() {
 
 	function showSelections($filter) {
 		var selectedFilterstext = '';
+		var selectedFiltersLabels = [];
 
 		if($filter.hasClass('filters-list')) {
-			var selectedFiltersLabels = [];
 			var selectedFiltersNames = [];
 			$filter.find('.choices .active').each(function() {
 				selectedFiltersLabels.push($(this).text());
 				selectedFiltersNames.push($(this).attr('data-filter-name'));
 			});
-			selectedFilterstext = selectedFiltersLabels.toString().replace(/,/g, ', ');
 			$.cookie(cookie_name, selectedFiltersNames.toString());
 		}
 		else {
-			var key = $filter.attr('data-filter');
-			if(snf.filters[key]) {
-				selectedFilterstext = snf.filters[key].toString().replace(/,/g, ', ')
-			}
-			else {
-				selectedFilterstext = $filter.find('.choices .reset').text();
-			}
+			$filter.find('.choices .active').each(function() {
+				selectedFiltersLabels.push($(this).text());
+			});
 		}
+		selectedFilterstext = selectedFiltersLabels.toString().replace(/,/g, ', ');
 		$filter.find('.selected-value').text(selectedFilterstext);
 	};
 
@@ -208,8 +204,6 @@ $(document).ready(function() {
 				var show = false;
 				var filter;
 				if($(this).index('.filter:not(.filters-list)') === 0 || $(this).index('.filter:not(.filters-list)') === 1) {
-				console.log($(this), $(this).index())
-					// console.log($(this))
 					show = true;
 					filter = $(this).attr('data-filter');
 					defaultFilters.push(filter);
@@ -255,7 +249,6 @@ $(document).ready(function() {
 	/* there is data-filter attribute in html */
 	function showFilter(attrFilter) {
 		$('.filters').find('.filter[data-filter='+attrFilter+']').addClass('visible-filter selected');
-		//$('.filter-text.visible-filter').first().find('input').focus();
 	};
 
 	function hideFilter(attrFilter) {
@@ -420,6 +413,11 @@ $(document).ready(function() {
 					}
 				}
 			}
+			for(var prop in snf.filters) {
+				if(!_.has(tempFilters, prop)) {
+					delete snf.filters[prop]
+				}
+			}
 		}
 		compactToStandard();
 	});
@@ -450,8 +448,36 @@ $(document).ready(function() {
 		}
 		// execution
 		if(valid) {
-			resetStandardFilters();
+			resetStandardFiltersView();
 			triggerFiltering();
+		}
+	};
+
+	function triggerFiltering() {
+		var $choicesLi, valuesL;
+		var $filters = $('.filters')
+		for(var prop in tempFilters) {
+			if(prop !== 'unknown') {
+				$filters.find('.filter[data-filter="' + prop + '"]').addClass('selected');
+				if(filtersInfo[prop] === 'text'){
+					$filters.find('input[data-filter="' + prop + '"]').val(tempFilters[prop]);
+					$filters.find('input[data-filter="' + prop + '"]').trigger('keyup');
+				}
+				else {
+					$choicesLi = $filters.find('.filter[data-filter="' + prop + '"] .choices').find('li');
+					valuesL = tempFilters[prop].length;
+					for(var i=0; i<valuesL; i++) { // for each filter
+						$choicesLi.each(function() {
+							if(tempFilters[prop][i].toUpperCase() === $(this).text().toUpperCase()) {
+								if(!$(this).hasClass('active') || ($(this).hasClass('active')&& $(this).hasClass('reset')))	{
+									$(this).find('a').trigger('click');
+								}
+							}
+						});
+						showSelections($filters.find('.filter[data-filter="' + prop + '"]'));
+					}
+				}
+			}
 		}
 	};
 
@@ -491,34 +517,6 @@ $(document).ready(function() {
 		return !isWrong;
 	};
 
-	function triggerFiltering() {
-		var $choicesLi, valuesL;
-		var $filters = $('.filters')
-		for(var prop in tempFilters) {
-			if(prop !== 'unknown') {
-				$filters.find('.filter[data-filter="' + prop + '"]').addClass('selected');
-				if(filtersInfo[prop] === 'text'){
-					$filters.find('input[data-filter="' + prop + '"]').val(tempFilters[prop]);
-					$filters.find('input[data-filter="' + prop + '"]').trigger('keyup');
-				}
-				else {
-					$choicesLi = $filters.find('.filter[data-filter="' + prop + '"] .choices').find('li');
-					valuesL = tempFilters[prop].length;
-					for(var i=0; i<valuesL; i++) { // for each filter
-						$choicesLi.each(function() {
-							if(tempFilters[prop][i].toUpperCase() === $(this).text().toUpperCase()) {
-								if(!$(this).hasClass('active'))	{
-									$(this).find('a').trigger('click');
-								}
-							}
-						});
-						showSelections($filters.find('.filter[data-filter="' + prop + '"]'));
-					}
-				}
-			}
-		}
-	};
-
 	function showFilterError(wrongTerm) {
 		var msg, addition, prevMsg;
 		$errorDescr = $('.compact-filter').find('.error-description');
@@ -542,7 +540,7 @@ $(document).ready(function() {
 		$('.compact-filter').find('.error-description').text('');
 	};
 
-	function resetStandardFilters() {
+	function resetStandardFiltersView() {
 		$('.filters .filter-dropdown').each(function() {
 			$(this).find('li.reset').each(function() {
 				if(!$(this).hasClass('active')) {
@@ -560,7 +558,6 @@ $(document).ready(function() {
 		$('.filters .filter-text').find('input').each(function() {
 			if($(this).val().length !== 0) {
 				$(this).val('');
-				$(this).trigger('keyup')
 			}
 		});
 	};

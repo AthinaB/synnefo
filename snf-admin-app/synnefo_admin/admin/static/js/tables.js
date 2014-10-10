@@ -59,22 +59,18 @@ $(document).ready(function() {
 		"autoWidth": false,
 		"paging": true,
 		"searching": false,
-		// "stateSave": true,
+		"stateSave": true,
 		"processing": true,
 		"serverSide": serverside,
 		"ajax": {
 			"url": url,
 			"data": function(data, callback, settings) {
-
 				var prefix = 'sSearch_';
 
 				if(!_.isEmpty(snf.filters)) {
 					for (var prop in snf.filters) {
 						data[prefix+prop] = snf.filters[prop];
 					}
-				}
-				for(var prop in snf.filters) {
-					console.log(prop+' :'+ snf.filters[prop])
 				}
 			},
 			"dataSrc" : function(response) {
