@@ -1,11 +1,13 @@
 $(document).ready(function() {
 
-	var tableDomID = '#table-items-total';	
+	var tableDomID = '#table-items-total';
 
 	var filtersInfo = {}; // stores the type of each filter
 	var tempFilters = {}; // use for filtering from compact view
 	var filtersResetValue = {}; // the values are stored in upper case
 	var filtersValidValues = {}; // the values are stored in upper case
+	var enabledFilters = []; // visible filters on standard view
+	var cookie_name = 'filters_'+ $('.table-items').attr('data-content');
 
 	/* Extract type and valid keys and values for filtersInfo, filtersResetValue, filtersValidValues */
 	$('.filters').find('.filter').each(function(index) {
@@ -136,93 +138,87 @@ $(document).ready(function() {
 
 	/* Choose which filters will be visible */
 
+	/* Each click should display the filter, add it to enabledFilters array and add to the corresponding cookie */
 
-	// 1. all invisible
-	// 2. find the 2 first filters
-	// 3. trigger click in the corresponding lis in .visible-filters
-	// 4. each click should display the filter, add checkbox-checked,
-	//    write their values in .visible-filters
-
-	$('.filters-list .choices li').click(function(e) {
-		/* With this the dropdown won't close the user when clicks a choice */
-		e.stopPropagation();
-		if($(this).hasClass('reset') && $(this).find('span').hasClass('snf-checkbox-unchecked')) {
-			$(this).addClass('active');
-			$(this).siblings('li:not(.reset):not(.divider)').removeClass('active');
+	$('.filters-list').on('click', '.choices li a', function(e) {
+		var $li = $(this).closest('li');
+		if($li.hasClass('reset') && $li.find('span').hasClass('snf-checkbox-unchecked')) {
+			$li.addClass('active');
+			$li.siblings('li:not(.reset):not(.divider)').removeClass('active');
 			showAllFilters();
 		}
-		else if(!$(this).hasClass('reset')) {
-			$(this).toggleClass('active');
-			if($(this).hasClass('active')) {
-				if($(this).siblings('.reset').hasClass('active')) {
-				$(this).siblings('.reset').removeClass('active');
+		else if(!$li.hasClass('reset')) {
+			$li.toggleClass('active');
+			if($li.hasClass('active')) {
+				if($li.siblings('.reset').hasClass('active')) {
+				$li.siblings('.reset').removeClass('active');
 					hideAllFilters();
 				}
-				showFilter($(this).attr('data-filter-name'));
+				showFilter($li.attr('data-filter-name'));
 			}
 			else {
-				hideFilter($(this).attr('data-filter-name'));
+				hideFilter($li.attr('data-filter-name'));
 			}
 		}
 	});
+
+	/* show the selected values of a choice-filter */
 	$('.filters .filter .dropdown').on('hide.bs.dropdown', function() {
 		showSelections($(this).closest('.filter'));
+	});
+
+	/* Every time the list of available filters appears the proper li elements are checked */
+	$('.filters .filters-list #select-filters').on('shown.bs.popover', function() {
+		showSelectedFilters();
 	});
 
 	function showSelections($filter) {
 		var selectedFilterstext = '';
 		var selectedFiltersLabels = [];
-
-		if($filter.hasClass('filters-list')) {
-			var selectedFiltersNames = [];
-			$filter.find('.choices .active').each(function() {
-				selectedFiltersLabels.push($(this).text());
-				selectedFiltersNames.push($(this).attr('data-filter-name'));
-			});
-			$.cookie(cookie_name, selectedFiltersNames.toString());
-		}
-		else {
-			$filter.find('.choices .active').each(function() {
-				selectedFiltersLabels.push($(this).text());
-			});
-		}
+		$filter.find('.choices .active').each(function() {
+			selectedFiltersLabels.push($(this).text());
+		});
 		selectedFilterstext = selectedFiltersLabels.toString().replace(/,/g, ', ');
 		$filter.find('.selected-value').text(selectedFilterstext);
 	};
 
 	/* Display filters onload */
-	var cookie_name = 'filters_'+ $('.table-items').attr('data-content');
-
-
 	(function showFiltersOnLoad() {
-		var defaultFilters = [];
+		var enabledFiltersNum;
 		if($.cookie(cookie_name)) {
-			var defaultFilters = $.cookie(cookie_name).split(',');
+			enabledFilters = $.cookie(cookie_name).split(',');
+			enabledFiltersNum = enabledFilters.length;
+			if(enabledFilters[0] === 'all-filters') {
+				$('.filters .filter:not(.compact-filter)').addClass('visible-filter selected');
+			}
+			else {
+				for(var i=0; i<enabledFiltersNum; i++) {
+					$('.filters').find('.filter[data-filter='+enabledFilters[i]+']').addClass('visible-filter selected');
+				}
+			}
+
 		}
 		else {
+			/* by default the first 2 filters get enabled */
 			$('.filters .filter:not(.filters-list)').each(function() {
 				var show = false;
 				var filter;
 				if($(this).index('.filter:not(.filters-list)') === 0 || $(this).index('.filter:not(.filters-list)') === 1) {
 					show = true;
 					filter = $(this).attr('data-filter');
-					defaultFilters.push(filter);
 				}
 				if(show) {
 					showFilter(filter);
 				}
 			});
 		}
-		clickAndCloseFiltersList(defaultFilters);
 	})();
 
-	function clickAndCloseFiltersList(filtersNames) {
-		var filtersNum = filtersNames.length;
+	function showSelectedFilters() {
+		var filtersNum = enabledFilters.length;
+		$('.filters-list .choices li').removeClass('active');
 		for(var i=0; i<filtersNum; i++) {
-			$('.filters-list').find('[data-filter-name='+filtersNames[i]+']').trigger('click');
-			if(i === filtersNum - 1) {
-			}
-			showSelections($('.filters-list'));
+			$('.filters-list').find('[data-filter-name='+enabledFilters[i]+']').addClass('active');
 		}
 	};
 
@@ -231,29 +227,35 @@ $(document).ready(function() {
 	};
 
 	function resetFilterChoiceView($filter) {
-		var resetLabel = $filter.find('.reset').text(); 
-		$filter.find('.active').removeClass('active');	
-		$filter.find('.reset').addClass('active');	
-		$filter.find('.selected-value').text(resetLabel);	
+		var resetLabel = $filter.find('.reset').text();
+		$filter.find('.active').removeClass('active');
+		$filter.find('.reset').addClass('active');
+		$filter.find('.selected-value').text(resetLabel);
 	};
 
 	function showAllFilters() {
 		$('.filters .filter:not(.compact-filter)').addClass('visible-filter selected');
+		enabledFilters = [];
+		enabledFilters.push('all-filters');
+		$.cookie(cookie_name, enabledFilters.toString());
 	};
 
 	function hideAllFilters() {
 		$('.filters .filter:not(.filters-list)').attr('style', '');
 		$('.filters .filter:not(.filters-list)').removeClass('visible-filter visible-filter-fade selected');
+		enabledFilters = [];
+		$.cookie(cookie_name, '');
 	};
 
-	/* there is data-filter attribute in html */
 	function showFilter(attrFilter) {
 		$('.filters').find('.filter[data-filter='+attrFilter+']').addClass('visible-filter selected');
+		enabledFilters.push(attrFilter)
+		$.cookie(cookie_name, enabledFilters.toString());
 	};
 
 	function hideFilter(attrFilter) {
+		var index = enabledFilters.indexOf(attrFilter);
 		var $currentFilter = $('.filters').find('.filter[data-filter='+attrFilter+']');
-		$currentFilter.attr('style', '');
 		$currentFilter.removeClass('visible-filter visible-filter-fade selected');
 		if(filtersInfo[attrFilter] === 'text') {
 			resetFilterTextView($currentFilter);
@@ -264,6 +266,9 @@ $(document).ready(function() {
 			}
 
 		}
+		enabledFilters.splice(index, 1);
+		$.cookie(cookie_name, enabledFilters.toString());
+
 		delete snf.filters[attrFilter];
 		$(tableDomID).dataTable().api().ajax.reload();
 	};
@@ -278,12 +283,15 @@ $(document).ready(function() {
 			$compact.removeClass('visible-filter visible-filter-fade');
 			$standard.addClass('visible-filter-fade');
 			$standard.each(function() {
-				var filter = $(this).attr('data-filter');
-				var $filterOption = $('.filters .filters-list li[data-filter-name='+filter+']');
-				if(!$filterOption.hasClass('active')) {
-					$filterOption.trigger('click');
-					showSelections($filterOption.closest('.filter'));
-				}	
+				if(!$(this).hasClass('filters-list')) {
+					var filter = $(this).attr('data-filter');
+					var $filterOption = $('.filters .filters-list li[data-filter-name='+filter+']');
+
+					if(!$filterOption.hasClass('active')) {
+						$filterOption.trigger('click');
+						showSelections($filterOption.closest('.filter'));
+					}
+				}
 			});
 			$standard.each(function() {
 				if($(this).hasClass('filter-text') && $(this).hasClass('visible-filter-fade')) {
@@ -297,7 +305,7 @@ $(document).ready(function() {
 			$compact.addClass('visible-filter-fade');
 			standardToCompact();
 			$.cookie('search_mode', 'compact');
-			$('.compact-filter.visible-filter-fade').find('input').focus(); // i want it
+			$('.compact-filter.visible-filter-fade').find('input').focus();
 		}
 
 	});
@@ -415,7 +423,8 @@ $(document).ready(function() {
 			}
 			for(var prop in snf.filters) {
 				if(!_.has(tempFilters, prop)) {
-					delete snf.filters[prop]
+					delete snf.filters[prop];
+					$(tableDomID).dataTable().api().ajax.reload();
 				}
 			}
 		}
@@ -450,6 +459,7 @@ $(document).ready(function() {
 		if(valid) {
 			resetStandardFiltersView();
 			triggerFiltering();
+			showSelectedFilters();
 		}
 	};
 
@@ -459,6 +469,10 @@ $(document).ready(function() {
 		for(var prop in tempFilters) {
 			if(prop !== 'unknown') {
 				$filters.find('.filter[data-filter="' + prop + '"]').addClass('selected');
+				if(enabledFilters.indexOf('all-filters') === -1 && enabledFilters.indexOf(prop) === -1) {
+					enabledFilters.push(prop);
+					$.cookie(cookie_name, enabledFilters.toString());
+				}
 				if(filtersInfo[prop] === 'text'){
 					$filters.find('input[data-filter="' + prop + '"]').val(tempFilters[prop]);
 					$filters.find('input[data-filter="' + prop + '"]').trigger('keyup');
@@ -564,4 +578,14 @@ $(document).ready(function() {
 	$('.filter-text.visible-filter').first().find('input').focus();
 	$('.compact-filter.visible-filter-fade').find('input').focus();
 
+	var filtersListHTML = $('#select-filters').attr('popover-content');
+
+	$('#select-filters').popover({
+		trigger: 'click',
+		html: true,
+		content: filtersListHTML,
+		placement: 'bottom',
+	});
+
+	$('#select-filters').attr('title', $('#select-filters').attr('link-title'));
 });

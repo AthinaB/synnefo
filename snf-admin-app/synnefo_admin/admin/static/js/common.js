@@ -254,14 +254,17 @@ $(document).ready(function(){
 	$("[data-toggle=popover]").click(function(e) {
 		e.preventDefault();
 	});
+	$("#select-filters").click(function(e) {
+		e.preventDefault();
+	});
 	$("[data-toggle=popover]").popover();
 	$("[data-toggle=tooltip]").tooltip();
 
 	$('body').on('click', function (e) {
     //did not click a popover toggle or popover
-    if ($(e.target).data('toggle') !== 'popover'
-        && $(e.target).parents('.popover.in').length === 0) {
+    if ($(e.target).data('toggle') !== 'popover' && $(e.target).closest('a').attr('id') !== 'select-filters' && $(e.target).parents('.popover.in').length === 0) {
         $('[data-toggle="popover"]').popover('hide');
+        $('#select-filters').popover('hide');
     }
 });
 
@@ -319,5 +322,4 @@ $(document).ready(function(){
             e.preventDefault();
         }
     });
-
 });
