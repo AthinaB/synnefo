@@ -2,13 +2,20 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 	actions: {
+		/* when the server returns error and we want to handle it
+		 * we override the action: error
+		 */
 		error: function(error, transition) {
+			console.log('error', error)
 			switch(error.status) {
 				case 404:
 					this.render('errors/fourOhFour', {
+						//  we use "into" to keep the header with the nav
+						into: 'application',
 						model: error
 					});
 					break;
+				// should check how and what will handle 503 errors
 				case 503:
 					this.render('errors/fiveOhThree', {
 						model: error

@@ -1,2 +1,12 @@
-<h1>*{{model.status}}*</h1>
+<h1>*404*</h1>
 <p><b>ToDo:</b> this should be the same file that django uses.</p>
+{{#if model.responseJSON.itemNotFound}}
+	<dl>
+		<dt>Error code:</dt>
+		<dd>{{model.responseJSON.itemNotFound.code}}</dd>
+		<dt>Message:</dt>
+		<dd>{{model.responseJSON.itemNotFound.message}}</dd>
+		<dt>Details:</dt>
+		<dd>{{model.responseJSON.itemNotFound.details}}</dd>
+	</dl>
+{{/if}}
