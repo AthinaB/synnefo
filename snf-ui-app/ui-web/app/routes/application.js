@@ -2,17 +2,33 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 	actions: {
-		// when a user clicks a button that shows a modal, triggers the action showModal
-		// in the template:
-		// <a  {{action 'showModal' <dialogType> <controller> <model> <actionName>}}></a>
-		// if there is no specific action on click there is no need to add actionName
-		// dialogType is the name of the template in the folder dialogs
+		error: function(error, transition) {
+			switch(error.status) {
+				case 404:
+					this.render('errors/fourOhFour', {
+						model: error
+					});
+					break;
+				case 503:
+					this.render('errors/fiveOhThree', {
+						model: error
+					});
+					break;
+			}
+		},
+		/* when a user clicks a button that shows a modal, triggers the action showModal
+		 * in the template:
+		 * <a  {{action 'showModal' <dialogType> <controller> <model> <actionName>}}></a>
+		 * if there is no specific action on click there is no need to add actionName
+		 * dialogType is the name of the template in the folder dialogs
+		 */
 		showDialog: function(dialogType, controller, model, actionName) {
-			// actionToPerform is used in the dialog template:
-			// {{action actionToPerform}}
-			// actionToPerform is the name of the action
-			// that there is in the controller/route
 			if(actionName) {
+				/* actionToPerform is used in the dialog template:
+				 * {{action actionToPerform}}
+				 * actionToPerform is the name of the action
+				 * that there is in the controller/route
+				 */
 				controller.set('actionToPerform', actionName);
 			}
 
@@ -27,9 +43,9 @@ export default Ember.Route.extend({
 		removeDialog: function() {
 			// Disconnects a view that has been rendered into an outlet.
 			this.disconnectOutlet({
-        outlet: 'dialogs',
-        parentView: 'application'
-      });
+				outlet: 'dialogs',
+				parentView: 'application'
+			});
 		},
 		willTransition: function(transition) {
 			this.send('removeDialog');

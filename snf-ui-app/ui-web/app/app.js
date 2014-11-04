@@ -12,7 +12,8 @@ var App = Ember.Application.extend({
   modulePrefix: config.modulePrefix,
   podModulePrefix: config.podModulePrefix,
   Resolver: Resolver,
-  ApplicationStore: SynnefoStore
+  ApplicationStore: SynnefoStore,
+  LOG_TRANSITIONS: true
 });
 
 loadInitializers(App, config.modulePrefix);
