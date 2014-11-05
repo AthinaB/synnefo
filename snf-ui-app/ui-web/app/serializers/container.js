@@ -2,12 +2,14 @@ import DS from 'ember-data';
 
 export default DS.RESTSerializer.extend({
   extractArray: function(store, type, payload) {
+    console.log('extractArray')
     window.groups = payload.groups;
     var payload_list = payload;
     payload = { containers: payload_list};
     return this._super(store, type, payload);
   },
   extractSingle: function(store, type, payload, id) {
+    console.log('extractSingle')
     var object_ids = [];
     var object_list = payload;
 

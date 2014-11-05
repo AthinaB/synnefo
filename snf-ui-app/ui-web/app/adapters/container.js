@@ -87,10 +87,12 @@ export default DS.RESTAdapter.extend({
         }, function(jqXHR) {
           jqXHR.then = null; // tame jQuery's ill mannered promises
           Ember.run(null, reject, jqXHR);
+          console.log('*** 1 ***', reject, jqXHR)
         });
 
       }, function(jqXHR) {
         jqXHR.then = null; // tame jQuery's ill mannered promises
+        console.log('*** 2 ***', reject, jqXHR)
         Ember.run(null, reject, jqXHR);
       });
     });

@@ -30,7 +30,7 @@ export default Ember.ArrayController.extend({
       this.set('newProject', this.get('systemProject'));
       
       var onSuccess = function(container) {
-        console.log('onSuccess');
+        console.log('create container: onSuccess');
       };
       
       var onFail = function(reason){

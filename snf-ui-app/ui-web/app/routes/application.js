@@ -2,7 +2,8 @@ import Ember from 'ember';
 
 export default Ember.Route.extend({
 	actions: {
-		/* when the server returns error and we want to handle it
+		/*
+		 * when the server returns error and we want to handle it
 		 * we override the action: error
 		 */
 		error: function(error, transition) {
@@ -23,7 +24,19 @@ export default Ember.Route.extend({
 					break;
 			}
 		},
-		/* when a user clicks a button that shows a modal, triggers the action showModal
+		update: function(error, controller) {
+			console.log('update', error);
+			this.refresh();
+			this.render('dialogs/errors/fourOhFour', {
+				into: 'application',
+				outlet: 'errorDialogs',
+				// controller: controller,
+				model: error,
+				view: 'dialog',
+			});
+		},
+		/*
+		 * when a user clicks a button that shows a modal, triggers the action showModal
 		 * in the template:
 		 * <a  {{action 'showModal' <dialogType> <controller> <model> <actionName>}}></a>
 		 * if there is no specific action on click there is no need to add actionName

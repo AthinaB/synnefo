@@ -34,8 +34,16 @@ export default Ember.ObjectController.extend({
   actions: {
     deleteContainer: function(){
       var container = this.get('model');
-      container.deleteRecord();
-      container.save();
+      var self = this;
+      var onSuccess = function(container) {
+        console.log('deleteContainer: onSuccess');
+      };
+
+      var onFail = function(reason){
+        console.log('deleteContainer: onFail', reason);
+        self.send('update', reason)
+      };
+      container.destroyRecord().then(onSuccess, onFail)
     },
 
     emptyContainer: function(){
