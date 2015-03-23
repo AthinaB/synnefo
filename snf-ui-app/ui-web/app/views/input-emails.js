@@ -2,9 +2,12 @@ import Ember from 'ember';
 
 /*
  * In order this view to work its controller must have the properties:
- * TBA...
+ * 
+ * 
  * Also, must have the actions:
- * TBA...
+ * addUser
+ * 
+ * ToDo: All the above should be moved in order to create an independent component or make a mixin for every controller to extend.  
 */
 
 export default Ember.View.extend({
@@ -62,9 +65,8 @@ export default Ember.View.extend({
 
 	eventManager: Ember.Object.create({
 		keyUp: function(event, view) {
-
 			if(view.$('input').is(':focus')) {
-
+				console.log(view.get('controller').toString())
 				var value = view.$('input').val();
 				view.set('value', value);
 
@@ -111,6 +113,7 @@ export default Ember.View.extend({
 					// enter or space
 					else if(event.keyCode === 13 || event.keyCode === 32) {
 						var email = value;
+						// debugger;
 						view.set('value', '');
 						view.send('handleNewEmail', email);
 					}
@@ -131,12 +134,16 @@ export default Ember.View.extend({
 	actions: {
 
 		handleNewEmail: function(email) {
+			console.log('%c[handleNewEmail]', 'color:blue')
 			if(email.length !== 0) {
 				var isEmail = is.email(email);
 				if(isEmail) {
+				console.log('%c[handleNewEmail] send from view', 'color:blue')
 					this.get('controller').send('addUser', {email: email, status: 'loading'});
+					window.ho =  this.get('controller');
 				}
 				else {
+				console.log('%c[handleNewEmail] send from view', 'color:blue', this.get('controller').toString())
 					this.get('controller').send('addUser', {email: email, status: 'error', errorMsg: 'Not valid e-mail'});
 				}
 			}

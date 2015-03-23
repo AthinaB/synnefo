@@ -23,43 +23,44 @@ export default Ember.ArrayController.extend({
 	}.property('isUnique'),
 
 	areUsersValid: function() {
-		var allUsersValid = this.get('usersExtended').every(function(user, index) {
-			return user.get('status') === 'success';
-		});
-		if(this.get('usersExtended').get('length')) {
-			this.set('allUsersValid', allUsersValid);
-		}
-		else {
-			this.set('allUsersValid', false);
-		}
+		console.log('%c[GROUPS]', 'color:blue')
+		// var allUsersValid = this.get('usersExtended').every(function(user, index) {
+		// 	return user.get('status') === 'success';
+		// });
+		// if(this.get('usersExtended').get('length')) {
+		// 	this.set('allUsersValid', allUsersValid);
+		// }
+		// else {
+		// 	this.set('allUsersValid', false);
+		// }
 
 	}.observes('usersExtended.@each', 'usersExtended.@each.status'),
 
-	usersExtended: [],
-	allUsersValid: false,
-	resetInputs: false,
-	resetedInputs: 0,
-	completeReset: false,
+	// usersExtended: [],
+	// allUsersValid: false,
+	// resetInputs: false,
+	// resetedInputs: 0,
+	// completeReset: false,
 	checkReset: function() {
-		var inputsNum = 2;
-		var resetedInputsNum = this.get('resetedInputs');
-		if(inputsNum === resetedInputsNum) {
-			this.set('resetedInputs', 0);
-			this.set('completeReset', true);
-		}
-		else {
-			this.set('completeReset', false);
-		}
+		// var inputsNum = 2;
+		// var resetedInputsNum = this.get('resetedInputs');
+		// if(inputsNum === resetedInputsNum) {
+		// 	this.set('resetedInputs', 0);
+		// 	this.set('completeReset', true);
+		// }
+		// else {
+		// 	this.set('completeReset', false);
+		// }
 
 	}.observes('resetedInputs'),
 
 	freezeCreation: function() {
 
-		var isNameValid = this.get('isNameValid');
-		var allUsersValid = this.get('allUsersValid');
-		var cleanUserInput = this.get('cleanUserInput');
+		// var isNameValid = this.get('isNameValid');
+		// var allUsersValid = this.get('allUsersValid');
+		// var cleanUserInput = this.get('cleanUserInput');
 
-		return !(isNameValid && allUsersValid && cleanUserInput);
+		// return !(isNameValid && allUsersValid && cleanUserInput);
 	}.property('isNameValid', 'allUsersValid', 'cleanUserInput'),
 
 
@@ -82,96 +83,112 @@ export default Ember.ArrayController.extend({
 
 	actions: {
 		resetCreation: function() {
-			this.set('resetInputs', true);
-			this.set('usersExtended', []);
+			// this.set('resetInputs', true);
+			// this.set('usersExtended', []);
 		},
 		addUser: function(user) {
 
-			var usersExtended = this.get('usersExtended');
+			console.log('%c GROUPS', 'color:blue');
+			// var usersExtended = this.get('usersExtended');
 
-			if(usersExtended.filterBy('email', user.email).get('length') === 0) {
+			// if(usersExtended.filterBy('email', user.email).get('length') === 0) {
 
-				var userExtended = Ember.Object.create({
-					email: user.email,
-					status: user.status,
-					errorMsg: user.errorMsg,
-				});
+			// 	var userExtended = Ember.Object.create({
+			// 		email: user.email,
+			// 		status: user.status,
+			// 		errorMsg: user.errorMsg,
+			// 	});
 
-				this.get('usersExtended').pushObject(userExtended);
+			// 	this.get('usersExtended').pushObject(userExtended);
 
-				if(user.status !== 'error') {
-					this.send('findUser', user.email);
-				}
-			}
+			// 	if(user.status !== 'error') {
+			// 		this.send('findUser', user.email);
+			// 	}
+			// }
 		},
 
 		updateUser: function(email, data) {
+			console.log('%c GROUPS', 'color:blue');
 
-			for(var prop in data) {
-				this.get('usersExtended').findBy('email', email).set(prop, data[prop]);
-			}
+			// for(var prop in data) {
+			// 	this.get('usersExtended').findBy('email', email).set(prop, data[prop]);
+			// }
 
 		},
 
 		removeUser: function(email) {
+			console.log('%c GROUPS', 'color:blue');
 
-			var user = this.get('usersExtended').findBy('email', email);
+			// var user = this.get('usersExtended').findBy('email', email);
 
-			this.get('usersExtended').removeObject(user);
+			// this.get('usersExtended').removeObject(user);
 
 		},
 
 		findUser: function(email) {
+			console.log('%c GROUPS', 'color:blue');
 
-			var self = this;
-			var userEmail = 'email='+email;
+		// 	var self = this;
+		// 	var userEmail = 'email='+email;
 
-			this.store.find('user', userEmail).then(function(user) {
+		// 	this.store.find('user', userEmail).then(function(user) {
 
-				var userExtended = self.get('usersExtended').findBy('email', email);
+		// 		var userExtended = self.get('usersExtended').findBy('email', email);
 
-					if(userExtended) {
-						self.send('updateUser', email, {uuid: user.get('uuid'), status: 'success'});
-					}
-		},function(error) {
+		// 			if(userExtended) {
+		// 				self.send('updateUser', email, {uuid: user.get('uuid'), status: 'success'});
+		// 			}
+		// },function(error) {
 
-				var userExtended = self.get('usersExtended').findBy('email', email);
+		// 		var userExtended = self.get('usersExtended').findBy('email', email);
 
-					if(userExtended) {
-						self.send('updateUser', email, {uuid: undefined, status: 'error', 'errorMsg': 'Not found'});
-					}
-			});
+		// 			if(userExtended) {
+		// 				self.send('updateUser', email, {uuid: undefined, status: 'error', 'errorMsg': 'Not found'});
+		// 			}
+		// 	});
 		},
 
 		createGroup: function(){
+			console.log('%c[Create Group]', 'color:blue')
 
-			if(!this.get('freezeCreation')) {
+		// 	if(!this.get('freezeCreation')) {
 
-				var self = this;
-				var uuids = this.get('usersExtended').mapBy('uuid');
-				var name = this.get('newName');
-				var groupUsers = self.store.filter('user', function(user) {
-					var id = user.get('id');
-					if(uuids.indexOf(id) !== -1) {
-						return user;
-					}
-				});
+		// 		var self = this;
+		// 		var uuids = this.get('usersExtended').mapBy('uuid');
+		// 		console.log('%c[Create Group] [UUIDs]', 'color:blue', uuids)
+		// 		var name = this.get('newName');
+		// 		console.log('%c[Create Group] [NAME]', 'color:blue', name)
+		// 		var groupUsers = self.store.filter('user', function(user) {
+		// 			var id = user.get('id');
+		// 			if(uuids.indexOf(id) !== -1) {
+		// 				return user;
+		// 			}
+		// 		});
+		// 		console.log('%c[Create Group] [USERS]', 'color:blue', groupUsers)
 
-				var group = self.store.createRecord('group', {
-					name: name,
-					id: name
-				});
-
-				group.get('users').then(function(users){
-					users.pushObjects(groupUsers);
-					group.save().then(function(){
-						self.send('resetCreation');
-					}, function(error) {
-						self.send('showActionFail', error)
-						console.log('ERROR!')
-					});
-				});
-			}
+		// 		var group = self.store.createRecord('group', {
+		// 			name: name,
+		// 			id: name
+		// 		});
+		// 	console.log('%c[1 Create Group]', 'color:blue')
+		// 		// group.set, groupUsers);
+		// 		group.get('users').then(function(users){
+		// 		console.log('%c[2 Create Group]', 'color:blue', users.get('length'), groupUsers.get('length'))
+		// 		groupUsers.forEach(function(user) {
+		// 			users.pushObject(user)
+		// 		});
+		// 			// users.pushObjects(groupUsers);
+		// 		console.log('%c[3 Create Group]', 'color:blue')
+		// 			group.save().then(function(){
+		// 		console.log('%c[4 Create Group]', 'color:blue')
+		// 				self.send('resetCreation');
+		// 		console.log('%c[5 Create Group]', 'color:blue')
+		// 			}, function(error) {
+		// 				self.send('showActionFail', error)
+		// 				console.log('ERROR!')
+		// 			});
+		// 		});
+		// 	}
 		}
 	}
 });
