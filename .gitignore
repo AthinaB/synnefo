@@ -50,3 +50,6 @@ snf-deploy/files/root/.ssh
 snf-deploy/files/root/ddns
 *.egg
 *.tar.gz
+
+# node modules used for client side development
+node_modules/
