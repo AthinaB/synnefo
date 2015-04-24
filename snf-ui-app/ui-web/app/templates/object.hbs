@@ -5,7 +5,7 @@
     <div class="col name-col">
         {{#if new}}<span class="label alert">new</span>{{/if}}
         {{#if is_dir}}
-            {{#link-to 'objects' name}}
+            {{#link-to 'objects' encoded_name}}
                 {{fa-icon view.iconCls}}
                 <span class="js-name">
                     {{stripped_name}}

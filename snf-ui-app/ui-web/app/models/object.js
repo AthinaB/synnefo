@@ -49,6 +49,17 @@ export default DS.Model.extend({
     return !this.get('is_dir');
   }.property('is_dir'),
 
+  encoded_name: function() {
+    var name = this.get('name');
+    var parts = name.split('/');
+    if (name.indexOf('/') !== -1) {
+      return parts.map(function(part) {
+        return encodeURIComponent(part);
+      }).join('/');
+    }
+    return encodeURIComponent(this.get('name'));
+  }.property('name'),
+
   stripped_name: function(){
     return this.get('name').split('/').pop();
   }.property('name'),

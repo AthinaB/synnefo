@@ -40,7 +40,9 @@ export default Ember.Component.extend({
   current_path: function(){
     var arr = this.get('root').split('/');
     arr.shift();
-    return arr.join('/');
+    return arr.map(function(part) {
+      return encodeURIComponent(part);
+    }).join('/');
   }.property('root'),
 
   subdirs: function(){

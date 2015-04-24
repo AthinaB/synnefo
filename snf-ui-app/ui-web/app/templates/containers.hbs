@@ -18,7 +18,7 @@
 
             <div class="col name-col">
                 {{#if new}}<span class="label alert">new</span>{{/if}}
-                <h4>{{#link-to 'container' name}}{{name}}{{/link-to}}</h4>
+                <h4>{{#link-to 'container' encoded_name}}{{name}}{{/link-to}}</h4>
             </div>
             {{#if gridView}}
                 <dl>    

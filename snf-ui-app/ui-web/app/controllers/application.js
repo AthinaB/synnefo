@@ -26,8 +26,10 @@ export default Ember.Controller.extend(DropFileActionsMixin, SnfAddHandlerMixin,
     'handleDirClick': function(root, comp) {
       var container, path;
       root = root.split("/");
-      container = root[0];
-      path = root.splice(1).join("/");
+      container = encodeURIComponent(root[0]);
+      path = root.splice(1).map(function(part) {
+        return encodeURIComponent(part);
+      }).join("/");
       if (!path) {
         this.transitionToRoute("container", container);
       } else {

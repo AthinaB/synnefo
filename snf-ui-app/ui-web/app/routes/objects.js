@@ -4,7 +4,8 @@ import ResetScrollMixin from '../mixins/reset-scroll';
 export default Ember.Route.extend(ResetScrollMixin,{
   model: function(params){
     var containerID = this.modelFor('container').get('name');
-    var currentPath = params.current_path ? params.current_path : '/';
+
+    var currentPath = params.current_path ? decodeURIComponent(params.current_path) : '/';
     this.store.set('container_id', containerID);
     this.set('current_path', currentPath);
     var self = this;
@@ -98,7 +99,10 @@ export default Ember.Route.extend(ResetScrollMixin,{
   setupController: function(controller,model){
     controller.set('model', model);
     var containerID = this.modelFor('container').get('name');
+    // encoded_name is used for breadcrumb
+    var containerEncodedName = this.modelFor('container').get('encoded_name');
     controller.set('container_id', containerID);
+    controller.set('container_encoded_name', containerEncodedName);
     controller.set('current_path', this.get('current_path'));
   },
   actions: {
