@@ -3,6 +3,8 @@ import ResetScrollMixin from '../mixins/reset-scroll';
 
 export default Ember.Route.extend(ResetScrollMixin,{
   model: function(params){
+    console.log(params)
+    // debugger;
     return this.store.find('container', decodeURIComponent(params.container_encoded_name));
   },
   renderTemplate: function(){
