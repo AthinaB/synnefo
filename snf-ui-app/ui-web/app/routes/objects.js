@@ -4,8 +4,13 @@ import ResetScrollMixin from '../mixins/reset-scroll';
 export default Ember.Route.extend(ResetScrollMixin,{
   model: function(params){
     var containerID = this.modelFor('container').get('name');
-
-    var currentPath = params.current_path ? decodeURIComponent(params.current_path) : '/';
+    try {
+        var currentPath = params.current_path ? decodeURIComponent(params.current_path) : '/';
+    }
+    // for current_path tha has the "%" char
+    catch(error) {
+        var currentPath = params.current_path ? params.current_path : '/';
+    }
     this.store.set('container_id', containerID);
     this.set('current_path', currentPath);
     var self = this;

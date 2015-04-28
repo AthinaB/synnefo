@@ -29,7 +29,9 @@ export default Ember.Component.extend({
     while (path_arr.length>0) {
       var dir = {};
       dir.name = _.last(path_arr);
-      dir.path = path_arr.join('/');
+      dir.path = path_arr.map(function(part) {
+        return encodeURIComponent(part);
+      }).join('/');
       dir.current = false;
       dirs.addObject(dir);
       path_arr.pop();
