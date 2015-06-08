@@ -10,6 +10,10 @@ export default DS.Model.extend({
   path: DS.attr('string'),
   last_modified: DS.attr('date'),
 
+  encoded_name: function() {
+    return encodeURIComponent(this.get('name'));
+  }.property('name'),
+
   last_modified_human: function(){
     return timeHuman(this.get('last_modified'));
   }.property('last_modified'),

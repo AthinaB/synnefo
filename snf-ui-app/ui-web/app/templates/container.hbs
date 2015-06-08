@@ -6,7 +6,7 @@
         {{#if container.model.new}}<span class="label alert">new</span>{{/if}}
         {{#if listView}}
         <h4 data-tooltip class="ellipsis has-tip" title={{container.model.name}}>
-            {{#link-to 'container' container.model.name}}
+            {{#link-to 'container' container.model.encoded_name}}
                 {{fa-icon "fa-trash trash-icon"}}
                 <span>{{container.model.name}}</span>
                 {{fa-icon "fa-external-link"}}
@@ -14,7 +14,7 @@
         </h4>
         {{else}}
         <h4>
-            {{#link-to 'container' container.model.name}}
+            {{#link-to 'container' container.model.encoded_name}}
                 {{fa-icon "fa-trash trash-icon"}}
                 <span>{{container.model.name}}</span>
                 {{fa-icon "fa-external-link"}}
