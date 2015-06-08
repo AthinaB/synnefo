@@ -92,6 +92,7 @@ export default Ember.Route.extend(ResetScrollMixin,{
                 return objects;
                 });
             }
+            return objects;
         }
         // if there are items
         else {
