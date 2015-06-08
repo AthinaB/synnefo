@@ -7,6 +7,7 @@ export default Ember.Route.extend(ResetScrollMixin,{
     var currentPath = params.current_path ? params.current_path : '/';
     this.store.set('container_id', containerID);
     this.set('current_path', currentPath);
+    console.log('---_________________---', params, currentPath)
     var self = this;
 
     window.scrollTo(0,0);
@@ -34,6 +35,7 @@ export default Ember.Route.extend(ResetScrollMixin,{
                     path: parentPath, 
                     container_id:containerID
                   }).then(function(objList) {
+                    console.log(1)
                     var ObjListLength = objList.get('length');
                     var exists = false;
                     if(ObjListLength) {
@@ -49,6 +51,7 @@ export default Ember.Route.extend(ResetScrollMixin,{
                         // if parent dir has an object with path = current
                         if(exists) {
                             return objects;
+                        console.log(2)
                         }
                         else {
                             var error = {};
@@ -92,6 +95,7 @@ export default Ember.Route.extend(ResetScrollMixin,{
         }
         // if there are items
         else {
+            console.log('**')
             return objects;
         }
     });
@@ -102,6 +106,7 @@ export default Ember.Route.extend(ResetScrollMixin,{
     controller.set('container_id', containerID);
     controller.set('current_path', this.get('current_path'));
     controller.set('selectedItems', []);
+    console.log('***', containerID, this.get('current_path'))
   },
   actions: {
     refreshRoute: function(){

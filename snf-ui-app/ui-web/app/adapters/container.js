@@ -8,6 +8,7 @@ export default StorageAdapter.extend({
 
     if (id) { url = url + "/" + encodeURIComponent(id.replace(/^\//, '')); }
     url = url.replace(/([^:])\/\//g, "$1/");
+    console.log('%cOur build url:', 'color:red', url, id, snapshot)
     return url;
   },
 
@@ -30,6 +31,7 @@ export default StorageAdapter.extend({
     var parts, account;
 
     // Todo: Update the code below
+    console.log('%cOur Find:', 'color:red', id, snapshot)
     if (id && id.match("/")) {
       parts = id.split("/");
       id = parts[1];
