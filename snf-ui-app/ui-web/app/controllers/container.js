@@ -93,13 +93,20 @@ export default Ember.Controller.extend(ResolveSubDirsMixin,{
       var containersModel = this.get('containersModel');
       var onSuccess = function(container) {
         containersModel.removeObject(container);
-        console.log('deleteContainer: onSuccess');
+        console.log('%cdeleteContainer: onSuccess', 'color:blue');
       };
 
       var onFail = function(reason){
-        self.send('showErrorDialog', reason)
+        // self.send('showErrorDialog', reason)
+        console.log('%creject', 'color: blue')
+        // reject(reason)
       };
-      container.destroyRecord().then(onSuccess, onFail)
+
+      container.destroyRecord().then(onSuccess, function(reason){
+        // self.send('showErrorDialog', reason)
+        console.log('%creject', 'color: blue')
+        // reject(reason)
+      });
 
     },
 
@@ -123,7 +130,10 @@ export default Ember.Controller.extend(ResolveSubDirsMixin,{
         }
       };
       var onFail = function(reason){
-        self.send('showErrorDialog', reason)
+        debugger;
+        console.log('youhou!!!')
+        // reject(reason)
+        // self.send('showErrorDialog', reason)
       };
       this.store.emptyContainer('container', container).then(onSuccess, onFail);
     },

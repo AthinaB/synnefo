@@ -82,6 +82,7 @@ export default Ember.Route.extend(ErrorHandlingMixin, {
 		removeDialog: function(dialogType) {
 			// Disconnects a view that has been rendered into an outlet.
 			var outlet = undefined;
+      console.log('disconnect: ', dialogType)
 			if(dialogType) {
 				if(dialogType === 'feedback') {
 					outlet = 'feedback';
@@ -118,7 +119,8 @@ export default Ember.Route.extend(ErrorHandlingMixin, {
 			}
 		},
 		willTransition: function(transition) {
-			this.send('removeDialog');
+      console.log('**********')
+			// this.send('removeDialog');
 		},
 		sendFeedback: function(msg, data) {
 			var self = this;

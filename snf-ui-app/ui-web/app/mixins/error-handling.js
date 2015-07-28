@@ -13,6 +13,8 @@ export default Ember.Mixin.create({
 
     // Catches js errors
     Ember.onerror = function(error) {
+      console.log('1-To epiasa!', error)
+      console.log('2-To epiasa!', error.stack)
       if(error.stack) {
         if(!error.stack.includes('RSVP')) {
           console.error('[Ember.onerror] Error Report\n', error.message, error.stack);
@@ -25,6 +27,7 @@ export default Ember.Mixin.create({
     };
 
     Ember.RSVP.on('error', function(error) {
+      console.log('To epiasa!')
       console.error('[Ember.RSVP] Error Report\n', error.status, '\n', error);
       if(error.status == 0) {
         self.send('showErrorBox');
@@ -36,12 +39,13 @@ export default Ember.Mixin.create({
   },
 
 
-	actions: {
-		/*
-		 * when the server returns error and we want full page error msg
-		 * we override the action: error
-		 */
+  actions: {
+    /*
+     * when the server returns error and we want full page error msg
+     * we override the action: error
+     */
     error: function(error, transition) {
+      console.log('To epiasa!')
       console.log('error', error.stack || error);
       switch(error.status) {
         case 404: //not found
@@ -88,6 +92,7 @@ export default Ember.Mixin.create({
     },
 
 		showErrorDialog: function(error, controller) {
+      console.log('><')
 			var timestamp = new Date().toString();
 			var errors = this.get('errors');
 
@@ -127,6 +132,7 @@ export default Ember.Mixin.create({
 			}
 			errors.pushObject(error)
 			if(!this.get('errorDialogRendered')) {
+        console.log('*')
 				this.set('errorDialogRendered', true)
 				if(!controller) {
 					controller = 'feedback'

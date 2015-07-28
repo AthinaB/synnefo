@@ -95,7 +95,10 @@ export default Ember.View.extend({
 			else if(action === 'createDir' || action === 'renameObject') {
 				notTooLargePath = this.get('notTooLargePath');
 				validForm = notEmpty && noSlash && notTooLargeName && notTooLargePath;
-				if(!isModified) {
+        console.log(0)
+        if(!isModified) {
+          console.log(1)
+          console.log()
 					this.get('parentView').send('reset');
 				}
 				else if(validForm) {
@@ -121,7 +124,9 @@ export default Ember.View.extend({
 	}.observes('controller.isUnique'),
 
 	reset: function() {
-		if(this.get('controller').get('resetInput')) {
+    console.log(3)
+    if(this.get('controller').get('resetInput')) {
+      console.log(4)
 			this.set('errorVisible', false);
 			this.$('input').val(this.get('value'));
 			this.set('errorMsg', '');
