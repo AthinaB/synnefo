@@ -2,7 +2,7 @@ import Ember from 'ember';
 /*
 * For now this view is used for 3 things:
 *  - create container
-*  - create direcory
+*  - create directory
 *  - rename object
 * The above actions set or modify the ID of the record.
 * The view runs some validations for the input value but the controller
@@ -19,6 +19,7 @@ export default Ember.View.extend({
 
 	oldValue: undefined,
 	inputValue: function() {
+    console.log('%c[3] InputView: inputValue', 'color:green')
 		var value = this.$('input').val();
 		if(value) {
 			value = value.trim();
@@ -26,6 +27,7 @@ export default Ember.View.extend({
 		else {
 			value = '';
 		}
+    console.log('value', value)
 		return value;
 	}.property('controller.validationOnProgress'),
 
@@ -37,6 +39,7 @@ export default Ember.View.extend({
 	}.property('inputValue'),
 
 	noSlash: function() {
+    console.log('noSlash', this.get('inputValue').indexOf('/') === -1)
 		return this.get('inputValue').indexOf('/') === -1;
 	}.property('inputValue'),
 
@@ -73,8 +76,10 @@ export default Ember.View.extend({
 	*/
 
 	validateInput: function() {
-		var toValidate = this.get('controller').get('validationOnProgress');
-		if(toValidate) {
+    console.log(1)
+    var toValidate = this.get('controller').get('validationOnProgress');
+    if(toValidate) {
+      console.log(2)
 			var action = this.get('controller').get('actionToExec');
 			var validForm = false;
 			var notEmpty, noSlash, notTooLargeName, notTooLargePath;
@@ -96,36 +101,43 @@ export default Ember.View.extend({
 				notTooLargePath = this.get('notTooLargePath');
 				validForm = notEmpty && noSlash && notTooLargeName && notTooLargePath;
 				if(!isModified) {
-					this.get('parentView').send('reset');
-				}
-				else if(validForm) {
-					this.get('controller').set('newName', this.get('inputValue'));
-				}
-			}
-			if(!validForm && isModified) {
-				this.send('showError');
-			}
-		}
+          console.log('%cNot Modified', 'color:red')
+    			this.get('parentView').set('wait', false);
+          this.get('parentView').send('reset');
+        }
+        else if(validForm) {
+          this.get('controller').set('newName', this.get('inputValue'));
+        }
+      }
+      if(!validForm && isModified) {
+        this.send('showError');
+      }
+    }
 
-	}.observes('controller.validationOnProgress').on('init'),
+  }.observes('controller.validationOnProgress').on('init'),
 
-	completeValidations: function() {
-		var isUnique = this.get('controller').get('isUnique');
-		if(isUnique !== undefined) {
-			if(!isUnique) {
-				this.send('showError', 'notUnique');
-			}
-			this.get('controller').set('validInput', isUnique);
-			this.get('controller').set('validationOnProgress', false);
+  completeValidations: function() {
+    var isUnique = this.get('controller').get('isUnique');
+    if(isUnique !== undefined) {
+      if(!isUnique) {
+        this.send('showError', 'notUnique');
+      }
+      this.get('controller').set('validInput', isUnique);
+      this.get('controller').set('validationOnProgress', false);
+      // this.get('parentView').set('wait', false);
 		}
 	}.observes('controller.isUnique'),
 
 	reset: function() {
-		if(this.get('controller').get('resetInput')) {
+    console.log('input-single: reset 1!')
+    if(this.get('controller').get('resetInput')) {
+      console.log('input-single: reset 2!')
 			this.set('errorVisible', false);
 			this.$('input').val(this.get('value'));
 			this.set('errorMsg', '');
-			this.get('controller').set('resetInput', false);
+      this.get('controller').set('resetInput', false);
+			this.get('controller').set('validationOnProgress', false);
+      // this.get('parentView').set('wait', false)
 		}
 	}.observes('controller.resetInput'),
 

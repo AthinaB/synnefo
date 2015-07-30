@@ -171,6 +171,8 @@ export default Ember.Controller.extend({
 
 
   renameObject: function(){
+    console.log('%c[3] ObjController: validateRename', 'color:green')
+    console.log('%cvalidInput', 'color:green', this.get('validInput'))
     if(this.get('validInput')) {
       var oldPath = this.get('oldPath');
       var newID = this.get('newID');
@@ -231,8 +233,12 @@ export default Ember.Controller.extend({
     },
 
     validateRename: function(action) {
+      console.log('%c[2] ObjController: validateRename', 'color:green', this.get('validationOnProgress'))
       var flag = 'validationOnProgress';
       this.set('actionToExec', action);
+      if(this.get('validationOnProgress')) {
+        this.set('validationOnProgress', false)
+      }
       this.set(flag, true);
     },
 
@@ -241,4 +247,3 @@ export default Ember.Controller.extend({
     },
   }
 });
-
