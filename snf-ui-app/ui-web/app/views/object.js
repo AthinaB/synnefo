@@ -2,7 +2,7 @@ import Ember from 'ember';
 import {DropFileViewMixin} from 'ui-web/snf/dropfile/mixins';
 import {SnfAddHandlerMixin} from 'ui-web/snf/dropfile/synnefo';
 
-export default Ember.View.extend(DropFileViewMixin, SnfAddHandlerMixin, {
+export default Ember.View.extend({
 	layoutName: 'object',
 	tagName: 'li',
   classNameBindings: ['isSelected', 'loading', 'new'],
@@ -144,6 +144,10 @@ export default Ember.View.extend(DropFileViewMixin, SnfAddHandlerMixin, {
 	},
 
  //  wait: false,
+ willDestroyElement: function() {
+  this._super();
+  debugger;
+ },
 	actions: {
 		// reset: function(actions) {
 		// 	/*
@@ -188,8 +192,9 @@ export default Ember.View.extend(DropFileViewMixin, SnfAddHandlerMixin, {
       // Ember.run.debounce(this, tt, 2000, true);
     // },
     toggleEdit: function() {
-      console.log('toggleEdit')
-      this.$('.js-show-edit').toggleClass('hidden');
+      console.log('toggleEdit');
+      alert('toogle');
+       this.$('.js-show-edit').toggleClass('hidden');
       this.$('.js-input-single').toggleClass('hidden');
       this.$('.js-input-single').toggleClass('open');
       this.$('.js-hide-edit').toggleClass('hidden');

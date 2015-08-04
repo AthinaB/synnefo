@@ -138,6 +138,7 @@ didInsertElement: function() {
 		},
 	}),
 	reset: function() {
+    alert('b');
 		if(this.get('controller').get('resetInputs')) {
 			this.set('value', undefined);
 			this.set('warningVisible', false);

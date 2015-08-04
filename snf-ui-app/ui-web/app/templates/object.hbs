@@ -35,7 +35,7 @@
             </span>
         {{/if}}
         {{#if object.canRename}}
-            <form {{action 'reset' 'validateRename,renameObject' target=view on="submit"}}>
+            <form >
                 {{view "input-single" value=object.model.stripped_name placeholder=object.model.stripped_name cls="hidden" oldValue=object.model.stripped_name}}
                 <a class="hidden js-hide-edit icon-a snf-tooltip snf-tooltip-n" aria-label="Rename" {{action 'reset' 'validateRename,renameObject' target=view}}>{{fa-icon "fa-check fa-fw"}}</a>
                 <a class="js-cancel js-hide-edit hidden icon-a snf-tooltip snf-tooltip-n" aria-label="Cancel" {{action 'reset' target=view}}>{{fa-icon "fa-times fa-fw"}}</a>

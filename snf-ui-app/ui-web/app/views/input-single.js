@@ -123,14 +123,14 @@ export default Ember.View.extend({
   checkSlash: function() {
     var self = this;
     return function() {
-      debugger;
-      console.log(self.toString(), self.get('value'))
-      if(!self.get('errorVisible')) {
-        var hasSlash = self.get('value').indexOf('/') !== -1;
-        if(hasSlash) {
-          self.send('showInfo','hasSlash');
-        }
-      }
+      // debugger;
+      // console.log(self.toString(), self.get('value'))
+      // if(!self.get('errorVisible')) {
+      //   var hasSlash = self.get('value').indexOf('/') !== -1;
+      //   if(hasSlash) {
+      //     self.send('showInfo','hasSlash');
+      //   }
+      // }
     };
   }.property(),
 
@@ -150,6 +150,7 @@ export default Ember.View.extend({
 
 
   allowAction: function() {
+    alert('alloAcion');
     var self = this;
     return function () {
       if(self.get('isModified') && !self.get('errorVisible')) {
@@ -170,7 +171,7 @@ export default Ember.View.extend({
     keyUp: function(event, view) {
       var escKey = 27;
       // var enterKey =
-      event.stopPropagation();
+    //  event.stopPropagation();
       if(event.keyCode == escKey) {
         console.log('%cClose', 'color:green')
         $('body .close-reveal-modal').trigger('click');
@@ -181,20 +182,21 @@ export default Ember.View.extend({
 
       // }
       else {
-        view.send('hideInfo')
+       // view.send('hideInfo')
         var value = view.$('input').val();
-        view.set('value', value);
+        view.set('value', 'alue');
+
         if(view.get('notEmpty')) {
           // view.get('controller').set('notEmpty', true);
             console.log(view.get('value'), view.toString())
-            debugger;
-            view.get('checkSlash')();
-            view.get('adjustSize')();
-            view.get('isUnique')();
-            view.get('allowAction')();
+            //view.get('checkSlash')();
+          //  view.get('adjustSize')();
+          //  view.get('isUnique')();
+            //view.get('allowAction')();
           setTimeout(function() {
+        console.log(view, '$$$$$');
             console.log(view.get('value'), view.toString())
-            console.log(this.get('value'), this.toString())
+            // console.log(this.get('value'), this.toString())
             debugger;
           }, 300);
             /*
@@ -204,7 +206,7 @@ export default Ember.View.extend({
             */
         }
         else {
-          this.get('controller').set('allowAction', false);
+          view.get('controller').set('allowAction', false);
         }
       }
     }
@@ -212,6 +214,7 @@ export default Ember.View.extend({
 
   actions: {
     reset: function() {
+      alert('a');
     },
 
     hideInfo: function() {
