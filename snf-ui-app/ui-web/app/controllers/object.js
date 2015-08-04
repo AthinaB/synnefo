@@ -135,14 +135,15 @@ export default Ember.Controller.extend({
 
   newName: undefined,
   actionToExec: undefined,
-  isUnique: undefined,
+  // isUnique: undefined,
   oldPath: undefined,
   newID: undefined,
   isImg: function() {
     return this.get('model.type') === 'image';
   }.property('model.type'),
 
-  checkUnique: function() {
+  isUnique: function() {
+    console.log('%c objectController isUnique', 'color:blue')
     if(this.get('newName')) {
       var type = this.get('parentController').get('model').get('type');
 
@@ -165,40 +166,40 @@ export default Ember.Controller.extend({
 
       this.set('newID', newID);
       this.set('oldPath', oldPath)
-      this.set('isUnique', isUnique);
+      return isUnique;
     }
-  }.observes('newName'),
+  }.property('newName'),
 
 
-  renameObject: function(){
-    console.log('%c[3] ObjController: validateRename', 'color:green')
-    console.log('%cvalidInput', 'color:green', this.get('validInput'))
-    if(this.get('validInput')) {
-      var oldPath = this.get('oldPath');
-      var newID = this.get('newID');
-      var object = this.get('model');
-      var self = this;
-      var onSuccess = function() {
-        var parent = this.get("parentController");
-        parent && parent.get("model").update().then(function() {
-          object.unloadRecord();
-        });
-      }.bind(this);
+  // renameObject: function(){
+  //   console.log('%c[3] ObjController: validateRename', 'color:green')
+  //   console.log('%cvalidInput', 'color:green', this.get('validInput'))
+  //   if(this.get('validInput')) {
+  //     var oldPath = this.get('oldPath');
+  //     var newID = this.get('newID');
+  //     var object = this.get('model');
+  //     var self = this;
+  //     var onSuccess = function() {
+  //       var parent = this.get("parentController");
+  //       parent && parent.get("model").update().then(function() {
+  //         object.unloadRecord();
+  //       });
+  //     }.bind(this);
 
-      var onFail = function(reason){
-        self.send('showActionFail', reason);
-      };
+  //     var onFail = function(reason){
+  //       self.send('showActionFail', reason);
+  //     };
 
-      this.store.moveObject(object, newID).then(onSuccess, onFail);
+  //     this.store.moveObject(object, newID).then(onSuccess, onFail);
 
-      // reset
-      this.set('newName', undefined);
-      this.set('validInput', undefined);
-      this.set('isUnique', undefined);
-      this.set('oldPath', undefined);
-      this.set('newID', undefined)
-    }
-  }.observes('validInput'),
+  //     // reset
+  //     this.set('newName', undefined);
+  //     this.set('validInput', undefined);
+  //     // this.set('isUnique', undefined);
+  //     this.set('oldPath', undefined);
+  //     this.set('newID', undefined)
+  //   }
+  // }.observes('validInput'),
 
   actions: {
     initAction: function(action){
@@ -232,15 +233,15 @@ export default Ember.Controller.extend({
       this.set('closeDialog', true);
     },
 
-    validateRename: function(action) {
-      console.log('%c[2] ObjController: validateRename', 'color:green', this.get('validationOnProgress'))
-      var flag = 'validationOnProgress';
-      this.set('actionToExec', action);
-      if(this.get('validationOnProgress')) {
-        this.set('validationOnProgress', false)
-      }
-      this.set(flag, true);
-    },
+    // validateRename: function(action) {
+    //   console.log('%c[2] ObjController: validateRename', 'color:green', this.get('validationOnProgress'))
+    //   var flag = 'validationOnProgress';
+    //   this.set('actionToExec', action);
+    //   if(this.get('validationOnProgress')) {
+    //     this.set('validationOnProgress', false)
+    //   }
+    //   this.set(flag, true);
+    // },
 
     moveToTrash: function(){
       this.send('moveObjectsToTrash');

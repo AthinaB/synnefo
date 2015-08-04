@@ -101,12 +101,15 @@ export default Ember.View.extend({
 		};
 	}.property(),
 
+didInsertElement: function() {
+  console.log('%cDidInsert partial input', 'color:green')
+},
 
 	eventManager: Ember.Object.create({
 		keyUp: function(event, view) {
 			// when esc is preesed the parent dialog should close
 			var escKey = 27;
-			event.stopPropagation();
+			// event.stopPropagation();
 			if(event.keyCode == escKey) {
 				$('body .close-reveal-modal').trigger('click');
 			}
