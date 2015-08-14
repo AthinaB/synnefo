@@ -39,41 +39,25 @@ export default Ember.View.extend({
   templateName: 'input-single',
 
   oldValue: undefined,
-
-
-  // inputValue: function() {
-  //   console.log('%c[3] InputView: inputValue', 'color:green')
-  //   var value = this.$('input').val();
-  //   if(value) {
-  //     value = value.trim();
-  //   }
-  //   else {
-  //     value = '';
-  //   }
-  //   console.log('value', value)
-  //   return value;
-  // },
-
-  errorVisible: false,
+  inputValue: undefined,
 
   notEmpty: function() {
-    var value = this.get('value');
+    var value = this.get('inputValue');
     if(value) {
       value = value.trim();
     }
     else {
-      value = null;
+      value = '';
     }
-    console.log('[notEmpty]', value)
-    if(value === null) {
-      this.set('value', undefined);
-      return false;
-    }
-    else {
-      this.set('value', value);
+    this.set('inputValue', value);
+
+    if(value) {
       return true;
     }
-  }.property('value'),
+    else {
+      return false;
+    }
+  }.property('inputValue'),
 
 
   /* 
@@ -84,53 +68,93 @@ export default Ember.View.extend({
   */
   isModified: function() {
     var oldValue = this.get('oldValue');
-    if(oldValue && oldValue === this.get('value')) {
+    if(oldValue && oldValue === this.get('inputValue')) {
       return false;
     }
     else {
       return true;
     }
-  }.property('value'),
+  }.property('inputValue'),
 
   isLargeName: function() {
-    var charLimit = this.get('controller').get('nameMaxLength');
-    return this.get('value').length > charLimit;
-  }.property('value'),
+    var maxLength = this.get('controller').get('nameMaxLength');
+    return this.get('inputValue').length > maxLength;
+  }.property('inputValue'),
 
   // for objects actions (create, rename)
   isLargePath: function() {
-    var charLimit = this.get('controller').get('nameMaxLength');
+    var maxLength = this.get('controller').get('nameMaxLength');
     // current_path is a prop of ObjectsController
     var currentPath = this.get('controller').get('current_path') || this.get('controller').get('parentController').get('current_path');
-    var newPath = currentPath + this.get('value');
-    return (newPath.length + 1) > charLimit;
-  }.property('value'),
+    currentPath = currentPath + this.get('inputValue');
+    return currentPath.length > maxLength;
+  }.property('inputValue'),
 
-  adjustSize: function() {
+  overLimitChars: function() {
+    var maxLength = this.get('controller').get('nameMaxLength'),
+        inputLength, currentPath, pathLength;
+    if(this.get('isLargeName')) {
+      inputLength = this.get('inputValue').length;
+      return inputLength - maxLength;
+    }
+    else if(this.get('isLargePath')) {
+      // current_path is a prop of ObjectsController
+      currentPath = this.get('controller').get('current_path') || this.get('controller').get('parentController').get('current_path');
+      currentPath = currentPath + this.get('inputValue');
+
+      return currentPath.length - maxLength;
+
+    }
+    else {
+      return 0;
+    }
+
+  }.property('inputValue'),
+
+  manipulateSize: function() {
+
     var self = this;
     return function() {
-      if(!self.get('errorVisible')) {
+      var smallerValue, warningMsg = undefined;
+      if(self.get('controller').get('name_stripped') === 'containers') {
         if(self.get('isLargeName')) {
-          self.send('showInfo','largeName');
+            smallerValue = self.get('inputValue').slice(0, -(self.get('overLimitChars')));
+            self.$('input').val(smallerValue);
+            self.$('input').keyup();
+            warningMsg = 'isLarge';
         }
-        else if((self.get('controller').get('name') !== 'containers') && self.get('isLargePath')) {
-          self.send('showInfo','largePath');
+        if(!self.get('warningVisible') && warningMsg) {
+            self.send('showInfo', warningMsg);
         }
       }
+      else {
+        if(self.get('isLargeName') || self.get('isLargePath')) {
+            smallerValue = self.get('inputValue').slice(0, -(self.get('overLimitChars')));
+            self.$('input').val(smallerValue);
+            self.$('input').keyup();
+            warningMsg = 'isLarge';
+        }
+        if(!self.get('warningVisible') && warningMsg) {
+            self.send('showInfo', warningMsg);
+        }
+      }
+
     };
   }.property(), // like partial input but could check and path
 
   checkSlash: function() {
     var self = this;
     return function() {
-      // debugger;
-      // console.log(self.toString(), self.get('value'))
-      // if(!self.get('errorVisible')) {
-      //   var hasSlash = self.get('value').indexOf('/') !== -1;
-      //   if(hasSlash) {
-      //     self.send('showInfo','hasSlash');
-      //   }
-      // }
+      if(!self.get('errorVisible')) {
+        var hasSlash = self.get('inputValue').indexOf('/') !== -1;
+        if(hasSlash) {
+          self.send('showInfo', 'hasSlash', true);
+          self.set('validInput', false); // *** check if validInput is used!
+        }
+        else {
+          self.set('validInput', false);
+        }
+      }
     };
   }.property(),
 
@@ -138,11 +162,12 @@ export default Ember.View.extend({
     var self = this;
     return function() {
       if(!self.get('errorVisible')) {
-        self.get('controller').set('newName', self.get('value'));
+        self.get('controller').set('newName', self.get('inputValue'));
         var notUnique = !self.get('controller').get('isUnique');
         var isModified = self.get('isModified');
         if(isModified && notUnique) {
-          self.send('showInfo', 'notUnique');
+          self.set('validInput', false);
+          self.send('showInfo', 'notUnique', true);
         }
       }
     };
@@ -150,30 +175,48 @@ export default Ember.View.extend({
 
 
   allowAction: function() {
-    alert('alloAcion');
     var self = this;
     return function () {
-      if(self.get('isModified') && !self.get('errorVisible')) {
-        self.get('controller').set('allowAction', true);
+      if(self.get('controller').get('name_stripped') === 'containers') {
+        if(!self.get('errorVisible') && !self.get('isLargeName')) {
+          self.get('controller').set(self.get('actionFlag'), undefined); // undefined so that the html attr to be removed from a tags
+        }
+        else {
+        // This is used to disable the action btn in the rename
+        // form when the name is the same with the original
+        // (the one that exists in store
+        // NOT SURE IF THE USER WILL UNDERSTAND IT!
+        self.get('controller').set(self.get('actionFlag'), true);
+        }
+      }
+      else {
+        if(self.get('isModified') && !self.get('errorVisible') && !self.get('isLargeName') &&  !self.get('isLargePath')) {
+          self.get('controller').set(self.get('actionFlag'), undefined); // undefined so that the html attr to be removed from a tags
+        }
+        else {
+        // This is used to disable the action btn in the rename
+        // form when the name is the same with the original
+        // (the one that exists in store
+        // NOT SURE IF THE USER WILL UNDERSTAND IT!
+        self.get('controller').set(self.get('actionFlag'), true);
+        }
       }
     };
   }.property(),
 
-  didInsertElement: function() {
-    console.log('%cdidInsertElement', 'color:green', this.get('value'), this.toString())
-  },
+  errorVisible: false,
+  errorMsg: '',
+  warningVisible: false,
+  warningMsg: '',
 
-  spiounos: function() {
-    console.log('[spiounos]', this.get('value'))
-  }.observes('value'),
+  validInput: true, // is this used???? ***
 
   eventManager: Ember.Object.create({
     keyUp: function(event, view) {
       var escKey = 27;
       // var enterKey =
-    //  event.stopPropagation();
+     event.stopPropagation();
       if(event.keyCode == escKey) {
-        console.log('%cClose', 'color:green')
         $('body .close-reveal-modal').trigger('click');
         view.$().siblings('.js-cancel').trigger('click');
       }
@@ -182,23 +225,29 @@ export default Ember.View.extend({
 
       // }
       else {
-       // view.send('hideInfo')
+        /*
+         * should concern to disable the action button at the start
+         * and then after 300 check if the input is valid and enable/disable
+         * the action button. Do this in order to avoid to submit action before
+         * the examination of the input and the multiple instant submitions.
+         * (think double enter, click, click, click the button)
+         */
+        view.send('hideInfo', true);
         var value = view.$('input').val();
-        view.set('value', 'alue');
+        view.set('inputValue', value);
 
         if(view.get('notEmpty')) {
-          // view.get('controller').set('notEmpty', true);
-            console.log(view.get('value'), view.toString())
-            //view.get('checkSlash')();
-          //  view.get('adjustSize')();
-          //  view.get('isUnique')();
-            //view.get('allowAction')();
-          setTimeout(function() {
-        console.log(view, '$$$$$');
-            console.log(view.get('value'), view.toString())
-            // console.log(this.get('value'), this.toString())
-            debugger;
-          }, 300);
+            view.get('controller').set('notEmptyInput', true);
+            //Ember.run.debounce(view, function() {
+        console.log('%c[keyUp]', 'color:red')
+            console.log(view.get('value'))
+            view.get('checkSlash')();
+            //  if current_path === '/' -> I allow maxLength-1 [ToFix]
+            view.get('manipulateSize')();
+           view.get('isUnique')();
+            view.get('allowAction')();
+            console.log('%cAllow Action?', 'color:blue', view.get('controller').get(view.get('actionFlag')))
+          //}, 300);
             /*
             * Each function checks the trimmed value of the input only if
             * the function before it, hasn't detect an error. We do this
@@ -206,7 +255,7 @@ export default Ember.View.extend({
             */
         }
         else {
-          view.get('controller').set('allowAction', false);
+          view.get('controller').set(view.get('actionFlag'), undefined);
         }
       }
     }
@@ -217,28 +266,44 @@ export default Ember.View.extend({
       alert('a');
     },
 
-    hideInfo: function() {
-      this.set('errorVisible', false);
+    hideInfo: function(isError) {
+      if(isError) {
+        this.set('errorVisible', false);
+      }
+      else {
+        var self = this;
+        setTimeout(function() {
+          self.set('warningVisible', false);
+        }, 3000);
+      }
     },
 
-    showInfo: function(type) {
+    showInfo: function(type, isError) {
       /*
       * type can take the values:
       *  - hasSlash
-      *  - largePath
-      *  - largeName
+      *  - isLarge
       *  - notUnique
       */
 
-      var messages = {};
-      messages['hasSlash'] = '"/" is not allowed',
-      messages['largeName'] = 'Too large name. Max: ' + this.get('nameMaxLength') + ' bytes',
-      messages['largePath'] = 'Too large path. Max: ' + this.get('nameMaxLength') + ' bytes',
-      messages['notUnique'] = 'Already exists';
+      //  TEMP
+      var message = {
+        hasSlash: '"/" is not allowed',
+        isLarge: 'Too large name or path.Max: ' + this.get('controller').get('nameMaxLength') + ' bytes',
+        notUnique: 'Already exists'
+      };
 
-      this.get('controller').set('allowAction', false);
-      this.set('errorMsg', messages[type]);
-      this.set('errorVisible', true);
+      if(isError) {
+        console.log(type, message[type])
+        this.set('errorMsg', message[type]);
+        this.set('errorVisible', true);
+        this.get('controller').set(this.get('actionFlag'), false);
+      }
+      else {
+        this.set('warningMsg', message[type]);
+        this.set('warningVisible', true);
+        this.send('hideInfo');
+      }
     }
   },
 });
