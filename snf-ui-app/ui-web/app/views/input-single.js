@@ -239,20 +239,17 @@ export default Ember.View.extend({
         if(view.get('notEmpty')) {
             view.get('controller').set('notEmptyInput', true);
             //Ember.run.debounce(view, function() {
-        console.log('%c[keyUp]', 'color:red')
-            console.log(view.get('value'))
-            view.get('checkSlash')();
-            //  if current_path === '/' -> I allow maxLength-1 [ToFix]
-            view.get('manipulateSize')();
-           view.get('isUnique')();
-            view.get('allowAction')();
-            console.log('%cAllow Action?', 'color:blue', view.get('controller').get(view.get('actionFlag')))
-          //}, 300);
             /*
             * Each function checks the trimmed value of the input only if
             * the function before it, hasn't detect an error. We do this
-            * because we display one error at the time. 
+            * because we display one error at the time.
             */
+            view.get('checkSlash')();
+            //  if current_path === '/' -> I allow maxLength-1 [ToFix]
+            view.get('manipulateSize')();
+            view.get('isUnique')();
+            view.get('allowAction')();
+          //}, 300);
         }
         else {
           view.get('controller').set(view.get('actionFlag'), undefined);
@@ -294,7 +291,6 @@ export default Ember.View.extend({
       };
 
       if(isError) {
-        console.log(type, message[type])
         this.set('errorMsg', message[type]);
         this.set('errorVisible', true);
         this.get('controller').set(this.get('actionFlag'), false);

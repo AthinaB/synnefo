@@ -112,41 +112,47 @@ export default Ember.ArrayController.extend(ItemsControllerMixin, {
  * Pithos API allows the name of objects to have at most 1024 chars
  * When a new object is created the length of the name is checked
  */
-  nameMaxLength: 1024,
+  // nameMaxLength: 1024,
+  nameMaxLength: 10,
 
   validInput: undefined,
   validationOnProgress: undefined,
 
   newName: undefined,
   actionToExec: undefined, // needs to be set when input is used (for the view)
-  isUnique: undefined,
+  // isUnique: undefined,
   newID: undefined,
 
-  checkUnique: function() {
+  isUnique: function() {
+    console.log('%c objects isUnique', 'color:blue', this.get('newName'))
     if(this.get('newName')) {
 
-      // var temp = [];
-      // var name = this.get('newName');
-      // temp.push(this.get('container_id'));
+      var temp = [];
+      var name = this.get('newName');
+      temp.push(this.get('container_id'));
 
-      // if (this.get('hasUpPath')) {
-      //   temp.push(this.get('current_path'));
-      // }
-      // temp.push(name);
-      // var newID = temp.join('/');
+      if (this.get('hasUpPath')) {
+        temp.push(this.get('current_path'));
+      }
+      temp.push(name);
+      var newID = temp.join('/');
       
       
       // * hasRecordForId: Returns true if a record for a given type and ID
       // * is already loaded.
       // * In our case the id of a container it's its name.
       
-      // var isUnique = !this.get('store').hasRecordForId('object', newID);
-      // this.set('newID', newID);
-      // this.set('isUnique', isUnique);
+      var isUnique = !this.get('store').hasRecordForId('object', newID);
+      console.log('%cobjects isUnique', 'color:blue', isUnique, newID)
+      this.set('newID', newID);
+      return isUnique;
     }
-  }.observes('newName'),
+    else {
+      return true;
+    }
+  }.property('newName'),
 
-  createDir: function(){
+ // createDir: function(){
     // if(this.get('validInput')) {
    //    var self = this;
    //    var name = this.get('newName');
@@ -181,7 +187,7 @@ export default Ember.ArrayController.extend(ItemsControllerMixin, {
    //    this.set('newID', undefined);
 			// this.set('closeDialog', true);
     // }
-  }.observes('validInput'),
+  //}.observes('validInput'),
 
 
   // Checks if an object with a given id exists. If it does, it returns a new 
@@ -214,6 +220,8 @@ export default Ember.ArrayController.extend(ItemsControllerMixin, {
     } 
   }.observes('selectedItems.@each'),
 
+  freezeCreateDir: true,
+
   actions: {
     reset: function() {
 
@@ -224,11 +232,53 @@ export default Ember.ArrayController.extend(ItemsControllerMixin, {
       this.get('model').update();
     },
 
-    validateCreation: function(action) {
+    //validateCreation: function(action) {
       // var flag = 'validationOnProgress';
       // this.set('actionToExec', action);
       // this.set(flag, true);
-    },
+    //},
+
+
+    createDir: function(){
+      if(!this.get('freezeCreateDir')) {
+      var self = this;
+      var name = this.get('newName');
+      if (this.get('hasUpPath')) {
+        name = this.get('current_path') + '/' + name;
+      }
+      var id = this.get('newID');
+
+      var object = this.store.createRecord('object', {
+        id: id,
+        name: name,
+        content_type: 'application/directory',
+        modified_by: self.get('current_user'),
+        allowed_to: self.get('allowed_to')
+      });
+
+      var onSuccess = function(object) {
+        let model = self.get('model') || Ember.A();
+        model.pushObject(object);
+        tempSetProperty(object, 'new');
+      };
+
+      var onFail = function(reason){
+        console.log('onFail');
+        console.log(reason);
+      };
+
+      object.save().then(onSuccess, onFail);
+      this.set('newName', undefined);
+   //    this.set('validInput', undefined);
+   //    this.set('isUnique', undefined);
+      this.set('newID', undefined);
+      this.set('closeDialog', true);
+    }
+  },
+
+
+
+
 
     _move: function(next, newID, copyFlag, source_account, callback){
       console.log('%c!!!!', 'color:yellow')

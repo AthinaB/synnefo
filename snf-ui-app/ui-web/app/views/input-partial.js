@@ -159,11 +159,11 @@ didInsertElement: function() {
 			}
 		},
 		hideInfo: function(isError) {
-			var self = this;
-			if(isError) {
-					this.set('errorVisible', false);
-			}
-			else {
+      if(isError) {
+          this.set('errorVisible', false);
+      }
+      else {
+  			var self = this;
 				setTimeout(function() {
 					self.set('warningVisible', false);
 				}, 5000);
