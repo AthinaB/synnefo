@@ -107,32 +107,32 @@ export default Ember.View.extend({
 		return false;
 	}.property('controller.name'),
 
- //  hideRenameForm: function() {
- //    var self = this;
- //    // hide rename form on click outside input and buttons
- //    $(document).mouseup(function(e) {
- //      if(self.get('_state') === 'inDOM' && self.$('.js-input-single').hasClass('open')) {
- //        var $btnCancel = self.$('.js-cancel');
- //        var $btnOK = self.$('.js-hide-edit');
- //        var $input = self.$('input');
+  hideRenameForm: function() {
+    var self = this;
+    // hide rename form on click outside input and buttons
+    $(document).mouseup(function(e) {
+      if(self.get('_state') === 'inDOM' && self.$('.js-input-single').hasClass('open')) {
+        var $btnCancel = self.$('.js-cancel');
+        var $btnOK = self.$('.js-hide-edit');
+        var $input = self.$('input');
 
- //        var okNotPressed = !$btnOK.is(e.target) && ($btnOK.has(e.target).length === 0);
- //        var cancelNotPressed = !$btnCancel.is(e.target) && ($btnCancel.has(e.target).length === 0);
+        var okNotPressed = !$btnOK.is(e.target) && ($btnOK.has(e.target).length === 0);
+        var cancelNotPressed = !$btnCancel.is(e.target) && ($btnCancel.has(e.target).length === 0);
 
- //        if(cancelNotPressed && okNotPressed && !$input.is(e.target)) {
- //          self.send('reset');
- //        }
- //      }
- //    });
+        if(cancelNotPressed && okNotPressed && !$input.is(e.target)) {
+          self.send('reset');
+        }
+      }
+    });
 
- //    // hide on esc
- //    $(document).keyup(function(e) {
- //      if (self.get('_state') === 'inDOM' && e.keyCode == 27 && self.$('.js-input-single').hasClass('open')) {
- //        self.send('reset');
- //      }
- //    });
+    // hide on esc
+    $(document).keyup(function(e) {
+      if (self.get('_state') === 'inDOM' && e.keyCode == 27 && self.$('.js-input-single').hasClass('open')) {
+        self.send('reset');
+      }
+    });
 
- //  }.on('didInsertElement'),
+  }.on('didInsertElement'),
 
 	didInsertElement: function() {
 		var self = this;
@@ -143,64 +143,40 @@ export default Ember.View.extend({
 		this._super();
 	},
 
- //  wait: false,
- willDestroyElement: function() {
-  this._super();
-  debugger;
- },
+  wait: false,
 	actions: {
-		// reset: function(actions) {
-		// 	/*
-		// 	* actions is the action with params that should be triggered split by comma
-		// 	* action -> actions[0]
-		// 	* params -> actions[1]
-		// 	*/
+		reset: function(actions) {
+			/*
+			* actions is the action with params that should be triggered split by comma
+			* action -> actions[0]
+			* params -> actions[1]
+			*/
       
-  //     console.log('%c[1] ObjView: reset', 'color:green', actions)
-  //       if(!this.get('wait')) {
-  //         this.set('wait', true);
-  //         if(actions) {
-  //           var actions = actions.split(',');
-  //           this.get('controller').send(actions[0], actions[1])
-  //         }
-  //         else {
-  //           console.log('======')
-  //           this.$('input').val('');
-  //           this.send('toggleEdit');
-  //         }
-  //       } 
+      console.log('%c[1] ObjView: reset', 'color:green', actions)
+        if(!this.get('wait')) {
+          this.set('wait', true);
+          if(actions) {
+            var actions = actions.split(',');
+            this.get('controller').send(actions[0], actions[1])
+          }
+          else {
+            this.$('input').val(this.get('controller').get('model').get('stripped_name'));
+            this.send('toggleEdit');
+          }
+        } 
+      },
 
-
-      // this.set('tt', actions);
-      // function tt() {
-      //   var actions = 'tt';
-      //   console.log(this.toString(), 'reset', this.get('wait'), this.get(actions))
-      //   // if(!this.get('wait')) {
-      //   //   this.set('wait', true);
-      //     if(this.get(actions)) {
-      //       var actions = this.get(actions).split(',');
-      //       this.get('controller').send(actions[0], actions[1])
-      //     }
-      //     else {
-      //       console.log('======')
-      //       this.$('input').val('');
-      //       this.send('toggleEdit');
-      //     }
-        // }       
-      // }
-
-      // Ember.run.debounce(this, tt, 2000, true);
-    // },
     toggleEdit: function() {
       console.log('toggleEdit');
+      // debugger;
        this.$('.js-show-edit').toggleClass('hidden');
       this.$('.js-input-single').toggleClass('hidden');
       this.$('.js-input-single').toggleClass('open');
       this.$('.js-hide-edit').toggleClass('hidden');
       this.$('.js-name').toggleClass('hidden');
       this.$(".input-with-valid").find('input')[0].focus();
-      // this.get('controller').set('resetInput', true);
-      // this.set('wait', false);
+      this.get('controller').set('resetInput', true);
+      this.set('wait', false);
 		}
 	}
 });

@@ -252,16 +252,22 @@ export default Ember.View.extend({
           //}, 300);
         }
         else {
-          view.get('controller').set(view.get('actionFlag'), undefined);
+          console.log('=======>>>', view.get('actionFlag'))
+          view.get('controller').set(view.get('actionFlag'), true);
         }
       }
     }
   }),
 
+  hideInfoOnReset: function() {
+    if(this.get('controller').get('resetInput')) {
+      this.send('hideInfo', true);
+      this.send('hideInfo');
+      this.get('controller').set('resetInput', false)
+    }
+  }.observes('controller.resetInput'),
+
   actions: {
-    reset: function() {
-      alert('a');
-    },
 
     hideInfo: function(isError) {
       if(isError) {
