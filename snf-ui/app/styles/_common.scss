@@ -1,0 +1,196 @@
+$cloudbar-height: rem-calc(35px);
+
+body {
+    background: url("../assets/images/fabric_of_squares_gray.png");
+    label {
+        color: #222;
+    }
+
+    &.cloudbar-active {
+        .cloudbar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: $cloudbar-height;
+            background: $jet;
+            .services a:hover {
+                color: inherit;
+            }
+            .profile {
+                background: darken($theme-header-background, 8%);
+                ul li a:hover  {
+                    color: $theme-anchor-font-color;
+                }
+            }
+        }
+        .app .header { top: $cloudbar-height; }
+        .top-bar {
+            top: $header-height + $cloudbar-height;
+        }
+        .main {
+            padding: ($topbar-height + $header-height + $cloudbar-height) 0 $topbar-height;
+        }
+    }
+}
+
+.app {
+    height: 100%;
+}
+
+:focus {
+    outline-color: $input-focus-border-color;
+    outline-width: 1px;
+}
+
+.clearfix {
+    >.lt {
+        float: left;
+    }
+    >.rt {
+        float: right;
+    }
+}
+
+.main {
+    bottom: 0;
+    height: 100%;
+    left: 0;
+    overflow: hidden;
+    padding: ($topbar-height + $header-height) 0 $topbar-height;
+    right: 0;
+    top: 0;
+}
+
+.content {
+    height: 100%;
+    overflow-y: auto;
+    padding-top: $default-padding;
+}
+
+// button class
+.btn-minor {
+    @include button($button-med, $theme-inactive-color, inherit, false, false, false)
+}
+
+.danger {
+    color: $danger-color;
+}
+
+.subtle {
+    color: $theme-inactive-color;
+    font-size: rem-calc(13px);
+    font-style: italic;
+}
+
+.sidebar {
+    background: $topbar-bg-color;
+    @media #{$medium-up} {
+        height: 100%;
+    }
+    overflow-y: auto;
+    padding-top: $default-padding;
+    h4 {
+        font-size: rem-calc(18);
+    }
+    h4 .active {
+        color: $body-font-color;
+    }
+}
+
+#loader {
+    padding: 3rem;
+    text-align: center;
+    i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+    h4 {
+        color: $theme-alert-color;
+        margin: 1em;
+    }
+}
+
+.fa-spin {
+    color: $jumbo;
+}
+
+.hidden {
+    display: none !important;
+}
+
+@include keyframes(background-change) {
+    0% { background-color: $theme-primary-color-light; }
+    100% { background-color: $items-bg-color; }
+}
+
+.new .wrap {
+    @include animation("background-change 4s");
+}
+
+.icon-a {
+    border: 2px dotted $theme-anchor-font-color;
+    border-radius: 50%;
+    margin: 0 2px;
+    padding: 2px;
+    &:hover {
+        border-color: $theme-anchor-font-color-hover;
+        border-style: solid;
+    }
+    &[disabled] {
+        border-color: $theme-inactive-color;
+        border-style: dotted;
+        color: $theme-inactive-color;
+        cursor: default;
+    }
+    &.alert {
+        border-width: 0;
+    }
+}
+
+.arrow-down, 
+.arrow-up {
+    margin-left: 6px;
+    vertical-align: middle;
+}
+
+.arrow-down {
+    display: initial;
+}
+.arrow-up {
+    display: none;
+}
+
+.slide-container.open {
+    .arrow-down {
+        display: none;
+    }
+    .arrow-up {
+        display: initial;
+    }
+}
+
+.margin-zero {
+    margin: 0 !important;
+}
+
+.u-wrap {
+    word-wrap: break-word;
+}
+
+table {
+    border-spacing: 0;
+    width: 100%;
+}
+
+.fa-external-link {
+    font-size: rem-calc(14);
+    font-weight: bold;
+    margin-left: rem-calc(4);
+    visibility: hidden;
+}
+a:hover {
+    .fa-external-link {
+        visibility: visible;
+    }
+}
+

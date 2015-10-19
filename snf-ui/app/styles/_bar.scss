@@ -1,0 +1,91 @@
+.top-bar {
+    @include bar-style();
+    height: auto;
+    left: 0;
+    padding: 0 0 0 $default-padding; 
+    position: absolute;
+    right: 0;
+    top: $header-height;
+    z-index: 1;
+    .button {
+        height: auto;
+        padding: 0.5rem 1rem;
+        top: auto;
+        i {
+            margin-right: 4px;
+        }
+    }
+
+    .top-bar-section {
+        .right {
+            @media #{$small-up} {
+                width: auto;
+            }
+            li {
+                border-left: 1px solid $gainsboro;
+                text-align: center;
+
+                @media #{$small-up} { 
+                    float: left;
+                }
+
+
+                a {
+                    height: $topbar-height;
+                    line-height: inherit;
+                    padding: rem-calc(15px 15px 0);
+                    &:hover {
+                        text-decoration: none;
+                    }
+                }
+                &:hover {
+                    label {
+                        color: $topbar-link-color-hover;
+                    }
+                }
+                &.disabled {
+                    opacity: 0.5;
+                    a:hover {
+                        background: inherit;
+                        color: inherit;
+                        cursor: default;
+                    }
+                    &:hover label {
+                        color: $body-font-color;
+                    }
+                }
+            }
+        }
+        label {
+            display: block;
+            font-size: rem-calc(12);
+        }
+        .fa {
+            font-size: rem-calc(18);
+        }
+        span[data-view="list"] {
+            .fa-th {
+                display: none;
+            }
+        }
+        span[data-view="grid"] {
+            .fa-list {
+                display: none;
+            }
+        }
+
+    }
+    select {
+        height: auto;
+        margin: 10px;
+        padding: 0.5rem 1rem;
+        top: 2px;
+        width: 200px;
+    }
+    &.fixed {
+        position: fixed;
+        top: 0;
+        width: 100%;
+    }
+    
+}

@@ -1,0 +1,59 @@
+.containers {
+    &.list {
+        .wrap {
+            padding: rem-calc(14 8);
+        }
+        .actions-col {
+            width: 16%;
+            @media #{$large-up} {
+                width: 11%;
+            }
+        }
+        .name-col {
+            width: 50%;
+            @media #{$large-up} {
+                width: 32%;
+            }
+        }
+        .select-col {
+            display: none;
+            @media #{$large-up} {
+                display: block;
+            }
+        }
+    }
+    .name-col {
+        .trash-icon {
+            display: none;
+        }
+    }
+    .is-trash {
+        .trash-icon {
+            display: inline-block;
+        }
+    }
+    .select-col {
+        position: relative;
+        label {
+            font-size: rem-calc(12);
+            left: rem-calc(4);
+            overflow: hidden;
+            position: absolute;
+            text-indent: -120px;
+            top: - rem-calc(16);
+            transition: 300ms ease-out;
+        }
+    }
+    .select-col:hover label {
+        text-indent: 0;
+    }
+    &.grid {
+        .select-col {
+            padding: rem-calc(10 0);
+            label {
+                top: - rem-calc(9);
+            }
+        }
+    }
+}
+

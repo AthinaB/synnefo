@@ -1,0 +1,30 @@
+{{partial "header"}}
+{{partial "top-bar"}}
+
+<div class="main clearfix">
+    <div class="columns medium-2 sidebar">
+        {{view "my-dir-tree"}}
+        {{outlet "shared-with-me"}}
+   </div>
+
+    <div class="columns medium-10 content">
+        {{outlet "breadcrumbs"}}
+        {{outlet}}
+    </div>
+</div>
+
+{{ snf-dropfile files=dropFiles 
+                uploader=dropFileUploader 
+                uploadLocation=uploadLocation
+                concurrentUploads=4
+                classNames="small-12" }} 
+{{!-- dialogs at first is completely empty --}}
+{{!-- when a dialog appears, it renders in the dialogs outlet --}}
+
+{{!-- The names of the outlets are used and in the file routes/application.js, too --}}
+{{outlet "alertBox"}}
+{{outlet "dialog"}}
+{{outlet "errorDialog"}}
+{{outlet "feedback"}}
+{{partial "footer"}}
+

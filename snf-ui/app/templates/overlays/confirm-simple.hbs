@@ -1,0 +1,32 @@
+<h3>{{view.confirm_title}}</h3>
+<p>
+    <span class="u-wrap">{{controller.confirm_intro}}</span>
+    {{# if model.count}}(containing <strong>{{pluralize model.count 'item'}}</strong>){{/if}}
+</p>
+
+{{#if selectedMany}}
+    <ul>
+    {{#each item in selectedItems}}
+        <li class="u-wrap">{{item.model.name}}</li>
+    {{/each}}
+    </ul>
+{{/if}}
+
+<p>
+    <span class="danger">{{fa-icon "fa-warning"}}{{t 'cannot_undo_action'}}</span>
+</p>
+
+
+{{!-- for popovers the action passes through template as a view property --}}
+{{!-- *for now* will use it to recognize if the template is included in popover or dialog --}}
+{{#if view.actionToPerform}}
+<p class="btns">
+    <a class="abort" href="" {{action 'closePopover' target='view'}}>{{t 'button.cancel'}}</a>
+    <button class="alert" {{action view.actionToPerform}}>{{controller.confirm_button}}</button>
+</p>
+{{else}}
+    {{!-- for dialogs the action is a controller property --}}
+    {{#view "buttons"}}
+        <button class="alert js-btn-close-modal" {{action actionToPerform}}>{{controller.confirm_button}}</button>
+    {{/view}}
+{{/if}}

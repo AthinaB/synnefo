@@ -1,0 +1,38 @@
+@import "foundation/functions";
+
+$header-height: rem-calc(80);
+$default-padding: rem-calc(15);
+$danger-color: #f43d3d;
+
+// palette
+$purple: #7e34db;
+$snf-green: #00a551;
+$orange: #ffa500;
+$tomato: #ff6347;
+$lime: #97b314;
+$green-1: #d8e7a3;
+$green-2: #21b469;
+$green-3: #008441;
+$green-4: #006733;
+$green-lime: #17a500;
+
+$items-bg-color: #fff;
+
+// theme_settings
+$theme-primary-color: $snf-green;
+$theme-secondary-color: $orange;
+$theme-alert-color: $tomato;
+$theme-success-color: $green-1;
+$theme-info-color: $orange;
+
+$theme-anchor-font-color: $green-4;
+$theme-anchor-font-color-hover: $lime;
+
+$theme-inactive-color: #838282;
+$theme-primary-color-light: $green-1;
+$theme-secondary-color-light: #d0f0c7;
+
+$theme-header-background: $theme-primary-color;
+
+$theme-guide-bg-color: $purple;
+$theme-drag-bg-color: $theme-secondary-color-light;

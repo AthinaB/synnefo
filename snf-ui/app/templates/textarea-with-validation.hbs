@@ -1,0 +1,5 @@
+<textarea rows=6 cols=60 {{bind-attr autofocus=view.autofocus}}></textarea>
+<span {{bind-attr class=':error view.errorVisible::invisible'}}>
+    {{fa-icon "fa-warning"}}
+	<span class='error-msg'>{{view.errorMsg}}</span>
+</span>

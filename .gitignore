@@ -1,0 +1,45 @@
+*.db
+*.egg
+*.tar.gz
+*.pyc
+*~
+*.*.swp
+bin/
+share/
+build/
+include/
+_sass/
+.sass-cache/
+*.pt.py
+*.installed.cfg
+*.sqlite
+.Python
+.idea
+.DS_Store
+.project
+.pydevproject
+.settings/
+*.egg-info
+_build
+.coverage
+*.egg
+*.tar.gz
+
+# compiled output
+ui-web/dist
+ui-web/tmp
+
+# dependencies
+ui-web/node_modules
+ui-web/bower_components
+
+# misc
+connect.lock
+coverage
+npm-debug.log
+testem.log
+
+# exclude ui build files
+synnefo_ui/static/snf-ui
+synnefo_ui/templates/index.html
+synnefo_ui/version.py

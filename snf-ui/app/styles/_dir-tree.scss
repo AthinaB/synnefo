@@ -1,0 +1,19 @@
+.dir-tree {
+    margin: 0 0 2rem;
+    >li {
+        margin-bottom: rem-calc(4);
+    }
+    li {
+        font-size: rem-calc(14);
+        list-style: none outside none;
+        word-break: break-word;
+    }
+    .fa-share-alt {
+        font-size: rem-calc(16);
+    }
+    .toggle-icon {
+        font-size: rem-calc(10);
+     
+    }
+}
+

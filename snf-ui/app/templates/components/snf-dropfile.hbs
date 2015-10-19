@@ -1,0 +1,49 @@
+<div class="dropfiles">
+    {{# if files.length }}
+        <div class="batch-actions row">
+            <div class="text-right">
+                {{#if filesUploading.length }}<a {{ action 'cancelAll' }} title="Cancel upload">{{ fa-icon 'stop' }}</a>{{/if}}
+                {{#if filesToReset.length }}<a {{ action 'resetAll' }} title="?">{{ fa-icon 'refresh' }}</a>{{/if}}
+                {{#if filesToRemove.length }}<a {{ action 'removeAll' }} title="Hide">{{ fa-icon 'remove' }}</a>{{/if}}
+            </div>
+        </div>
+        <div class="row title">
+            <div class="columns small-9">
+                <div class="row">
+                    <span class="columns small-5">Name</span>
+                    <span class="columns small-2">Size</span>
+                    <span class="columns small-2">Status</span>
+                    <span class="columns small-3">&nbsp;</span>
+                </div>
+            </div>
+        </div>
+    {{/if }}
+    {{# each file in files}}
+    <div class="file row">
+        <div class="head columns small-9">
+            <div class="row">
+                <span class="name columns small-5 u-wrap">{{ file.name }}</span>
+                <span class="status columns small-2">{{ file.size }}</span>
+                <span class="status columns small-2">{{ file.status }} {{#if file.uploadError }}({{ file.uploadError }}){{/if}}</span>
+                {{# if file.isUploading }}
+                    <span class="progress columns small-3">
+
+                        {{# if file.progress.message }}<span>({{ file.progress.message }}...)</span>{{/if}}
+                        <span class="meter" style="width:{{file.uploadProgress}}%">{{#if file.uploadProgress }}{{ file.uploadProgress }}%{{/if}}</span>
+                    </span>
+                {{else}}
+                    <span class="columsn small-3"></span>
+                {{/if}}
+            </div>
+        </div>
+
+        <div class="actions columns small-3 text-right">
+            {{#if file.canRemove}}<a {{ action 'remove' file }} title="Hide file">Hide {{ fa-icon 'fa-remove' }}</a>{{/if}}
+            {{#if file.canAbort}}<a {{ action 'abort' file }} title="Abort upload">Abort {{ fa-icon 'fa-pause' }}</a>{{/if}}
+            {{#if file.canUpload}}<a {{ action 'upload' file }} title="Retry upload">Retry {{ fa-icon 'fa-play' }}</a>{{/if}}
+        </div>
+
+    </div>
+    {{/each}}
+
+</div>

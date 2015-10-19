@@ -1,0 +1,29 @@
+{{!-- if the feedback is inside the error report, it has errors as model --}}
+{{!-- if the feedback is standing alone, it has an empty object as model --}}
+{{#if model.length}}
+    {{#if msg}}
+        <div class="alert-box info">{{fa-icon "smile-o"}}{{t 'overlay.feedback.thanks' }}</div>
+    {{else}}
+        <label>Please describe the actions that triggered the error:</label>
+        {{view 'textarea-with-validation' autofocus=true}}
+    {{/if}}
+    {{#view "buttons"}}
+        {{#unless msg}}
+		    <button {{action 'fwdErrorFeedback'}}>{{t 'button.send_feedback'}}</button>
+        {{/unless}}
+	{{/view}}
+{{else}}
+	<h3>{{t 'overlay.feedback.title'}}</h3>
+    {{#if msg}}
+        <div class="alert-box info">{{fa-icon "smile-o"}}{{t 'overlay.feedback.thanks' }}</div>
+    {{else}}
+	    <p>{{{t 'overlay.feedback.intro'}}}</p>
+	    <label>Message</label>
+	    {{view 'textarea-with-validation' autofocus=true}}
+    {{/if}}
+    {{#view "buttons"}}
+        {{#unless msg}}
+		    <button {{action 'validateAndSend'}}>{{t 'button.send_feedback'}}</button>
+        {{/unless}}
+	{{/view}}
+{{/if}}

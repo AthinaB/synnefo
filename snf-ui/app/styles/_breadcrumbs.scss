@@ -1,0 +1,12 @@
+.breadcrumbs > * {
+    color: inherit;
+}
+
+.breadcrumbs {
+    li {
+        line-height: 1rem;
+    }
+    a {
+        color: $theme-anchor-font-color;
+    }
+} 

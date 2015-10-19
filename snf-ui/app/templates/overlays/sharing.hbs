@@ -1,0 +1,86 @@
+<h3>{{t 'action_verb.share'}} {{fa-icon "fa-share-alt"}} <span class="u-wrap">{{model.stripped_name}}</span></h3>
+{{#if controller.inherit_share}}
+    <p class="alert-box alert">
+    {{t 'overlay.sharing.inherited_share' controller.model.shared_ancestor_path}}<br>
+    </p>
+{{/if}}
+<p>
+    {{#if model.is_dir}}
+        <span class="subtle">{{t 'disable_public_sharing_for_folders'}}</span>
+    {{else}}
+        <label>
+            {{input type="checkbox" checked=controller.isPublic}} 
+           <strong>Public on the Internet </strong>{{t 'public_sharing_explain'}}
+        </label>
+        {{#if controller.isPublic}}
+            <a href={{model.public_link}} target="_blank">{{fa-icon "fa-link"}} {{model.public_link}}</a>
+        {{/if}}
+    {{/if}}
+</p>
+<p><strong>Private sharing</strong> {{t 'private_sharing_explain'}}</p>
+
+{{#unless controller.isSharedAll}}
+<p>
+    <button {{action 'shareWithAll'}} class="tiny warning">
+        {{fa-icon "fa-users"}}
+        {{t 'button.share_with_all'}}
+    </button>
+</p>
+{{/unless}}
+
+
+{{#if controller.isShared}}
+    {{#if model.shared_users}}
+        <table>
+            <thead>
+                <tr>
+                    <th>Users/Groups</th>
+                    <th>Can view</th>
+                    <th>Can edit</th>
+                    <th>&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each s in controller.shared_with_list}}
+                    <tr>
+                        <td class="u-wrap">{{#if s.user}}{{s.user.email}}{{else}}{{s.display_name}}{{/if}}</td>
+                        <td>{{radio-button name=s.id bindValue=s.permission value="read" action="togglePermission"}}</td>
+                        <td>{{radio-button name=s.id bindValue=s.permission value="write" action="togglePermission"}}</td>
+                        <td>
+                            <a {{action 'removeUserFromShare' s.id}} class="icon-a snf-tooltip snf-tooltip-n" aria-label="Remove from sharing">
+                                {{fa-icon "fa-remove" fixedWidth=true}}
+                            </a>
+                        </td>
+                    </tr>
+                {{/each}}
+            </tbody>
+        </table>
+        <p>
+            <button class="tiny alert" {{action 'removePrivateSharing'}}>
+                {{fa-icon "fa-remove"}}
+                {{t 'button.remove_private_sharing'}}
+            </button>
+        </p>
+
+    {{/if}}
+{{/if}}
+
+{{#if groups}}
+<p>
+    {{view "select" content=groups
+           optionLabelPath="content.name"
+           optionValuePath="content.id"
+           prompt="Share with group"
+           selection=selectedGroup}}
+</p>
+{{/if}}
+
+<p>
+    {{view 'input-emails' placeholder="user1@example.com user2@example.com..." label="Add users" autofocus="autofocus"}}
+    <button {{action 'shareWithUsers'}} {{bind-attr disabled='freezeCreation'}} class="tiny right">
+        {{fa-icon "fa-user-plus"}} 
+        {{t 'button.share_with_users'}}
+    </button>
+</p>
+
+

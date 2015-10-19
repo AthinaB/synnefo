@@ -1,0 +1,8 @@
+{{!-- placeholder is passed as a param from the template where you put the current view --}}
+
+<label>Group</label>
+<input class='{{if view.errorVisible "error"}} {{if view.warningVisible "warning"}}'  placeholder={{view.placeholder}} type='text' value={{view.value}}>
+
+<a class="guide snf-tooltip snf-tooltip-n snf-tooltip-multiline" aria-label={{t 'help_text.create_group_info'}}>?</a>
+
+{{partial "error-info"}}

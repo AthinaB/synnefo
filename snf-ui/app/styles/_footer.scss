@@ -1,0 +1,30 @@
+.footer {
+    @include bar-style();
+    font-size: rem-calc(12);
+    height: $topbar-height;
+    margin-top: - $topbar-height;
+    padding: $default-padding;
+    position: relative;
+    z-index: 99;
+    .footer-item {
+        margin-left: $default-padding;
+    }
+    .icon i {
+        font-size: rem-calc(16);
+    }
+    .right {
+        margin-left: $default-padding/2;
+    }
+    .themes {
+        margin-right: $default-padding;
+        i {
+            margin: rem-calc(0 4);
+        }
+    }
+    .popover-container {
+        >* {
+            float: left;
+        }
+    }
+}
+

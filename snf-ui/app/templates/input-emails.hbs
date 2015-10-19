@@ -1,0 +1,18 @@
+{{!-- placeholder and label are passed as a param from the template where you put the current view --}}
+	<label>{{view.label}}</label>
+<div class='container-emails'>
+	<span class='tiles'>
+		{{#each user in controller.usersExtended}}
+			{{view 'user-tile' user=user}}
+		{{/each}}
+		{{#if view.usersToBeAdded.length}}
+			({{view.usersToBeAdded.length}})
+		{{/if}}
+	</span>
+	<input class='{{if view.errorVisible "error"}} {{if view.warningVisible "warning"}}'  placeholder={{view.placeholder}} type='text' value={{view.value}} autofocus={{view.autofocus}}>
+	<button {{action 'getInputValue' target='view'}} class="tiny snf-tooltip snf-tooltip-se snf-tooltip-multiline" aria-label={{t 'help_text.search_users_info'}}>{{fa-icon "fa-check"}} Validate</button>
+
+</div>
+
+{{partial "error-info"}}
+

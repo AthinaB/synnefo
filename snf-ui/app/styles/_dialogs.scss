@@ -1,0 +1,129 @@
+.reveal-modal {
+    @media #{$medium-up} {
+        max-width: 900px;
+    } 
+    &:focus {
+        outline: 0 none;
+    }
+    h3 {
+        margin-bottom: 2.5rem;
+        &:first-letter {
+            text-transform: uppercase;
+        }
+    }
+
+    .btns {
+        margin: 2.5rem 0 0;
+        text-align: right;
+        button {
+            @include button-size($padding:$button-sml); 
+            margin-bottom: 0;
+            margin-left: 2rem;
+            &:first-letter {
+                text-transform: uppercase;
+            }
+        }
+        .abort {
+            float: left;
+            font-size: $button-font-sml;
+            padding-top: $button-sml;
+            &:hover {
+                text-decoration: underline;
+            }
+        }
+    }
+
+    // Groups dialog
+    .groups {
+        h5 {
+            cursor: pointer;
+            em {
+                font-size: rem-calc(13);
+                font-style: normal;
+                margin-left: 10px;
+            }
+        }
+        button {
+            margin: 0 0 0 1rem;
+        }
+        table {
+            margin: 2rem 0;
+        }
+    }
+    .group-icon {
+        bottom: 0.18rem;
+        font-size: 2.5rem;
+        margin-right: 10px;
+        position: relative;
+        vertical-align: middle;
+    }
+
+    .slide-me {
+        display: none;
+    }
+
+    .list-item {
+        background: $table-even-row-bg; 
+        border-bottom: 1px solid $gainsboro;
+        padding: rem-calc(10 16);
+        &:first-child {
+            border-top: 1px solid $gainsboro;
+        }
+        &.open {
+            background: lighten($theme-primary-color-light, 8%); 
+        }
+        &.create-area {
+            background-color: $theme-primary-color-light;
+            margin: 0 0 1.25rem 0;
+            input {
+                display: inline-block;
+            }
+        }
+    }
+    .guide {
+        background-color: $theme-guide-bg-color;
+        border-radius: (rem-calc(20) / 2);
+        color: white;
+        display: inline-block;
+        height: rem-calc(20);
+        line-height: rem-calc(20);
+        text-align: center;
+        width: rem-calc(20);
+        &:hover {
+            background-color: darken($theme-guide-bg-color, 10%);
+        }
+	}
+    select {
+        margin-bottom: 0;
+    }
+    .close-reveal-modal {
+        &:hover {
+            color: $theme-anchor-font-color-hover;
+        }
+    }
+    &.medium {
+        @media #{$medium-up} {
+            max-width: 800px;
+        } 
+    }
+    &.small {
+        @media #{$medium-up} {
+            max-width: 600px;
+        } 
+    }
+    &.tiny {
+        @media #{$medium-up} {
+            max-width: 400px;
+        } 
+    }
+
+    .alert-box {
+        margin: 1rem 0;
+        text-align: center;
+        font-size: rem-calc(16);
+        i {
+            margin-right: 1rem;
+            font-size: rem-calc(18);
+        }
+    }
+}

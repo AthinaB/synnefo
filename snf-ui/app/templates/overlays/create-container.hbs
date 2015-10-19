@@ -1,0 +1,20 @@
+<h3>{{t 'overlay.create_container.title'}}</h3>
+<form {{action 'validateCreation' 'createContainer' on="enter" }}>
+    {{view 'input-single' placeholder='Container name' autofocus=true controller=controller}}
+
+    {{#if projectsLoading }}
+        <p>{{partial "loader"}} Loading projects</p>
+    {{else}}
+        <p>
+            <label>Assign to project
+                {{view "select" content=projects
+                        optionLabelPath="content.select_label"
+                        optionValuePath="content.id"
+                        selection=newProject}}
+            </label>
+        </p>
+    {{/if}}
+    {{#view "buttons"}}
+        <button {{action 'validateCreation' 'createContainer' }}>{{t 'button.create_container'}}</button>
+    {{/view}}
+</form>

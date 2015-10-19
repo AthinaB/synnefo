@@ -1,0 +1,11 @@
+<h3>{{t 'overlay.remove_last_group_member.title'}}</h3>
+<p>{{t 'overlay.remove_last_group_member.info'}}</p>
+<p>{{t 'overlay.remove_last_group_member.intro'  controller.model.name}}?</p>
+
+
+<p><span class="danger">{{fa-icon "fa-warning"}}{{t 'cannot_undo_action'}}</span></p>
+
+<p class="btns">
+    <a class="abort" href="" {{action 'closePopover' target='view'}}>{{t 'button.cancel'}}</a>
+    <button class="alert" {{action view.actionToPerform controller.model.users.firstObject target='controller'}}>{{t 'button.delete_group'}}</button>
+</p>

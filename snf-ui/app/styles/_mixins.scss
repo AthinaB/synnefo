@@ -1,0 +1,35 @@
+@mixin keyframes($animation-name) {
+    @keyframes $animation-name {
+        @content;
+    }
+}
+
+@mixin animation($str) {
+    animation: #{$str};      
+}
+
+@mixin box-shadow() {
+    box-shadow: 2px 2px 8px $jumbo;
+}
+
+@mixin bar-style() {
+    @include box-shadow();
+    border-top: 1px solid $iron;
+    border-bottom: 1px solid $iron;
+    background-color: $topbar-bg-color;
+}
+
+@mixin horizontal-stripes($color1, $color2:null) {
+    @if $color2 {
+        $color2 : $color2;
+    } @else {
+        $color2: lighten($color1, 10%);
+    }
+    background: repeating-linear-gradient(
+      to right,
+        $color1,
+        $color1 10px,
+        $color2 10px,
+        $color2 20px
+    ) !important;
+}

@@ -1,0 +1,89 @@
+<div class="wrap clearfix">
+
+    <div class="loader">{{partial "loader"}}</div>
+
+    <div class="col name-col">
+        {{#if container.model.new}}<span class="label alert">new</span>{{/if}}
+        {{#if listView}}
+        <h4 class="ellipsis" title={{container.model.name}}>
+            {{#link-to 'container' (encode-path container.model.name)}}
+                {{fa-icon "fa-trash trash-icon"}}
+                <span>{{container.model.name}}</span>
+                {{fa-icon "fa-external-link"}}
+            {{/link-to}}
+            {{view "select" content=container.availableProjects
+                        optionLabelPath="content.select_label"
+                        optionValuePath="content.id"
+                        selection=container.selectedProject
+                        classNames="hide-for-large-up"
+                        }}
+
+        </h4>
+        {{else}}
+        <h4>
+            {{#link-to 'container' (encode-path container.model.name)}}
+                {{fa-icon "fa-trash trash-icon"}}
+                <span>{{container.model.name}}</span>
+                {{fa-icon "fa-external-link"}}
+            {{/link-to}}
+        </h4>
+
+        {{/if}}
+    </div>
+    {{#if gridView}}
+        <dl>
+            <dt>Items</dt>
+            <dd>{{container.model.count}}</dd>
+            <dt>Size</dt>
+            <dd>{{convert-bytes container.model.bytes}}</dd>
+            <dt>Modified</dt>
+            <dd>
+                <span aria-label={{container.model.last_modified_human}} class="snf-tooltip snf-tooltip-n">
+                    {{time-from-now container.model.last_modified }}
+                </span>
+            </dd>
+        </dl>
+    {{/if}}
+    <div class="col select-col">
+        <label>Reassign project</label>
+        {{view "select" content=container.availableProjects
+                        optionLabelPath="content.select_label"
+                        optionValuePath="content.id"
+                        selection=container.selectedProject}}
+    </div>
+
+    {{#if listView}}
+       <div class="col data-col">
+            {{convert-bytes container.model.bytes}}
+        </div>
+        <div class="col date-col">
+            <span aria-label={{container.model.last_modified_human}} class="snf-tooltip snf-tooltip-n">
+                {{time-from-now container.model.last_modified }}
+            </span>
+        </div>
+
+    {{/if}}
+   {{#if listView}}
+        <div class="col data-col">
+            {{container.model.count}}
+        </div>
+    {{/if}}
+    <div class="col actions-col">
+        {{#if container.canDelete}}
+            <a class="icon-a snf-tooltip {{iconTooltipDir}}" aria-label="Delete container" {{action 'showDialog' 'confirm-simple' controller container.model 'emptyAndDelete'}}>{{fa-icon "fa-remove fa-fw"}}</a>
+        {{else}}
+            <a class="icon-a snf-tooltip {{iconTooltipDir}}" aria-label="Cannot delete this container" disabled>{{fa-icon "fa-remove fa-fw"}}</a>
+        {{/if}}
+
+        {{#if container.canEmpty}}
+            <a class="icon-a snf-tooltip {{iconTooltipDir}}" aria-label="Empty container" {{action 'showDialog' 'confirm-simple' controller container.model 'emptyContainer'}}>
+                <i class="fa-fw fa">&empty;</i>
+            </a>
+        {{else}}
+            <a class="icon-a snf-tooltip {{iconTooltipDir}} snf-tooltip-multiline" aria-label="Cannot empty container without objects" disabled>
+                <i class="fa-fw fa">&empty;</i>
+            </a>
+        {{/if}}
+    </div>
+
+</div>

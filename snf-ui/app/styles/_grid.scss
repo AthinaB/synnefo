@@ -1,0 +1,54 @@
+.grid {
+    @include block-grid(2);
+    @media #{$medium-up} { 
+        @include block-grid(3);
+    }
+    @media #{$large-up} { 
+        @include block-grid(4);
+    }
+
+    .wrap {
+        background: #fff;
+        padding: 10px 15px;
+        &:hover {
+            @include box-shadow();
+            h4 a {
+                color: $theme-anchor-font-color;
+                &:hover {
+                    color: $theme-anchor-font-color-hover;
+                }
+            }
+        }
+    }
+    .loader {
+        padding-top: 50px;
+    }
+    h4 {
+        text-align: center;
+        word-break: break-all;
+    }
+    dl {
+        font-size: rem-calc(14);
+        margin-bottom: 1rem;
+        dt {
+            float: left;
+            font-weight: normal;
+            margin-bottom: 1px;
+            width: 30%;
+        }
+        dd {
+            @extend .clearfix;
+            font-weight: bold;
+            margin-bottom: 1px;
+            text-align: right;
+        }
+    }
+    .label {
+        bottom: 10px;
+        right: 15px;
+    }
+    li {
+        margin: 0;
+        overflow: hidden;
+    }
+}

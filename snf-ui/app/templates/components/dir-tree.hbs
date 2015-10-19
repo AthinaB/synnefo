@@ -1,0 +1,21 @@
+<a {{action "toggle"}}>
+    {{fa-icon iconClsToggle classNames="toggle-icon"}}
+</a>
+
+{{#if notLink}}
+    {{fa-icon iconCls fixedWidth=true}} {{name}}
+{{else}}
+    <a {{action 'select' root }} href="{{href}}">
+        {{fa-icon iconCls fixedWidth=true}} {{name}}
+    </a>
+{{/if}}
+{{#if loading}}{{partial "loader"}}{{/if}}
+
+{{#if expanded}}
+    <ul>
+    {{#each dir in subdirs}}
+        {{dir-tree root=dir.id resolver=resolver role=role action="select"}}
+    {{/each}}
+    </ul>
+{{/if}}
+

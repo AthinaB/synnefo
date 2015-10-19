@@ -1,0 +1,14 @@
+<h4>
+    {{#link-to 'containers'}}
+        My containers {{fa-icon "fa-external-link"}}
+    {{/link-to}}
+</h4>
+{{#if containersLoading}}
+    {{partial "loader"}}
+{{/if}}
+<ul class="dir-tree show-for-medium-up">
+   {{#each container in sortedContainers}}
+        {{dir-tree root=container.id resolver=resolveSubDirs role="nav" action='handleDirClick'}}
+    {{/each}}
+</ul>
+

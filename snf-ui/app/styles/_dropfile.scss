@@ -1,0 +1,72 @@
+ul.drag-active {
+    @include horizontal-stripes($theme-drag-bg-color);
+    li .wrap,
+    li:nth-child(2n) .wrap {
+        background: transparent;
+    }
+    .upload-area {
+        display: block;
+    }
+}
+
+li.drag-active {
+    .wrap {
+        @include horizontal-stripes($theme-drag-bg-color);
+    }
+}
+.upload-area {
+    display: none;
+    font-size: rem-calc(24);
+    padding-top: 5%;
+    text-align: center;
+}
+
+
+.dropfiles {
+    @include bar-style();
+    bottom: 0;
+    left: 0;
+    max-height: 2 * $header-height;
+    overflow: auto;
+    position: fixed;
+    z-index: 100;
+    right: 0;
+    .title {
+        font-size: rem-calc(13);
+        font-weight: bold;
+    }
+    >.row {
+        padding: 0 $default-padding;
+    }
+
+    .file {
+        font-size: 0.8em;
+        &:hover {
+            background: darken($topbar-bg, 10%); 
+        }
+        &:last-child {
+            margin-bottom: 1rem;
+        }
+    }
+    .batch-actions {
+        .right {
+            text-align: right;
+            label {
+                display: inline;
+            }
+        }
+    }
+    .actions {
+        a {
+            margin: 0 8px;
+        }
+      }
+    .progress {
+        margin-bottom: 0;
+        .meter {
+            text-indent: 2px;
+            color: white;
+        }
+    
+    }
+}
