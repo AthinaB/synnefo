@@ -54,8 +54,7 @@ export default Ember.ArrayController.extend(ItemsControllerMixin, NameMixin, {
   * Pithos API allows the name of containers to have at most 256 chars
   * When a new container is created the length of the name is checked
   */
-  //nameMaxLength: 256,
-  nameMaxLength: 10,
+  nameMaxLength: 256,
 
   newName: undefined,
 
