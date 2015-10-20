@@ -120,7 +120,6 @@ export default Ember.ArrayController.extend(ItemsControllerMixin, {
 
   newName: undefined,
   actionToExec: undefined, // needs to be set when input is used (for the view)
-  // isUnique: undefined,
   newID: undefined,
 
   isUnique: function() {
@@ -152,43 +151,6 @@ export default Ember.ArrayController.extend(ItemsControllerMixin, {
     }
   }.property('newName'),
 
- // createDir: function(){
-    // if(this.get('validInput')) {
-   //    var self = this;
-   //    var name = this.get('newName');
-   //    if (this.get('hasUpPath')) {
-   //      name = this.get('current_path') + '/' + name;
-   //    }
-   //    var id = this.get('newID');
-
-   //    var object = this.store.createRecord('object', {
-   //      id: id,
-   //      name: name,
-   //      content_type: 'application/directory',
-   //      modified_by: self.get('current_user'),
-   //      allowed_to: self.get('allowed_to')
-   //    });
-
-   //    var onSuccess = function(object) {
-   //      let model = self.get('model') || Ember.A();
-   //      model.pushObject(object);
-   //      tempSetProperty(object, 'new');
-   //    };
-
-   //    var onFail = function(reason){
-   //      console.log('onFail');
-   //      console.log(reason);
-   //    };
-
-   //    object.save().then(onSuccess, onFail);
-   //    this.set('newName', undefined);
-   //    this.set('validInput', undefined);
-   //    this.set('isUnique', undefined);
-   //    this.set('newID', undefined);
-			// this.set('closeDialog', true);
-    // }
-  //}.observes('validInput'),
-
 
   // Checks if an object with a given id exists. If it does, it returns a new 
   // unique id. If not, it returns the id.
@@ -214,7 +176,6 @@ export default Ember.ArrayController.extend(ItemsControllerMixin, {
   checkSelectedCls: "fa-square-o",
 
   watchHasSelected: function(){
-      console.log('%c!!!!', 'color:yellow')
     if (this.get('selectedItems.length') == 0) {
       this.set('checkSelectedCls', "fa-square-o");
     } 
@@ -223,21 +184,10 @@ export default Ember.ArrayController.extend(ItemsControllerMixin, {
   freezeCreateDir: true,
 
   actions: {
-    reset: function() {
-
-      // Ember.sendEvent(this, "RemoveLoader", [true]);
-    },
     
     uploadSuccess: function() {
       this.get('model').update();
     },
-
-    //validateCreation: function(action) {
-      // var flag = 'validationOnProgress';
-      // this.set('actionToExec', action);
-      // this.set(flag, true);
-    //},
-
 
     createDir: function(){
       if(!this.get('freezeCreateDir')) {
@@ -269,8 +219,6 @@ export default Ember.ArrayController.extend(ItemsControllerMixin, {
 
       object.save().then(onSuccess, onFail);
       this.set('newName', undefined);
-   //    this.set('validInput', undefined);
-   //    this.set('isUnique', undefined);
       this.set('newID', undefined);
       this.set('closeDialog', true);
     }
@@ -282,43 +230,43 @@ export default Ember.ArrayController.extend(ItemsControllerMixin, {
 
     _move: function(next, newID, copyFlag, source_account, callback){
       console.log('%c!!!!', 'color:yellow')
-      // var self = this;
-      // var object = next.get('model');
-      // var newVerifiedID = self.get('_verifyID')(newID);
-      // if (newVerifiedID != newID){
-      //   object._newID = newID;
-      //   object._newVerifiedID = newVerifiedID;
-      //   object._copyFlag = copyFlag;
-      //   object._callback = callback;
-      //   object._next = next;
-      //   object._source_account = source_account
-      //   self.send('showDialog', 'move', 'object/move' , object);
-      //   return;
-      // }
+      var self = this;
+      var object = next.get('model');
+      var newVerifiedID = self.get('_verifyID')(newID);
+      if (newVerifiedID != newID){
+        object._newID = newID;
+        object._newVerifiedID = newVerifiedID;
+        object._copyFlag = copyFlag;
+        object._callback = callback;
+        object._next = next;
+        object._source_account = source_account
+        self.send('showDialog', 'move', 'object/move' , object);
+        return;
+      }
       
-      // self.send('moveObject', object, newID, copyFlag, source_account, callback, next);
+      self.send('moveObject', object, newID, copyFlag, source_account, callback, next);
     },
 
     moveObject: function(object, newID, copyFlag, source_account, callback, next){
-      // var object = next.get('model');
+      var object = next.get('model');
 
-      // var onSuccess = function() {
-      //   next.set('loading', false);
-      //   this.get('model').update().then(function(){
-      //     if (!copyFlag) {
-      //         object.unloadRecord();
-      //     }
-      //   });
-      // }.bind(this);
+      var onSuccess = function() {
+        next.set('loading', false);
+        this.get('model').update().then(function(){
+          if (!copyFlag) {
+              object.unloadRecord();
+          }
+        });
+      }.bind(this);
 
-      // var onFail = function(reason){
-      //   this.send('showErrorDialog', reason);
-      // }.bind(this);
+      var onFail = function(reason){
+        this.send('showErrorDialog', reason);
+      }.bind(this);
 
-      // callback && callback();
-      // this.store.moveObject(object, newID, copyFlag, source_account).then(onSuccess, onFail);
+      callback && callback();
+      this.store.moveObject(object, newID, copyFlag, source_account).then(onSuccess, onFail);
 
-      // this.set('copyFlag', false);
+      this.set('copyFlag', false);
 
     },
 
@@ -327,71 +275,71 @@ export default Ember.ArrayController.extend(ItemsControllerMixin, {
     },
 
     refresh: function(){
-      // this.set('sortBy', 'stripped_name:asc');
-      // this.send('refreshRoute');
+      this.set('sortBy', 'stripped_name:asc');
+      this.send('refreshRoute');
     },
 
     toggleSelectAll: function(){
-      // var toggle = this.get("selectedItems.length") ? false : true;
-      // var cls = toggle? "fa-check-square-o": "fa-square-o";
-      // this.set('checkSelectedCls', cls);
-      // Ember.sendEvent(this, "selectAll", [toggle]);
+      var toggle = this.get("selectedItems.length") ? false : true;
+      var cls = toggle? "fa-check-square-o": "fa-square-o";
+      this.set('checkSelectedCls', cls);
+      Ember.sendEvent(this, "selectAll", [toggle]);
     },
 
     deleteObjects: function(controller_list){
-     //  var selected = controller_list || this.get('selectedItems');
-     //  if (selected.length === 0) { return; }
+      var selected = controller_list || this.get('selectedItems');
+      if (selected.length === 0) { return; }
 
-     //  var onSuccess = function(a) {
-     //    this.get('model').update().then(function(){
-     //      a.unloadRecord();
-     //    });
-     //  }.bind(this);
+      var onSuccess = function(a) {
+        this.get('model').update().then(function(){
+          a.unloadRecord();
+        });
+      }.bind(this);
 
-     //  var onFail = function(reason){
-     //    this.send('showErrorDialog', reason);
-     //  }.bind(this);
+      var onFail = function(reason){
+        this.send('showErrorDialog', reason);
+      }.bind(this);
       
-     //  while (selected.get(0)) {
-     //    var object = selected.get(0).get('model');
-     //    selected.get(0).set('loading', true);
-     //    selected.get(0).set('isSelected', false);
-     //    object.deleteRecord();
-     //    object.save().then(onSuccess, onFail);
-     // }
+      while (selected.get(0)) {
+        var object = selected.get(0).get('model');
+        selected.get(0).set('loading', true);
+        selected.get(0).set('isSelected', false);
+        object.deleteRecord();
+        object.save().then(onSuccess, onFail);
+     }
     },
 
     _moveObjects: function(selectedDir, controller_list, copyFlag, source_account){
-      // var self = this;
-      // var selected = controller_list || this.get('selectedItems');
-      // if (selected.length === 0) { return; }
+      var self = this;
+      var selected = controller_list || this.get('selectedItems');
+      if (selected.length === 0) { return; }
 
-      // var processNext = function() {
-      //   var next = selected.get(0);
-      //   if (!next) { 
-      //     return 
-      //   }
-      //   var object = next.get('model');
-      //   next.set('isSelected', false);
-      //   next.set('loading', true);
-      //   var newID = selectedDir + '/' + object.get('stripped_name');
-      //   var callback = processNext;
-      //   self.send('_move', next, newID, copyFlag, source_account, callback);
-      // }
+      var processNext = function() {
+        var next = selected.get(0);
+        if (!next) { 
+          return 
+        }
+        var object = next.get('model');
+        next.set('isSelected', false);
+        next.set('loading', true);
+        var newID = selectedDir + '/' + object.get('stripped_name');
+        var callback = processNext;
+        self.send('_move', next, newID, copyFlag, source_account, callback);
+      }
 
-      // var arr = selectedDir.split('/');
-      // var account = arr.shift();
-      // var container_name = arr.shift();
-      // var container_id = account + '/' + container_name;
-      // var path = arr.join('/')+'/';
+      var arr = selectedDir.split('/');
+      var account = arr.shift();
+      var container_name = arr.shift();
+      var container_id = account + '/' + container_name;
+      var path = arr.join('/')+'/';
 
-      // this.store.findQuery('object', {
-      //   container_id: container_id,
-      //   path: path
-      // }).then(function(){ 
-      //   processNext();
-      // }, function(){
-      // });
+      this.store.findQuery('object', {
+        container_id: container_id,
+        path: path
+      }).then(function(){ 
+        processNext();
+      }, function(){
+      });
     },
 
  
