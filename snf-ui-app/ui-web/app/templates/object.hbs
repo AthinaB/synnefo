@@ -34,7 +34,6 @@
                 </span>
             </span>
             {{/if}}
-            <span>=>{{object.model.stripped_name}}</span>
         {{#if object.canRename}}
             <form >
                 {{view "input-single" value=object.model.stripped_name cls="hidden" oldValue=object.model.stripped_name actionFlag='freezeRenameObject'}}

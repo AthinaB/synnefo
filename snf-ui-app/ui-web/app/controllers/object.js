@@ -127,7 +127,7 @@ export default Ember.Controller.extend({
   * Pithos API allows the name of objects to have at most 1024 chars.
   * When an object is renamed the length of the new name is checked
   */
-  nameMaxLength: 10,
+  nameMaxLength: 1024,
   // nameMaxLength: 1024,
   notEmptyInput: undefined, // what use???
 
@@ -137,7 +137,6 @@ export default Ember.Controller.extend({
 
   newName: undefined,
   actionToExec: undefined,
-  // isUnique: undefined,
   oldPath: undefined,
   newID: undefined,
   isImg: function() {
@@ -145,9 +144,7 @@ export default Ember.Controller.extend({
   }.property('model.type'),
 
   isUnique: function() {
-    console.log('%c objectController isUnique', 'color:blue', this.get('newName'));
     if(this.get('newName')) {
-      console.log('%cnewName is true!', 'color:blue');
       var type = this.get('parentController').get('model').get('type');
 
       var object = this.get('model');
@@ -211,9 +208,7 @@ export default Ember.Controller.extend({
     },
 
   renameObject: function(){
-    console.log('%c[3] ObjController: validateRename', 'color:green')
     if(!this.get('freezeRenameObject')) {
-      console.log('%callow_renameObject', 'color:blue')
       var oldPath = this.get('oldPath');
       var newID = this.get('newID');
       var object = this.get('model');
@@ -234,7 +229,6 @@ export default Ember.Controller.extend({
   //     // reset
       this.set('newName', undefined);
   //     this.set('validInput', undefined);
-  //     // this.set('isUnique', undefined);
       this.set('oldPath', undefined);
       this.set('newID', undefined)
     }
