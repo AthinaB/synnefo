@@ -167,9 +167,8 @@ export default Ember.View.extend({
       },
 
     toggleEdit: function() {
-      console.log('toggleEdit');
-      // debugger;
-       this.$('.js-show-edit').toggleClass('hidden');
+
+      this.$('.js-show-edit').toggleClass('hidden');
       this.$('.js-input-single').toggleClass('hidden');
       this.$('.js-input-single').toggleClass('open');
       this.$('.js-hide-edit').toggleClass('hidden');

@@ -128,11 +128,7 @@ export default Ember.Controller.extend({
   * When an object is renamed the length of the new name is checked
   */
   nameMaxLength: 1024,
-  // nameMaxLength: 1024,
-  notEmptyInput: undefined, // what use???
 
-  // validInput: undefined,
-  // validationOnProgress: undefined,
   resetInput: undefined,
 
   newName: undefined,
@@ -228,7 +224,6 @@ export default Ember.Controller.extend({
 
   //     // reset
       this.set('newName', undefined);
-  //     this.set('validInput', undefined);
       this.set('oldPath', undefined);
       this.set('newID', undefined)
     }

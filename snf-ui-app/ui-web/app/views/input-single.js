@@ -21,7 +21,6 @@ import Ember from 'ember';
 * Note: each of the above actions are handled by a different controller.
 
 * Each controller must have these properties:
-* - validationOnProgress
 * - isUnique
 * - actionToExec
 * - newID
@@ -149,10 +148,6 @@ export default Ember.View.extend({
         var hasSlash = self.get('inputValue').indexOf('/') !== -1;
         if(hasSlash) {
           self.send('showInfo', 'hasSlash', true);
-          self.set('validInput', false); // *** check if validInput is used!
-        }
-        else {
-          self.set('validInput', false);
         }
       }
     };
@@ -166,7 +161,6 @@ export default Ember.View.extend({
         var notUnique = !self.get('controller').get('isUnique');
         var isModified = self.get('isModified');
         if(isModified && notUnique) {
-          self.set('validInput', false);
           self.send('showInfo', 'notUnique', true);
         }
       }
@@ -184,8 +178,7 @@ export default Ember.View.extend({
         else {
         // This is used to disable the action btn in the rename
         // form when the name is the same with the original
-        // (the one that exists in store
-        // NOT SURE IF THE USER WILL UNDERSTAND IT!
+        // (the one that exists in store)
         self.get('controller').set(self.get('actionFlag'), true);
         }
       }
@@ -196,8 +189,7 @@ export default Ember.View.extend({
         else {
         // This is used to disable the action btn in the rename
         // form when the name is the same with the original
-        // (the one that exists in store
-        // NOT SURE IF THE USER WILL UNDERSTAND IT!
+        // (the one that exists in store)
         self.get('controller').set(self.get('actionFlag'), true);
         }
       }
@@ -209,21 +201,16 @@ export default Ember.View.extend({
   warningVisible: false,
   warningMsg: '',
 
-  validInput: true, // is this used???? ***
 
   eventManager: Ember.Object.create({
     keyUp: function(event, view) {
       var escKey = 27;
-      // var enterKey =
-     event.stopPropagation();
+      event.stopPropagation();
       if(event.keyCode == escKey) {
         $('body .close-reveal-modal').trigger('click');
         view.$().siblings('.js-cancel').trigger('click');
       }
-      // not sure if it is need it
-      // else if(event.keyCode == enterKey) {
 
-      // }
       else {
         /*
          * should concern to disable the action button at the start
@@ -238,21 +225,17 @@ export default Ember.View.extend({
 
         if(view.get('notEmpty')) {
             view.get('controller').set('notEmptyInput', true);
-            //Ember.run.debounce(view, function() {
             /*
             * Each function checks the trimmed value of the input only if
             * the function before it, hasn't detect an error. We do this
             * because we display one error at the time.
             */
             view.get('checkSlash')();
-            //  if current_path === '/' -> I allow maxLength-1 [ToFix]
             view.get('manipulateSize')();
             view.get('isUnique')();
             view.get('allowAction')();
-          //}, 300);
         }
         else {
-          console.log('=======>>>', view.get('actionFlag'))
           view.get('controller').set(view.get('actionFlag'), true);
         }
       }
