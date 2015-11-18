@@ -9,7 +9,6 @@
             {{#link-to 'container' (encode-path container.model.name)}}
                 {{fa-icon "fa-trash trash-icon"}}
                 <span>{{container.model.name}}</span>
-                {{fa-icon "fa-external-link"}}
             {{/link-to}}
             {{view "select" content=container.availableProjects
                         optionLabelPath="content.select_label"
@@ -24,7 +23,6 @@
             {{#link-to 'container' (encode-path container.model.name)}}
                 {{fa-icon "fa-trash trash-icon"}}
                 <span>{{container.model.name}}</span>
-                {{fa-icon "fa-external-link"}}
             {{/link-to}}
         </h4>
 
@@ -32,16 +30,16 @@
     </div>
     {{#if gridView}}
         <dl>
-            <dt>Items</dt>
-            <dd>{{container.model.count}}</dd>
-            <dt>Size</dt>
-            <dd>{{convert-bytes container.model.bytes}}</dd>
             <dt>Modified</dt>
             <dd>
                 <span aria-label={{container.model.last_modified_human}} class="snf-tooltip snf-tooltip-n">
                     {{time-from-now container.model.last_modified }}
                 </span>
             </dd>
+            <dt>Items</dt>
+            <dd>{{container.model.count}}</dd>
+            <dt>Size</dt>
+            <dd>{{convert-bytes container.model.bytes}}</dd>
         </dl>
     {{/if}}
     <div class="col select-col">

@@ -2,7 +2,7 @@ import Ember from 'ember';
 import {DropFileViewMixin} from 'snf-ui/snf/dropfile/mixins';
 import {SnfAddHandlerMixin} from 'snf-ui/snf/dropfile/synnefo';
 
-export default Ember.View.extend(DropFileViewMixin, SnfAddHandlerMixin, {
+export default Ember.View.extend({
 	layoutName: 'object',
 	tagName: 'li',
   classNameBindings: ['isSelected', 'loading', 'new'],
@@ -158,20 +158,21 @@ export default Ember.View.extend(DropFileViewMixin, SnfAddHandlerMixin, {
           this.get('controller').send(actions[0], actions[1])
         }
         else {
-          this.$('input').val('');
+          this.$('input').val(this.get('controller').get('model').get('stripped_name'));
           this.send('toggleEdit');
+          this.get('controller').set('resetInput', true);
         }
       }
     },
-		toggleEdit: function() {
-			this.$('.js-show-edit').toggleClass('hidden');
+
+    toggleEdit: function() {
+      this.$('.js-show-edit').toggleClass('hidden');
       this.$('.js-input-single').toggleClass('hidden');
-			this.$('.js-input-single').toggleClass('open');
-			this.$('.js-hide-edit').toggleClass('hidden');
-			this.$('.js-name').toggleClass('hidden');
+      this.$('.js-input-single').toggleClass('open');
+      this.$('.js-hide-edit').toggleClass('hidden');
+      this.$('.js-name').toggleClass('hidden');
       this.$(".input-with-valid").find('input')[0].focus();
-			this.get('controller').set('resetInput', true);
       this.set('wait', false);
-		}
-	}
+    }
+  }
 });

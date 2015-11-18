@@ -67,6 +67,23 @@ li.drag-active {
             text-indent: 2px;
             color: white;
         }
-    
+    }
+    .error {
+        padding: 0 0.9375rem;
+        margin: auto;
+        color: $theme-alert-color;
+        background: transparent;
+        font-size: inherit;
+        font-style: normal;
+        em {
+            color: $theme-alert-color;
+            cursor: pointer;
+            font-style: normal;
+            margin-left: rem-calc(8);
+            &:hover {
+                color: darken($theme-alert-color, 10%);
+            }
+        }
+
     }
 }

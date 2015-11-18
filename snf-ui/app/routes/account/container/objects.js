@@ -1,10 +1,12 @@
 import Ember from 'ember';
 import DS from 'ember-data';
+import EscapedParamsMixin from 'snf-ui/mixins/escaped-params';
 
 var Promise = Ember.RSVP.Promise;
 
-export default Ember.Route.extend({
+export default Ember.Route.extend(EscapedParamsMixin, {
   
+  escapedParams: ['path'],
   pathQuery: false,
 
   paramFor: function(param, name) {
@@ -18,7 +20,8 @@ export default Ember.Route.extend({
     query = {
       'container_id': account.get('id') + '/' + params.container_name,
       'path': params.path,
-      'pathQuery': this.get('pathQuery')
+      'pathQuery': this.get('pathQuery'),
+      'delimiter': '/'
     };
     contId = account.get('id') + "/" + params.container_name;
     this.set('cont', this.store.findById('container', contId));
@@ -37,7 +40,7 @@ export default Ember.Route.extend({
     controller.set('account', this.get('account'));
     var id = this.get('cont.id') + '/' + this.get('path');
     this.store.find('object', id).then(function(el){
-      controller.set('allowed_to', el.get('allowed_to') || 'read');
+      controller.set('parent_dir', el);
     });
 
   },

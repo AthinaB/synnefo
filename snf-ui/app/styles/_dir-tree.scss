@@ -6,14 +6,21 @@
     li {
         font-size: rem-calc(14);
         list-style: none outside none;
-        word-break: break-word;
+        word-break: break-all;
     }
     .fa-share-alt {
         font-size: rem-calc(16);
     }
+    .fa-archive {
+        font-size: rem-calc(16);
+        width: rem-calc(20);
+    }
+    .fa-trash {
+        font-size: rem-calc(18);
+        width: rem-calc(20);
+    }
     .toggle-icon {
         font-size: rem-calc(10);
-     
     }
 }
 

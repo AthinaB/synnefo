@@ -34,7 +34,7 @@ export default {
     },
     error: {
       title: 'Error report',
-      intro: 'Oups... Something went wrong.',
+      intro: 'Oops... Something went wrong.',
     },
     groups: {
       title: 'Manage groups',
@@ -98,7 +98,7 @@ export default {
   global: {
     choose_theme: 'Choose theme: ',
     prompt_feedback: 'Contact us',
-    prompt_quotas: 'File Storage Usage',
+    prompt_quotas: 'Usage',
   },
 
   icon_label: {
@@ -113,7 +113,8 @@ export default {
     view: 'view',
   },
 
-  cannot_undo_action: 'The action cannot be undone',
+  cannot_undo_action: 'The action cannot be undone.',
+  cannot_rename_container: 'Containers cannot be renamed.',
   disable_public_sharing_for_folders: 'Public sharing is currently disabled for folders',
   private_sharing_explain: 'Only people explicitly granted permission can access. Sign-in required.',
   public_sharing_explain: 'Anyone who has the public link can access. No sign-in required.',

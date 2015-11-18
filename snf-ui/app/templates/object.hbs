@@ -33,15 +33,15 @@
      
                 </span>
             </span>
-        {{/if}}
+            {{/if}}
         {{#if object.canRename}}
-            <form {{action 'reset' 'validateRename,renameObject' target=view on="submit"}}>
-                {{view "input-single" value=object.model.stripped_name placeholder=object.model.stripped_name cls="hidden" oldValue=object.model.stripped_name}}
-                <a class="hidden js-hide-edit icon-a snf-tooltip snf-tooltip-n" aria-label="Rename" {{action 'reset' 'validateRename,renameObject' target=view}}>{{fa-icon "fa-check fa-fw"}}</a>
-                <a class="js-cancel js-hide-edit hidden icon-a snf-tooltip snf-tooltip-n" aria-label="Cancel" {{action 'reset' target=view}}>{{fa-icon "fa-times fa-fw"}}</a>
+            <form {{action 'renameObject' on="enter" }}>
+                {{view "input-single" value=object.model.stripped_name cls="hidden" oldValue=object.model.stripped_name actionFlag='freezeRenameObject'}}
+                <button class="hidden js-hide-edit icon-a snf-tooltip snf-tooltip-n" disabled={{object.freezeRenameObject}} aria-label="Rename" {{action 'renameObject'}}>{{fa-icon "fa-check fa-fw"}}</button>
+                <button class="js-cancel js-hide-edit hidden icon-a snf-tooltip snf-tooltip-n" aria-label="Cancel" {{action 'reset' target=view}}>{{fa-icon "fa-times fa-fw"}}</button>
             </form>
 
-            <a class="js-show-edit icon-a snf-tooltip snf-tooltip-n" aria-label="Edit name">{{fa-icon "fa-pencil fa-fw"}}</a>
+            <button class="js-show-edit icon-a snf-tooltip snf-tooltip-n" aria-label="Edit name">{{fa-icon "fa-pencil fa-fw"}}</button>
         {{/if}}
         {{#if object.model.public_link}}
             <span class="right">
@@ -87,12 +87,12 @@
 
         {{#if object.canShare}}
             <a {{action 'openShare'}} class="button small snf-tooltip snf-tooltip-n" aria-label="Share">
-                {{fa-icon "fa-share-alt"}}
+                {{fa-icon "fa-share-alt" fixedWidth=true}}
             </a>
         {{/if}}
         {{#if object.canRestore}}
-            <a {{action 'initAction' 'openRestore'}} class="button small">
-                Restore
+            <a {{action 'initAction' 'openRestore'}} class="button small snf-tooltip snf-tooltip-n" aria-label="Restore">
+                {{fa-icon "fa-reply" fixedWidth=true}}
             </a>
         {{/if}}
     </div>
@@ -135,7 +135,7 @@
         {{/if}}
 
         {{#if object.canDownload}}
-            <a {{bind-attr href=object.view_src}} target="_blank" class="button small snf-tooltip {{iconTooltipDir}}" aria-label="Download">{{fa-icon "fa-download fa-fw"}}</a>
+            <a {{bind-attr href=object.view_src}} target="_blank" class="button small snf-tooltip {{iconTooltipDir}}" aria-label="Download" download>{{fa-icon "fa-download fa-fw"}}</a>
         {{/if}}
         {{#if object.canVersions}}
             <a {{action 'initAction' 'openVersions'}} class="icon-a snf-tooltip {{iconTooltipDir}}" aria-label="Manage object versions">{{fa-icon "fa-database fa-fw"}}</a>

@@ -30,7 +30,7 @@ var trimBuffer = function(array, filter) {
 var SnfUploaderTransport = ChunkedTransport.extend({
 
   hasherUrl: function() {
-    return this.get("uploader.worker_url");
+    return $("meta[name=hasherUrl]").attr("content") || this.get("uploader.worker_url");
   }.property(),
 
   fileParam: 'X-Object-Data',
@@ -49,15 +49,32 @@ var SnfUploaderTransport = ChunkedTransport.extend({
     return {'bs': 4194304, 'hash': 'sha256'}
   },
     
+  workersPool: {},
+
+  getHashWorker: function(url) {
+    var workersPool = this.workersPool;
+    var pool = workersPool[url] = workersPool[url] || [];
+    if (pool.length > 0) {
+      return pool.pop();
+    } else {
+      var worker = new Worker(url);
+      worker.__release = function() {
+        pool.push(worker);
+      }
+      return worker;
+    }
+  },
+
   computeHash: function(buffer, params) {
-    var hasher = new window.Worker(this.get("hasherUrl"));
+    var hasher = this.getHashWorker(this.get("hasherUrl"));
     return new Promise(function(resolve, reject) {
       hasher.onmessage = function(e) {
         var hash = e.data[0];
-        hasher.terminate();
         resolve(hash);
+        hasher.__release();
       };
       hasher.onerror = function(err) { 
+        console.error("Hasher error", err);
         hasher.terminate();
         reject(err); 
       }
@@ -201,7 +218,7 @@ var SnfUploaderTransport = ChunkedTransport.extend({
 
   uploadMissing: function(contURL, file, missing, progress) {
     return new Promise(function(resolve, reject) {
-      async.timesLimit(missing.length, 3, function(n, next) {
+      async.timesLimit(missing.length, 5, function(n, next) {
         if (file._aborted) { next("abort"); return; }
         var chunk = missing.get(n);
         this.uploadChunk(contURL, this.getArrayBuffer(file, chunk), progress)
@@ -224,6 +241,7 @@ var SnfUploaderTransport = ChunkedTransport.extend({
     chunkedPromise = this.doUploadChunked(url, files, paths, progress);
     return new XHRPromise(chunkedPromise.xhr, function(resolve, reject) {
       chunkedPromise.catch(function(error) {
+        console.error("Chunked promise failed", error);
         // distinguish between user requested abort and other server errors
         if (error && error.jqXHR && error.jqXHR.status === 0) { error= "abort"; }
         if (error === "abort" || (error && error[0] === "abort")) {
@@ -259,7 +277,7 @@ var SnfUploaderTransport = ChunkedTransport.extend({
     // resolve container/path parts
     fileURL = url;
     cont = path.split("/").splice(0, 1).join();
-    contURL = url.split(path + "/" + file.name).splice(0, 1).join() + cont;
+    contURL = url.split(escape(path + "/" + file.name)).splice(0, 1).join() + cont;
 
     hashParams = this.getHashParams();
     

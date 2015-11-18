@@ -14,7 +14,8 @@ export default Ember.Mixin.create({
     // Catches js errors
     Ember.onerror = function(error) {
       if(error.stack) {
-        if(!error.stack.includes('RSVP')) {
+        console.log(error.stack)
+        if(!error.stack.includes('RSVP') && !error.stack.includes('ajaxError')) {
           console.error('[Ember.onerror] Error Report\n', error.message, error.stack);
           self.send('showErrorDialog', error);
         }
@@ -92,7 +93,7 @@ export default Ember.Mixin.create({
 			var errors = this.get('errors');
 
 			// handling of server errors
-			if(error.status) {
+			if(error && error.status) {
 				let msg = 'message:' + error.status + ' ' + error.statusText + '\n';
 				let stack = 'stack:' + error.responseText + '\n';
 				let time = 'timestamp:' + timestamp + '\n';
@@ -105,7 +106,7 @@ export default Ember.Mixin.create({
 
 			}
 			// handling of js errors
-			else if(error.stack) {
+			else if(error && error.stack) {
 				let msg = 'message:' + error.message + '\n';
 				let stack = 'stack:' + error.stack + '\n';
 				let time = 'timestamp:' + timestamp + '\n';
